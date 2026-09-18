@@ -28,6 +28,15 @@ import './PhotoEvidenceGroup.css'
  * (KRD F8) stays a plain div. Nothing to enlarge is not the same as something
  * you may tap and get nothing.
  *
+ * THREE TILE STATES, not two. The third is `placeholder` — an empty white box
+ * reading "Placeholder", used on a dataset that is not allowed to invent an
+ * image (Live; see state/productImages.js). It is deliberately not the striped
+ * frame: the stripes mean an image that should have arrived did not, and this
+ * means the prototype has nothing true to put here. On the Live surface, where
+ * every other pixel is traceable to the sheet, that difference is the whole
+ * point — a reviewer has to be able to tell "we lost this photo" from "this
+ * tile is scaffolding".
+ *
  * No byline under a group head. "Taken by you at pickup · tap to enlarge" was
  * a second line of grey type on every group, and neither half earned it: the
  * heading already says whose photos these are, and "tap to enlarge" described
@@ -72,6 +81,10 @@ export default function PhotoEvidenceGroup({ groups, onOpen }) {
             >
               <img className="photo-group__img" src={ph.src} alt={ph.label} loading="lazy" />
             </button>
+          ) : ph.placeholder ? (
+            <div className="photo-group__frame photo-group__frame--placeholder">
+              <span className="photo-group__placeholder">Placeholder</span>
+            </div>
           ) : (
             <div className="photo-group__frame photo-group__frame--missing">
               <span className="photo-group__missing">{ph.label}</span>

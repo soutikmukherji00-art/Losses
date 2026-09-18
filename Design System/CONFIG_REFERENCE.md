@@ -832,7 +832,7 @@ sitting directly above **Reset Data**. Two fixtures of identical shape:
 | **Mock data** (default) | `src/data/mockData.json` — every loss type crossed with every lifecycle state across `marked` / `wrong` / `closed`. Dated around a "today" of 15 Aug. | Reviewing the design. It is what makes § 4's presets reachable and what shows all the use cases at once. |
 | **Live data** | `src/data/liveData.json` — the six real audited losses of one real Pilot, transcribed from `External Memory/Debit reason master table.xlsx`, sheet "Sample data": real AWBs, real hubs, real amounts (₹2,368 in all), real audit date (16 Sep, against a "today" of 18 Sep) and real photographs. All six await his answer; nothing else is in the lists. | Taking the prototype to that Pilot. Nothing on screen is invented, so every figure survives him checking it. |
 
-**Four things the dataset owns besides the loss rows:**
+**Five things the dataset owns besides the loss rows:**
 
 - `today` — read by `state/helpers.js` as `TODAY`, which every countdown and
   cycle test derives from. It is per-dataset because the Live losses were
@@ -847,8 +847,29 @@ sitting directly above **Reset Data**. Two fixtures of identical shape:
   `resolveCaseView.js`) prefers these over the stock catalogue, and the L0 row
   thumb prefers `photos.own[0]`, so the list and the page it opens show the
   same real photo. Every Live row has them; no Mock row does.
+- `stockPhotos` — whether the catalogue above is allowed to **stand in** for a
+  photograph the dataset does not have. `true` on Mock, **`false` on Live**.
+  Where it is false `productImage()` returns nothing at all, and the tile that
+  asked for it renders an empty white box reading **"Placeholder"**. Every
+  image on the Live surface has to be traceable to the sheet — a soap bar the
+  Pilot never handled, sitting under his own pickup photographs, is the one
+  invented thing on a screen whose whole claim is that nothing on it is
+  invented. Turning the catalog layer on over Live is therefore a row of
+  placeholders (bar its first tile, below), which is the honest rendering of
+  an arrangement whose content that dataset does not have.
+
+  The placeholder is deliberately **not** the striped image-missing frame
+  (KRD F8). The stripes say a photograph we expected did not arrive; the white
+  box says the prototype has nothing true to put here. On Live that is the
+  difference between a defect and a known gap, and a reviewer has to be able
+  to tell them apart.
 - `layerDefaults.catalogImages` — whether the catalog photo row starts on.
   On for Mock, off for Live; see § Registration-only layers above for why.
+
+  One thing that row does carry on Live: the wrong-pickup extract's real
+  listing cover (`catalog_image_link`) is its **first tile**. The row replaces
+  the reason's own `catalog` group, so without that the layer would swap the
+  one genuine catalogue photograph on the page for six tiles of nothing.
 
 **Switching reloads the page**, and that is deliberate rather than a
 limitation worked around: the dataset is read at import time by the date
@@ -858,8 +879,9 @@ control flipped once a demo. The choice persists in `localStorage`, and
 someone straight to one.
 
 **Adding a third dataset** is one JSON file plus one line in `DATASETS` in
-`activeDataset.js`. Give it a `today`, and give any row with real photographs
-a `photos` block.
+`activeDataset.js`. Give it a `today`, give any row with real photographs a
+`photos` block, and decide its `stockPhotos`: a fixture that claims to be
+somebody's real month should say `false`.
 
 ### Where the reason copy comes from
 

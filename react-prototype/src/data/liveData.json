@@ -23,6 +23,8 @@
     "_note": "The stock catalogue row is OFF here. Every row in this dataset carries the Pilot’s REAL photographs, and the catalogue layer is three dummy product shots (a face wash, a hair oil, a soap bar) that have nothing to do with the parcels he actually handled. Six tiles of somebody else’s products under his own pickup photos would be the one invented thing on a screen whose whole claim is that nothing on it is invented. Note this is the LAYER, not the wrong-pickup rows' own `catalog` photo — that one is the real listing cover off the sheet's `catalog_image_link`, and it shows whatever the toggle says. The toggle is still in the panel — flip it to show the arrangement.",
     "catalogImages": false
   },
+  "_stockPhotosNote": "Whether the stock product catalogue may stand in for a photograph. FALSE here. Every image on the Live surface has to be traceable to the sheet \u2014 the Pilot's own pickup/delivery/QC photographs and, on a wrong pickup, the listing cover off `catalog_image_link`. `productImages` is three dummy shots of things he never handled, and a page whose whole claim is that nothing on it is invented cannot put them under his own photos. Where there is no real image the tile says so \u2014 see state/productImages.js.",
+  "stockPhotos": false,
   "productImages": [
     "/catalog/product-1.avif",
     "/catalog/product-2.avif",

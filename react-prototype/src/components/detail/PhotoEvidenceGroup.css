@@ -73,6 +73,27 @@
   display: block;
 }
 
+/* SCAFFOLDING, declared as such. An empty WHITE box — it overrides the shared
+   frame's striped ground, because the stripes are the image-missing state and
+   these two must not be confused: one says a photograph we expected did not
+   arrive, the other says the prototype has nothing true to put here. On the
+   Live surface that is the difference between a defect and a known gap.
+
+   It keeps the frame's hairline and its square, so the row still reads as a
+   row of photo tiles and the layout under review is the layout that ships. */
+.photo-group__frame--placeholder {
+  cursor: default;
+  background: var(--valmo-white);
+}
+
+.photo-group__placeholder {
+  padding: 0 var(--gap-stack);
+  color: var(--text-tertiary);
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  text-align: center;
+}
+
 /* KRD F8's image-missing state — the label stands in for the photo. */
 .photo-group__missing {
   padding: 0 var(--gap-stack);

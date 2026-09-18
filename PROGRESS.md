@@ -1198,3 +1198,29 @@ real photograph URLs.
   Losses head "₹210 deducted" → "₹0 adjusted"; historic *deducted* ₹306 → ₹96 with the uncovered
   24 Jul debit still standing. Full preset sweep, both datasets × grace on/off: no blank screens,
   zero console errors.
+
+- [x] **(18 Sep) Live data no longer borrows the stock catalogue — it says "Placeholder".**
+      The catalog photo row on Live was six dummy product shots (a face wash, a hair oil, a soap
+      bar) sitting under the Pilot's own pickup photographs. That is the one invented thing on a
+      surface whose whole claim is that nothing on it is invented, and it is worse than an empty
+      tile: a reviewer cannot tell it from data.
+
+      New dataset field `stockPhotos` — `true` on Mock, `false` on Live. Where it is false
+      `productImage()` returns nothing at all, so the catalogue cannot stand in anywhere: not in the
+      catalog row, not in an evidence group the record has no photo for, not in an L0 row thumb
+      (`ListRow` now guards the `<img>` rather than rendering a broken-image glyph). The tile that
+      asked for one becomes an empty **white box reading "Placeholder"** — a third tile state, and
+      deliberately not the striped image-missing frame: the stripes mean a photograph we expected
+      did not arrive, the white box means the prototype has nothing true to put here. On Live that
+      is the difference between a defect and a known gap.
+
+      One image was rescued in the process: the catalog row REPLACES the reason's own `catalog`
+      group, so on a wrong pickup it was swapping the extract's real `catalog_image_link` cover for
+      six tiles of nothing. The row's first tile now carries that real cover on any dataset — which
+      is what its own docblock had always promised, back when "the same offset" still resolved to
+      the same image.
+
+- Verified: full preset sweep, both datasets × catalog layer off/on. Placeholder tiles appear on
+  **Live + layer on only** (29 across its 10 presets) and never on Mock or on Live with the layer
+  off; zero broken images, zero blank screens, zero console errors on all four passes. Mock renders
+  byte-identically to before.

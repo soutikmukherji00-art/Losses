@@ -50,6 +50,8 @@
     "_note": "The stock catalogue row is ON here: Mock rows have no real photographs, so the listing row is the only thing on the page that shows what the product was, and it is the arrangement being reviewed.",
     "catalogImages": true
   },
+  "_stockPhotosNote": "Whether the stock product catalogue may stand in for a photograph. TRUE here: the Mock rows carry no real photographs at all, so the catalogue is what makes the evidence groups and the list thumbnails legible, and nothing in this fixture is claiming to be anyone's real month.",
+  "stockPhotos": true,
   "productImages": [
     "/catalog/product-1.avif",
     "/catalog/product-2.avif",

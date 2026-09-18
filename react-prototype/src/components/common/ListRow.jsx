@@ -79,7 +79,12 @@ export default function ListRow({ row, onClick }) {
   // it, and two of the four designs put it there.
   return (
     <div className="list-row" data-design={design.id} data-clock={design.clock} onClick={onClick}>
-      {design.thumb && <img className="list-row__thumb" src={row.thumb} alt="" />}
+      {/* `row.thumb` is null on a dataset that may not invent one and a row
+          that carries no photograph of its own (state/productImages.js). An
+          <img> with no source is a broken-image glyph, so the row simply
+          renders without a thumb — the same shape the no-image line-item
+          designs already use. */}
+      {design.thumb && row.thumb && <img className="list-row__thumb" src={row.thumb} alt="" />}
 
       <div className="list-row__body">
         <div className="list-row__title">{heading}</div>

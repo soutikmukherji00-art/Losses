@@ -1,7 +1,7 @@
 import { getReason } from '../config/lossReasons.js'
 import { getCaseState, ACTION_BLOCKS } from '../config/caseStates.js'
 import { addDays, fmt, parseShortDate, TODAY } from './helpers.js'
-import { productImage } from './productImages.js'
+import { productImage, STOCK_PHOTOS } from './productImages.js'
 
 /**
  * THE TEMPLATE. Every loss detail page (L1) in the app is this function's
@@ -261,15 +261,32 @@ const CATALOG_IMAGE_COUNT = 6
  * already showing beside "Photo at pickup" — the comparison the page is built
  * on is preserved, and the row simply carries on past it.
  */
-const catalogGroup = (record) => ({
-  title: 'Catalog photos',
-  // The one group that overflows its row instead of dividing it.
-  scroll: true,
-  items: Array.from({ length: CATALOG_IMAGE_COUNT }, (_, n) => ({
-    label: `Catalog ${n + 1}`,
-    src: productImage(record.awb, EVIDENCE_ITEM_OFFSET.catalog + n) || null,
-  })),
-})
+const catalogGroup = (record) => {
+  // The row REPLACES the reason's own `catalog` group, so if that group had a
+  // real listing cover behind it the row has to carry it — otherwise turning
+  // the layer on would swap the one genuine catalogue photograph on the page
+  // (the wrong-pickup extract's `catalog_image_link`) for six tiles of
+  // nothing. That is the promise in this function's own docblock, kept on a
+  // dataset where "the same offset" no longer resolves to the same image.
+  const real = record.photos?.catalog?.[0] || null
+
+  return {
+    title: 'Catalog photos',
+    // The one group that overflows its row instead of dividing it.
+    scroll: true,
+    items: Array.from({ length: CATALOG_IMAGE_COUNT }, (_, n) => {
+      // Every tile past the first is the stock catalogue by definition — a
+      // listing's other angles, which no extract supplies. So on a dataset
+      // with no stand-ins (Live) they are placeholders, and that is the
+      // honest rendering: the arrangement stays reviewable without six
+      // photographs of a product the Pilot never handled being shown as his.
+      const src = (n === 0 && real)
+        || productImage(record.awb, EVIDENCE_ITEM_OFFSET.catalog + n)
+        || null
+      return { label: `Catalog ${n + 1}`, src, placeholder: !src && !STOCK_PHOTOS }
+    }),
+  }
+}
 
 /** F8: image set per reason-code mapping. Missing images → placeholder, never a blocked row. */
 function buildEvidence(reason, record, showCatalog) {
@@ -292,6 +309,13 @@ function buildEvidence(reason, record, showCatalog) {
       src: (record.photos && record.photos[group.group] && record.photos[group.group][n])
         || productImage(record.awb, EVIDENCE_ITEM_OFFSET[group.group] ?? 0)
         || null,
+      // A tile the dataset has no REAL image for, on a dataset that is not
+      // allowed to invent one. Distinct from the striped "image missing"
+      // state, which says an image that should exist did not arrive; this
+      // says the prototype has nothing true to put here and is not going to
+      // pretend otherwise.
+      placeholder: !STOCK_PHOTOS
+        && !(record.photos && record.photos[group.group] && record.photos[group.group][n]),
     })),
   }))
 
