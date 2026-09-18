@@ -1,0 +1,61 @@
+.screen-header {
+  display: flex;
+  /* Top-aligned, not centred: a subtitle must push the header DOWN, never
+     pull the title up. Centring moved the title 4px whenever an AWB was
+     present, so it shifted on every navigation into a case. */
+  align-items: flex-start;
+  gap: var(--gap-lead);
+  box-sizing: border-box;
+  /* The same 56px band AppHeader uses. At 12px of padding around a 24px title
+     this came to 48 — so a title moved 4px UP the moment a Pilot pushed a
+     page, on every navigation in the app. */
+  min-height: var(--bar-height);
+  padding: var(--pad-row) var(--pad-screen);
+  background: var(--valmo-white);
+}
+.screen-header[data-divider="true"] {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* 24px glyph, 48x48 target — Android's floor. The negative margin keeps the
+   arrow optically where it was against the header padding. */
+.screen-header__back {
+  flex: none;
+  width: var(--tap-target-min);
+  height: var(--tap-target-min);
+  margin: calc(-1 * var(--tap-bleed)) 0 calc(-1 * var(--tap-bleed)) calc(-1 * var(--tap-bleed));
+  /* Centres the 24px glyph on the 24px title line above the text block. */
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.screen-header__text {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 17/24 Bold, tracking 0 — the DS's page title, the same object the Earnings
+   header already used. A pushed page was rendering its title a whole step
+   smaller than the shell's, so "Losses" and "Delivery photo not clear" were
+   two different sizes of the same thing. The negative tracking went with it:
+   letterSpacing is 0 everywhere in the reference pages. */
+.screen-header__title {
+  font-size: var(--heading-02-size);
+  line-height: var(--heading-02-lh);
+  font-weight: var(--heading-02-weight);
+  color: var(--text-primary);
+}
+
+.screen-header__sub {
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--fw-book);
+  color: var(--text-secondary);
+  margin-top: var(--gap-tight);
+}

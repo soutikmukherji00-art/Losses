@@ -1,0 +1,84 @@
+.breakup__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.breakup__row {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-lead);
+  width: 100%;
+  min-height: var(--tap-target-min);
+  padding: var(--pad-row) var(--pad-screen);
+  border: none;
+  border-top: 1px solid var(--border-subtle);
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.breakup__list li:first-child .breakup__row {
+  border-top: none;
+}
+
+.breakup__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-subline);
+}
+
+.breakup__label {
+  font-size: var(--body-01-size);
+  line-height: var(--body-01-lh);
+  font-weight: var(--fw-medium);
+  color: var(--text-primary);
+}
+
+.breakup__sub {
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--fw-book);
+  color: var(--text-secondary);
+}
+
+/* Same three tones the list rows use, for the same three questions — money
+   gone (settled) and money the Pilot kept (kept). One grammar for an amount,
+   wherever it appears. */
+.breakup__amount {
+  flex: none;
+  display: flex;
+  align-items: baseline;
+  gap: var(--gap-inline);
+  font-family: var(--font-brand);
+  font-size: var(--body-01-size);
+  line-height: var(--body-01-lh);
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+}
+.breakup__amount[data-tone="settled"] { color: var(--text-secondary); }
+.breakup__amount[data-tone="kept"]    { color: var(--good-ink); }
+
+.breakup__was {
+  font-family: var(--font-brand);
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--fw-book);
+  color: var(--text-tertiary);
+}
+
+.breakup__chev {
+  flex: none;
+  display: flex;
+  margin-right: calc(-1 * var(--space-4));
+}
+
+/* The total sits on the app ground, off the white rows, so it reads as the
+   sum of what is above it rather than one more row in the list. */
+.breakup__total {
+  margin-top: var(--gap-group);
+  padding: 0 var(--pad-screen);
+  border-top: 1px solid var(--border-default);
+}

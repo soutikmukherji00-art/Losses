@@ -1,0 +1,45 @@
+.summary-card-row {
+  display: flex;
+  gap: var(--gap-group);
+  padding: var(--pad-row) var(--pad-screen);
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+.summary-card {
+  flex: none;
+  width: 148px;
+  padding: var(--pad-panel);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken);
+  cursor: pointer;
+}
+
+.summary-card[data-active="true"] {
+  background: var(--valmo-tint-1);
+  border-color: var(--valmo-navy);
+}
+
+.summary-card__label {
+  font-size: var(--body-04-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.summary-card__amount {
+  font-size: var(--heading-02-size);
+  line-height: var(--heading-02-lh);
+  font-weight: var(--fw-bold);
+  margin-top: var(--space-6);
+}
+
+.summary-card__sub {
+  font-size: var(--body-04-size);
+  line-height: var(--body-03-lh);
+  color: var(--text-secondary);
+  margin-top: var(--gap-tight);
+}

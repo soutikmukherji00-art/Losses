@@ -1,0 +1,94 @@
+.photo-group__row {
+  display: flex;
+  gap: var(--gap-stack);
+}
+
+/* The catalog row runs past the right edge instead of dividing itself. At a
+   30% tile the fourth one is part-visible there, which is what says "scrolls"
+   — no chevron, no dots, the cut-off tile is the affordance. `fe-scroll` (see
+   styles/global.css) takes the scrollbar away.
+
+   Tiles must not shrink to fit here, or six of them would simply squeeze into
+   the row and there would be nothing to scroll. */
+.photo-group__row--scroll {
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+}
+.photo-group__row--scroll .photo-group__item {
+  scroll-snap-align: start;
+}
+
+/* 30% wide, and NOT allowed to grow into the space left over: a row of two
+   keeps its tiles at thumbnail scale with the remainder falling at the end,
+   rather than two half-page squares. The tile is a way in to the photo, not
+   the photo itself — tapping enlarges. */
+.photo-group__item {
+  flex: 0 0 30%;
+  min-width: 0;
+}
+
+/* The square. Fixed 1:1 whatever the photo's own ratio, so two frames set
+   side by side differ only in what is inside them.
+
+   A tile holding a photo is a <button> (it opens the viewer); a tile standing
+   in for a missing image is a div. Both wear this class, so the rules below
+   carry the button reset — `width` and `padding` because a UA-styled button
+   sizes to its content rather than filling its column, `font` because it
+   would otherwise leave the page's type stack. */
+.photo-group__frame {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  padding: 0;
+  font: inherit;
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: var(--radius-md);
+  /* A product shot is mostly pale packaging on a white ground, so without an
+     edge the tile has no boundary — the photo just fades into the page and
+     "two photos" reads as one smear. Same 0.5px the DS puts on its badges:
+     enough to bound the shape, not enough to become a frame. */
+  border: 0.5px solid var(--border-subtle);
+  overflow: hidden;
+  background: repeating-linear-gradient(45deg, #E7E7EA, #E7E7EA 8px, #F2F2F4 8px, #F2F2F4 16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.photo-group__frame:focus-visible {
+  outline: 2px solid var(--valmo-navy);
+  outline-offset: 2px;
+}
+
+/* Nothing to enlarge, so nothing to invite a tap. */
+.photo-group__frame--missing {
+  cursor: default;
+}
+
+.photo-group__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* KRD F8's image-missing state — the label stands in for the photo. */
+.photo-group__missing {
+  padding: 0 var(--gap-stack);
+  color: var(--text-secondary);
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  text-align: center;
+}
+
+.photo-group__caption {
+  margin-top: var(--space-4);
+  color: var(--text-tertiary);
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

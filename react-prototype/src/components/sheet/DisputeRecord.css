@@ -1,0 +1,23 @@
+/* No panel, no tint, no border. The section's own white ground and the type
+   scale do the work — a standing is a fact, not an alert. */
+.dispute-record__figure {
+  font-size: var(--display-01-size);
+  line-height: var(--display-01-lh);
+  font-weight: var(--display-01-weight);
+  color: var(--text-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The one place emphasis is earned: the last count before the pause. Ink
+   only — the same amber the app uses for a live consequence. */
+.dispute-record[data-at-limit] .dispute-record__figure {
+  color: var(--text-warning-ink);
+}
+
+.dispute-record__byline {
+  margin-top: var(--gap-tight);
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--fw-book);
+  color: var(--text-secondary);
+}

@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loss Detail Architecture Audit & Redesign</title>
+    <style>
+        :root {
+            --bg-page: #f0f2f5;
+            --nav-bg: #1a202c;
+            --nav-text: #a0aec0;
+            --nav-active: #ffffff;
+            --primary: #3182ce;
+            --text-main: #2d3748;
+            --text-muted: #718096;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+
+            /* Tones */
+            --tone-risk-bg: #FFF4E5; --tone-risk-border: #EFD9B0; --tone-risk-text: #A05E03;
+            --tone-progress-bg: #F6F9FE; --tone-progress-border: #C6D6EE; --tone-progress-text: #092D5E;
+            --tone-good-bg: #F3FAF5; --tone-good-border: #C7E3D0; --tone-good-text: #1B7F3B;
+            --tone-neutral-bg: #f5f5f5; --tone-neutral-border: #cccccc; --tone-neutral-text: #555555;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 280px;
+            background-color: var(--nav-bg);
+            color: var(--nav-text);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h2 {
+            margin: 0;
+            color: white;
+            font-size: 1.2rem;
+            line-height: 1.4;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--nav-text);
+            text-align: left;
+            padding: 15px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-btn:hover { color: white; background-color: #2d3748; }
+        .nav-btn.active { color: var(--nav-active); border-left-color: var(--primary); background-color: #2d3748; font-weight: 600; }
+
+        /* Main Content */
+        .main-content {
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .section { display: none; max-width: 900px; margin: 0 auto; animation: fadeIn 0.4s ease-in-out; }
+        .section.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { color: #1a202c; border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-top: 0; }
+        h3 { color: #2b6cb0; margin-top: 30px; }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        /* Accordion for Gaps */
+        .accordion {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 10px;
+            background: white;
+            overflow: hidden;
+        }
+        .accordion-header {
+            width: 100%; text-align: left; background: #f7fafc; padding: 15px;
+            border: none; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between;
+        }
+        .accordion-header:hover { background: #edf2f7; }
+        .accordion-content { padding: 0 15px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .accordion-content p { margin: 15px 0; }
+        .accordion.open .accordion-content { max-height: 500px; }
+
+        .sev-badge {
+            padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; color: white;
+        }
+        .sev-1 { background: #e53e3e; }
+        .sev-2 { background: #dd6b20; }
+        .sev-3 { background: #3182ce; }
+
+        /* Interactive UI Blueprint Slots */
+        .slot-container { display: flex; flex-direction: column; gap: 8px; background: #edf2f7; padding: 20px; border-radius: 8px; }
+        .slot-item {
+            background: white; border: 1px dashed #a0aec0; padding: 15px; border-radius: 6px; cursor: pointer;
+            transition: all 0.2s; display: flex; justify-content: space-between; align-items: center;
+        }
+        .slot-item:hover { border-color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .slot-detail { display: none; background: #e2e8f0; padding: 10px 15px; border-radius: 0 0 6px 6px; margin-top: -8px; font-size: 0.9em; }
+        .slot-item.active-slot { border-color: var(--primary); border-bottom: none; border-radius: 6px 6px 0 0; background: #ebf8ff; }
+        .slot-item.active-slot + .slot-detail { display: block; }
+        .driven-by { font-size: 0.8rem; font-weight: bold; padding: 4px 8px; border-radius: 12px; }
+        .driven-reason { background: #d6bcfa; color: #44337a; }
+        .driven-state { background: #b2f5ea; color: #234e52; }
+        .driven-both { background: #fed7d7; color: #742a2a; }
+
+        /* Tone Cards */
+        .tone-card { padding: 20px; border-radius: 8px; border: 2px solid; margin-bottom: 10px; }
+        .tone-risk { background: var(--tone-risk-bg); border-color: var(--tone-risk-border); color: var(--tone-risk-text); }
+        .tone-progress { background: var(--tone-progress-bg); border-color: var(--tone-progress-border); color: var(--tone-progress-text); }
+        .tone-good { background: var(--tone-good-bg); border-color: var(--tone-good-border); color: var(--tone-good-text); }
+        .tone-neutral { background: var(--tone-neutral-bg); border-color: var(--tone-neutral-border); color: var(--tone-neutral-text); }
+
+        /* Matrix Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9em; }
+        th, td { border: 1px solid var(--border-color); padding: 10px; text-align: center; }
+        th { background: #edf2f7; font-weight: 600; }
+        td.valid { color: #38a169; font-weight: bold; }
+        td.unbuilt { color: #dd6b20; font-weight: bold; }
+        td.invalid { color: #a0aec0; }
+
+        /* Citations styling */
+        .cite { font-size: 0.8em; color: var(--text-muted); vertical-align: super; }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>Valmo Partner App</h2>
+            <div style="font-size: 0.85rem; margin-top: 5px; color: #a0aec0;">FE Loss Report Card Redesign</div>
+        </div>
+        <button class="nav-btn active" onclick="showSection('context')">Context & Objective</button>
+        <button class="nav-btn" onclick="showSection('taxonomy')">Taxonomy & Lifecycle</button>
+        <button class="nav-btn" onclick="showSection('audit')">Audit Findings & Gaps</button>
+        <button class="nav-btn" onclick="showSection('architecture')">Proposed Architecture</button>
+        <button class="nav-btn" onclick="showSection('slots')">UI Slot Blueprint</button>
+        <button class="nav-btn" onclick="showSection('visuals')">Visual & Matrix Rules</button>
+        <button class="nav-btn" onclick="showSection('nextsteps')">Open Items & Next Steps</button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+
+        <!-- Context Section -->
+        <div id="context" class="section active">
+            <h1>Context & Objective</h1>
+            <div class="card">
+                <h3>The Problem</h3>
+                <p>When a loss is attributed to a Pilot (FE), money is deducted with no explanation or chance to respond[cite: 2]. The goal of the Valmo KRD is to build a Losses section giving pilots visibility, proof, and a choice to accept or dispute before deduction[cite: 2].</p>
+                
+                <h3>Why this Presentation?</h3>
+                <p>An audit was conducted on the current live React prototype implementation of the L1 (loss detail) and L2 (sub-flow) screens[cite: 1]. The audit revealed significant inconsistencies in visual design and structural flaws that prevent scalability[cite: 1].</p>
+                <p>This presentation outlines the findings of the audit and proposes a new, unified template architecture to ensure the UI can handle business growth without requiring continuous code rewrites[cite: 1].</p>
+                
+                <div style="background: #ebf8ff; padding: 15px; border-left: 4px solid #3182ce; margin-top: 20px;">
+                    <strong>The Deliverable Mandate:</strong> The audit and template spec must be approved first; only then will the code refactoring occur[cite: 1]. This presentation serves as the published shareable artifact to facilitate that approval[cite: 1].
+                </div>
+            </div>
+        </div>
+
+        <!-- Taxonomy Section -->
+        <div id="taxonomy" class="section">
+            <h1>Canonical Taxonomy & Lifecycle</h1>
+            <p>The architecture must strictly follow the KRD definitions, not the hardcoded prototype[cite: 1].</p>
+            
+            <div class="card">
+                <h3>1. Reason Codes (The Real List)</h3>
+                <p>The load-bearing scalability requirement (NFR-5) demands that reasons are config-driven and the UI can grow to ~10 reasons without redesigning[cite: 1, 2].</p>
+                <ul>
+                    <li><strong>ICUD image junk:</strong> "Delivery photo not clear" (Debitable, 2 images)[cite: 1, 2].</li>
+                    <li><strong>Pickup image junk:</strong> "Pickup photo not clear" (Debitable, 2 images)[cite: 1, 2].</li>
+                    <li><strong>Pickup-vs-QC mismatch:</strong> "Secondary QC mismatch" (Debitable, 4 images)[cite: 1, 2].</li>
+                    <li><strong>Wrong-RVP pickup:</strong> Info only, never debited[cite: 1, 2].</li>
+                    <li><strong>Lost in Field (LiF):</strong> Already deducted day-0, recoverable via return[cite: 1, 2].</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>2. Case-State Lifecycle</h3>
+                <p>The UI must gracefully handle these central DB data states[cite: 1]:</p>
+                <div class="grid-2">
+                    <div>
+                        <ul>
+                            <li><strong>ATTRIBUTED:</strong> Open case, 7-day window[cite: 1].</li>
+                            <li><strong>OPEN_DISPUTE_PAUSED:</strong> Dispute paused due to consecutive wrong disputes[cite: 1].</li>
+                            <li><strong>IN_DISPUTE:</strong> 100% human review, 7-day SLA[cite: 1].</li>
+                            <li><strong>ACCEPTED:</strong> Business selects Y% for full deduction[cite: 1].</li>
+                            <li><strong>INFO_ONLY:</strong> Terminal state, no money at risk[cite: 1].</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <ul style="border-left: 2px solid #e2e8f0; padding-left: 20px;">
+                            <li><strong>DEBITED:</strong> Posts on resolution date[cite: 1].</li>
+                            <li><strong>WAIVED:</strong> Auto-waive triggers on SLA breach[cite: 1].</li>
+                            <li><strong>NOT_DEDUCTED:</strong> Accepted but business chose not to select[cite: 1].</li>
+                            <li><strong>RETURNED_CREDITED:</strong> LiF parcel returned successfully[cite: 1].</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Audit Findings Section -->
+        <div id="audit" class="section">
+            <h1>Current-State Audit & Gap Register</h1>
+            <p>The current prototype uses a ~90-line `if/else` chain to produce nine disconnected variants, breaking core KRD logic[cite: 1]. Click to expand critical gaps.</p>
+
+            <div class="card">
+                <div class="accordion" onclick="toggleAcc(this)">
+                    <button class="accordion-header">
+                        <span>LiF Money Model is Inverted <span class="cite">[cite: 1]</span></span>
+                        <span class="sev-badge sev-1">S1 - Severe</span>
+                    </button>
+                    <div class="accordion-content">
+                        <p><strong>Prototype:</strong> Says "Find it by 20 Aug or ₹40 will be deducted" (future)[cite: 1].<br>
+                        <strong>KRD Rule:</strong> LiF is already auto-deducted on day-0[cite: 1, 2]. The app must frame this as a recovery: "₹X already cut — return by date to get it back"[cite: 1].</p>
+                    </div>
+                </div>
+
+                <div class="accordion" onclick="toggleAcc(this)">
+                    <button class="accordion-header">
+                        <span>Missing Payment Pointers <span class="cite">[cite: 1]</span></span>
+                        <span class="sev-badge sev-1">S1 - Severe</span>
+                    </button>
+                    <div class="accordion-content">
+                        <p><strong>Prototype:</strong> No detail screen shows the payout pointer[cite: 1].<br>
+                        <strong>KRD Rule:</strong> F22 requires every debited item to name its exact payout date, section, and line[cite: 1, 2]. Currently, claims losses have no ledger surface at all in Payment Details[cite: 1].</p>
+                    </div>
+                </div>
+
+                <div class="accordion" onclick="toggleAcc(this)">
+                    <button class="accordion-header">
+                        <span>Conflating Type and State <span class="cite">[cite: 1]</span></span>
+                        <span class="sev-badge sev-2">S2 - Structure</span>
+                    </button>
+                    <div class="accordion-content">
+                        <p><strong>Prototype:</strong> `lost` and `wdetail` are reason-shaped, while `pending` and `review` are state-shaped[cite: 1].<br>
+                        <strong>Impact:</strong> Adding a 6th reason means creating a whole new screen and branch. This directly violates NFR-5 ("grows to ~10 without redesign")[cite: 1, 2].</p>
+                    </div>
+                </div>
+
+                <div class="accordion" onclick="toggleAcc(this)">
+                    <button class="accordion-header">
+                        <span>Voice-Out is a No-Op <span class="cite">[cite: 1]</span></span>
+                        <span class="sev-badge sev-1">S1 - Severe</span>
+                    </button>
+                    <div class="accordion-content">
+                        <p><strong>Prototype:</strong> The audio chip exists but only triggers `stopPropagation()`, lacking TTS[cite: 1].<br>
+                        <strong>KRD Rule:</strong> F10 marks this as P0 (TTS in app language on every explanation block)[cite: 1, 2].</p>
+                    </div>
+                </div>
+
+                <div class="accordion" onclick="toggleAcc(this)">
+                    <button class="accordion-header">
+                        <span>Hardcoded Copy, Dates & Evidence <span class="cite">[cite: 1]</span></span>
+                        <span class="sev-badge sev-3">S3 - Polish</span>
+                    </button>
+                    <div class="accordion-content">
+                        <p>Amounts like ₹120 and dates like "19 Aug" are hardcoded inside branches instead of derived from the record[cite: 1]. Evidence sets are per-item instead of mapped by reason code as required by F8[cite: 1]. No full-image evidence viewer exists[cite: 1].</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Proposed Architecture Section -->
+        <div id="architecture" class="section">
+            <h1>Proposed Architecture: Two Orthogonal Axes</h1>
+            <p>Everything the prototype currently branches on collapses into two inputs: <strong>L1 detail = f(reasonCode, caseState)</strong>[cite: 1].</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Axis 1: Reason Registry (Config)</h3>
+                    <p>Owned by business[cite: 1]. Decides <em>what happened</em>[cite: 1].</p>
+                    <ul>
+                        <li>Evidence set mapping[cite: 1].</li>
+                        <li>Explanation copy & tip[cite: 1].</li>
+                        <li>Money semantics (debitable vs info_only)[cite: 1].</li>
+                        <li>Available remedies & payment line[cite: 1].</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Axis 2: Case-State Table</h3>
+                    <p>Decides <em>where it is</em>[cite: 1].</p>
+                    <ul>
+                        <li>Banner tone + statement[cite: 1].</li>
+                        <li>Which action block appears[cite: 1].</li>
+                        <li>Whether a tracker shows[cite: 1].</li>
+                        <li>What the footer promises[cite: 1].</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card" style="background: #f0fff4; border-color: #9ae6b4;">
+                <h3>The Payoff</h3>
+                <p>No screen is ever added for a new reason[cite: 1]. A new reason is just a row in the reason registry, and it automatically inherits a shape Pilots already know[cite: 1].</p>
+            </div>
+        </div>
+
+        <!-- Slots Section -->
+        <div id="slots" class="section">
+            <h1>L1 Slot Template (The IA Invariant)</h1>
+            <p>A fixed slot order ensures consistency. Click on any slot to see how the Reason and State axes populate it[cite: 1].</p>
+
+            <div class="slot-container">
+                <div>
+                    <div class="slot-item" onclick="toggleSlot(this)">
+                        <strong>1. Identity</strong> <span class="driven-by driven-reason">Reason Code</span>
+                    </div>
+                    <div class="slot-detail">Filled by reason. Renders the FE-facing reason name and AWB. Never skipped[cite: 1].</div>
+                </div>
+
+                <div>
+                    <div class="slot-item" onclick="toggleSlot(this)">
+                        <strong>2. Status Banner</strong> <span class="driven-by driven-state">Case State</span>
+                    </div>
+                    <div class="slot-detail">Filled by state. Controls tone, money statement, and voice-out toggle. Never skipped[cite: 1].</div>
+                </div>
+
+                <div>
+                    <div class="slot-item" onclick="toggleSlot(this)">
+                        <strong>3. Money & Remedy</strong> <span class="driven-by driven-both">Reason + State</span>
+                    </div>
+                    <div class="slot-detail">Promoted directly under the status banner (10 Sep): once the Pilot has read what happened to their money, where that money now sits is the next thing they need — before the proof or the explanation. Shows payment pointer (debited), recovery card (LiF), or credit pair (returned). Skipped if info_only[cite: 1].</div>
+                </div>
+
+                <div>
+                    <div class="slot-item" onclick="toggleSlot(this)">
+                        <strong>4. Evidence</strong> <span class="driven-by driven-reason">Reason Code</span>
+                    </div>
+                    <div class="slot-detail">Filled by reason configuration. Displays grouped photo sets. Skipped if reason specifies 'none' (e.g., LiF)[cite: 1].</div>
+                </div>
+
+                <div>
+                    <div class="slot-item" onclick="toggleSlot(this)">
+                        <strong>5. Explanation</strong> <span class="driven-by driven-reason">Reason Code</span>
+                    </div>
+                    <div class="slot-detail">Filled by reason. Prints "What happened" copy (or a tip if evidence is missing). Never skipped[cite: 1].</div>
+                </div>
+
+                <div>
+                    <div class="slot-item" onclick="toggleSlot(this)">
+                        <strong>6. Progress Tracker</strong> <span class="driven-by driven-state">Case State</span>
+                    </div>
+                    <div class="slot-detail">Filled by state. Shows 3-step timeline. Skipped for non-awaiting states[cite: 1].</div>
+                </div>
+
+                <div>
+                    <div class="slot-item" onclick="toggleSlot(this)">
+                        <strong>7. Action Block</strong> <span class="driven-by driven-both">Reason ∩ State</span>
+                    </div>
+                    <div class="slot-detail">Offers choices (Accept/Dispute, add-side, recovery CTA) or paused notice. Skipped on terminal states[cite: 1].</div>
+                </div>
+
+                <div>
+                    <div class="slot-item" onclick="toggleSlot(this)">
+                        <strong>8. Consequence Footer</strong> <span class="driven-by driven-state">Case State</span>
+                    </div>
+                    <div class="slot-detail">Filled by state. Displays silence consequence or closure statement. Never skipped[cite: 1].</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visuals & Matrix Section -->
+        <div id="visuals" class="section">
+            <h1>Strict Visual Rules & Coverage</h1>
+            <p>Visual tone is chosen purely by <strong>money position</strong>, never by severity or reason[cite: 1]. This ensures new reasons don't invent new visual languages[cite: 1].</p>
+
+            <div class="grid-2">
+                <div class="tone-card tone-risk">
+                    <strong>Risk (Yellow/Orange)</strong>
+                    <p style="font-size:0.9em; margin-top:5px;">Money at stake, action open[cite: 1].<br><em>States: ATTRIBUTED, COOL-OFF, LiF recovery[cite: 1].</em></p>
+                </div>
+                <div class="tone-card tone-progress">
+                    <strong>Progress (Blue)</strong>
+                    <p style="font-size:0.9em; margin-top:5px;">In flight, nothing cut yet[cite: 1].<br><em>States: IN_DISPUTE, ACCEPTED, INFO_ONLY[cite: 1].</em></p>
+                </div>
+                <div class="tone-card tone-good">
+                    <strong>Resolved Good (Green)</strong>
+                    <p style="font-size:0.9em; margin-top:5px;">No money lost[cite: 1].<br><em>States: WAIVED, NOT_DEDUCTED, RETURNED_CREDITED[cite: 1].</em></p>
+                </div>
+                <div class="tone-card tone-neutral">
+                    <strong>Resolved Neutral (Grey)</strong>
+                    <p style="font-size:0.9em; margin-top:5px;">Money cut, case closed[cite: 1].<br><em>States: DEBITED[cite: 1].</em></p>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 30px;">Reason × State Matrix Coverage</h3>
+            <p>The money-carrying states (DEBITED, NOT_DEDUCTED, RETURNED) are currently unbuilt across the board[cite: 1].</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Reason</th>
+                        <th>ATTRIB</th>
+                        <th>IN_DISPUTE</th>
+                        <th>DEBITED</th>
+                        <th>NOT_DED</th>
+                        <th>INFO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>ICUD Junk</td>
+                        <td class="valid">Built</td>
+                        <td class="valid">Built</td>
+                        <td class="unbuilt">Unbuilt</td>
+                        <td class="unbuilt">Unbuilt</td>
+                        <td class="invalid">—</td>
+                    </tr>
+                    <tr>
+                        <td>Wrong-RVP</td>
+                        <td class="invalid">—</td>
+                        <td class="invalid">—</td>
+                        <td class="invalid">—</td>
+                        <td class="invalid">—</td>
+                        <td class="valid">Built</td>
+                    </tr>
+                    <tr>
+                        <td>Lost in Field</td>
+                        <td class="valid">Recovery Built</td>
+                        <td class="invalid">—</td>
+                        <td class="unbuilt">Unbuilt</td>
+                        <td class="invalid">—</td>
+                        <td class="invalid">—</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Next Steps Section -->
+        <div id="nextsteps" class="section">
+            <h1>Open Questions & Next Steps</h1>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Open Questions (To Resolve)</h3>
+                    <ul style="padding-left: 15px; font-size: 0.95em;">
+                        <li><strong>Silence-consequence display:</strong> Exact on-screen treatment on the `ATTRIBUTED` detail needs a design call[cite: 1]. Blocks gap G4[cite: 1].</li>
+                        <li><strong>Pre-payout confirmation:</strong> Firmness, channel, and timing[cite: 1]. Shapes the `ACCEPTED` footer and `NOT_DEDUCTED` surface[cite: 1].</li>
+                        <li><strong>Claims-loss ledger surface:</strong> Reconcile where "Shipment Loss for Junk/Mismatch" lives since Debits moved into Payment Details[cite: 1].</li>
+                        <li><strong>Badge counting rules:</strong> Inclusion of LiF/pending cases affects the entry point widget count[cite: 1].</li>
+                        <li><strong>Wrong-RVP money treatment:</strong> Decide if greyed ₹ stays or if amounts are dropped entirely per F24[cite: 1].</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="background: #2b6cb0; color: white;">
+                    <h3 style="color: white; margin-top: 0;">Resume Point & Next Steps</h3>
+                    <p style="margin-top: 15px;"><strong>Step 1:</strong> Secure approval for this Architectural Spec from Design + PM[cite: 1].</p>
+                    <p><strong>Step 2:</strong> Execute Refactor[cite: 1].</p>
+                    <ul style="padding-left: 15px;">
+                        <li>Build Reason Registry & State Table[cite: 1].</li>
+                        <li>Implement slot-driven `DetailScreen`[cite: 1].</li>
+                        <li>Replace `if/else` chain in `computeViewModel()`[cite: 1].</li>
+                    </ul>
+                    <p><strong>Step 3:</strong> Build missing L2 utilities (Voice-out, Evidence Viewer) and address real content/feature gaps (G1, G3, G4)[cite: 1].</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Interactivity Script -->
+    <script>
+        function showSection(sectionId) {
+            // Update nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update visible section
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        function toggleAcc(element) {
+            element.classList.toggle("open");
+        }
+
+        function toggleSlot(element) {
+            // Close others
+            document.querySelectorAll('.slot-item').forEach(el => {
+                if(el !== element) el.classList.remove('active-slot');
+            });
+            element.classList.toggle("active-slot");
+        }
+    </script>
+</body>
+</html>

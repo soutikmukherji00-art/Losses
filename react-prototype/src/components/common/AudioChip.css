@@ -1,0 +1,29 @@
+/* The pill stays 32-36px tall — a taller one would outweigh the line of text
+   it belongs to — and reaches Android's 48dp floor through an invisible
+   hit area instead. */
+.audio-chip {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-inline);
+  padding: 0 var(--pad-control-x);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--valmo-white);
+}
+
+.audio-chip span {
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--fw-demi);
+  color: var(--valmo-navy);
+}
+
+.audio-chip::after {
+  content: '';
+  position: absolute;
+  inset: 50% 0 0 0;
+  height: 48px;
+  transform: translateY(-50%);
+}

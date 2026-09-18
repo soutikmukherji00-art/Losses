@@ -1,0 +1,86 @@
+
+
+
+.status-tracker__steps {
+  display: flex;
+  flex-direction: column;
+}
+
+.status-tracker__step {
+  display: flex;
+  gap: var(--gap-group);
+}
+
+.status-tracker__rail-col {
+  flex: none;
+  width: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.status-tracker__dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  border: 2px solid var(--valmo-grey-light-01);
+  background: var(--valmo-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.status-tracker__dot[data-done="true"] {
+  border-color: var(--valmo-navy);
+  background: var(--valmo-navy);
+}
+
+.status-tracker__dot-inner {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--valmo-grey-light-01);
+}
+.status-tracker__dot-inner[data-done="true"] {
+  background: var(--valmo-white);
+}
+
+.status-tracker__rail {
+  width: 2px;
+  flex: 1;
+  min-height: 8px;
+  background: var(--valmo-blue-line);
+}
+.status-tracker__rail[data-lit="true"] {
+  background: var(--valmo-navy);
+}
+
+/* The gap between one step and the next. Owned here rather than as an
+   inline style so the tracker moves with the rest of the scale. */
+.status-tracker__body {
+  flex: 1;
+  min-width: 0;
+  padding-bottom: var(--gap-group);
+}
+.status-tracker__body[data-last="true"] {
+  padding-bottom: 0;
+}
+
+.status-tracker__label {
+  font-size: var(--body-03-size);
+  line-height: 20px;
+  font-weight: var(--fw-bold);
+  color: var(--text-on-raised);
+}
+.status-tracker__label[data-done="true"] {
+  color: var(--valmo-navy);
+}
+
+.status-tracker__meta {
+  font-size: var(--body-03-size);
+  line-height: 18px;
+  color: var(--text-on-raised);
+  margin-top: var(--gap-tight);
+}
+.status-tracker__meta[data-done="true"] {
+  color: var(--text-on-raised);
+}

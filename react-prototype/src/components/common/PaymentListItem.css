@@ -1,0 +1,51 @@
+.payment-list-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: var(--pad-tile) var(--pad-screen);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--valmo-white);
+  cursor: pointer;
+}
+
+.payment-list-item__date {
+  font-size: var(--body-01-size);
+  line-height: var(--body-01-lh);
+  color: var(--text-primary);
+}
+
+.payment-list-item__caption {
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  color: var(--text-secondary);
+  margin-top: var(--gap-subline);
+}
+
+/* The value and the chevron that opens it. `--gap-group`, which is what the
+   loss row uses for the same pair — this was 24px, so the two list rows in
+   the same app put twice the air between the same two objects. The payments
+   row could afford it (its left column is a date) and the loss row could
+   not, but "could afford" is not a reason for two numbers. */
+.payment-list-item__end {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-group);
+}
+
+.payment-list-item__amounts {
+  text-align: left;
+}
+
+.payment-list-item__amount {
+  font-size: var(--body-01-size);
+  line-height: var(--body-01-lh);
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+}
+
+.payment-list-item__incentive {
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+  color: var(--valmo-green-action);
+  margin-top: var(--gap-tight);
+}

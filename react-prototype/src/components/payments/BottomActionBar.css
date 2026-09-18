@@ -1,0 +1,33 @@
+.bottom-action-bar__info {
+  background: var(--surface-sunken);
+  box-shadow: 0px -2px 6px rgba(72, 68, 68, 0.2);
+  padding: var(--space-12) var(--pad-screen);
+  display: flex;
+  align-items: center;
+  gap: var(--gap-lead);
+}
+.bottom-action-bar__info span {
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+  color: var(--text-primary);
+}
+
+.bottom-action-bar__buttons {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-stack);
+  padding: var(--space-12) var(--pad-screen);
+  background: var(--valmo-white);
+}
+
+/* Both controls are the shared `Button`; this bar only divides the width —
+   the secondary keeps its fixed measure, the primary takes the rest. */
+.bottom-action-bar__buttons .btn[data-variant="secondary"] {
+  flex: none;
+  width: 102px;
+}
+
+.bottom-action-bar__buttons .btn[data-variant="primary"] {
+  flex: 1;
+}

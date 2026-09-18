@@ -1,0 +1,4 @@
+/* the credit half of the debit/credit pair reads as money coming back */
+.sec-row__value {
+  color: var(--text-primary);
+}

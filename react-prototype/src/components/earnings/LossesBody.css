@@ -1,0 +1,7 @@
+.losses-body__foot {
+  font-size: var(--body-04-size);
+  line-height: var(--body-03-lh);
+  color: var(--text-tertiary);
+  text-align: center;
+  margin: var(--space-12) var(--space-16) var(--space-16);
+}

@@ -1,0 +1,60 @@
+/* Canonical geometry, taken from the action bar's button — the one the two
+   L2 sheets and the detail screen already shared, and the one the strays are
+   now folded into. `font` and `cursor` come from the global button reset. */
+
+.btn {
+  min-height: var(--tap-target-min);
+  padding: 0 var(--pad-control-x);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap-inline);
+  /* 4, not 8 — the finalised page's buttons are the tightest radius in its
+     scale, and a button rounder than the card it sits in read as a pill. */
+  border-radius: var(--radius-sm);
+  font-size: var(--button-01-size);
+  line-height: var(--button-01-lh);
+  font-weight: var(--fw-bold);
+}
+
+.btn--full {
+  width: 100%;
+}
+
+.btn[data-variant="primary"] {
+  border: 1px solid var(--valmo-navy);
+  background: var(--valmo-navy);
+  color: var(--valmo-white);
+}
+.btn[data-variant="primary"]:hover:not(:disabled) {
+  background: var(--valmo-navy-press);
+  border-color: var(--valmo-navy-press);
+}
+
+.btn[data-variant="secondary"] {
+  border: 1px solid var(--valmo-navy);
+  background: var(--valmo-white);
+  color: var(--valmo-navy);
+}
+.btn[data-variant="secondary"]:hover:not(:disabled) {
+  background: var(--surface-raised);
+}
+
+/* Borderless text action — the "Not yet" that sits under a primary and must
+   read as the lesser of the two without becoming a second outlined box. */
+.btn[data-variant="ghost"] {
+  border: none;
+  background: transparent;
+  color: var(--valmo-navy);
+  font-weight: var(--fw-demi);
+}
+.btn[data-variant="ghost"]:hover:not(:disabled) {
+  background: var(--surface-raised);
+}
+
+.btn:disabled {
+  border-color: var(--border-default);
+  background: var(--surface-sunken);
+  color: var(--text-tertiary);
+  cursor: default;
+}

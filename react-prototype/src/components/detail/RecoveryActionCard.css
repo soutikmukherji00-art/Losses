@@ -1,0 +1,7 @@
+/* The section owns the frame and the ActionBar owns the button. */
+.recovery-action__hint {
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+  font-weight: var(--body-02-weight);
+  color: var(--text-row-label);
+}

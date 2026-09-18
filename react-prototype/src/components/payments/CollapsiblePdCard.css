@@ -1,0 +1,66 @@
+.pd-card {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-12) var(--space-12) var(--space-16);
+  background: var(--valmo-white);
+}
+
+/* Collapsed, the card is only its header — it must not reserve the rule and
+   the 28px of inset that belong to the items it is not rendering. */
+.pd-card[data-expanded="false"] {
+  padding-bottom: var(--space-12);
+}
+.pd-card[data-expanded="false"] .pd-card__header {
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.pd-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--space-8);
+  border-bottom: 1px dashed var(--border-subtle);
+  margin-bottom: var(--space-12);
+  cursor: pointer;
+}
+
+.pd-card__header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-lead);
+}
+
+.pd-card__title,
+.pd-card__total {
+  font-size: var(--heading-04-size);
+  line-height: var(--heading-04-lh);
+  font-weight: var(--fw-bold);
+  color: var(--valmo-navy);
+}
+
+.pd-card__items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-stack);
+}
+
+.pd-card__item {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+}
+
+.pd-card__item-label {
+  color: var(--text-secondary);
+}
+.pd-card__item-label[data-underline="true"] {
+  text-decoration: underline;
+  text-decoration-color: var(--border-default);
+}
+
+.pd-card__item-amt {
+  color: var(--text-primary);
+}

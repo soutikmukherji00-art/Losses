@@ -1,0 +1,187 @@
+/* Deliberately self-contained: no reference to the host app's design
+   tokens (--valmo-*, --heading-*, …). This whole `presenter/` folder is
+   meant to be dropped into a different prototype with a different design
+   system, so its own look is defined here, once. */
+
+.control-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.control-field + .control-field {
+  margin-top: 14px;
+}
+
+.control-field__label {
+  font-size: 12px;
+  line-height: 16px;
+  color: #6B7280;
+}
+
+/* The Layers section's "nothing here" line, and the only small grey type left
+   in the panel — the per-control bylines this used to be named for are gone.
+   A control in this panel carries its name and nothing else; what it does is
+   documented beside it in app/presenterSections.js and in
+   Design System/CONFIG_REFERENCE.md. */
+.control-note {
+  font-size: 11px;
+  line-height: 15px;
+  color: #9096A2;
+}
+
+.segmented-control {
+  display: flex;
+  border: 1px solid #DEE1E7;
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.segmented-control__opt {
+  flex: 1;
+  padding: 7px 8px;
+  border: none;
+  border-left: 1px solid #DEE1E7;
+  background: #FFFFFF;
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: #4B5563;
+  cursor: pointer;
+}
+.segmented-control__opt:first-child {
+  border-left: none;
+}
+.segmented-control__opt[data-active="true"] {
+  background: #1F2937;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+/* Unavailable because of another control's value — greyed and unclickable,
+   but still shown, so the option set stays legible as a whole. */
+.segmented-control__opt:disabled {
+  color: #9AA1AD;
+  background: #F4F5F7;
+  cursor: not-allowed;
+}
+
+.control-select-wrap {
+  position: relative;
+}
+
+.control-select {
+  width: 100%;
+  padding: 8px 30px 8px 10px;
+  border: 1px solid #DDE1E7;
+  border-radius: 8px;
+  background: #FFFFFF;
+  font-family: inherit;
+  font-size: 12.5px;
+  line-height: 17px;
+  color: #1F2937;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.control-select:hover {
+  border-color: #C6CBD3;
+}
+
+.control-select:focus {
+  outline: none;
+  border-color: #94A0B8;
+  box-shadow: 0 0 0 3px rgba(31, 41, 55, 0.08);
+}
+
+/* custom chevron — replaces each browser's native affordance so the field
+   reads as one consistent "input", not an OS control */
+.control-select-wrap::after {
+  content: '';
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid #8A93A3;
+  border-bottom: 1.5px solid #8A93A3;
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+}
+
+.control-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+}
+.control-toggle-row + .control-toggle-row {
+  border-top: 1px solid #F0F1F4;
+}
+
+.control-toggle-row__label {
+  font-size: 12.5px;
+  line-height: 17px;
+  color: #1F2937;
+}
+
+.control-toggle {
+  flex: none;
+  width: 32px;
+  height: 19px;
+  padding: 2px;
+  border: none;
+  border-radius: 999px;
+  background: #DDE1E7;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+.control-toggle[data-on="true"] {
+  background: #1F2937;
+}
+
+.control-toggle__knob {
+  display: block;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  transition: transform 120ms ease;
+}
+.control-toggle[data-on="true"] .control-toggle__knob {
+  transform: translateX(13px);
+}
+
+.control-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.control-actions__btn {
+  padding: 8px 10px;
+  border: 1px solid #DDE1E7;
+  border-radius: 8px;
+  background: #FFFFFF;
+  font-family: inherit;
+  font-size: 12.5px;
+  line-height: 17px;
+  font-weight: 500;
+  color: #1F2937;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+.control-actions__btn:hover {
+  border-color: #C6CBD3;
+  background: #F7F8FA;
+}
+.control-actions__btn[data-tone="danger"] {
+  color: #B3261E;
+  border-color: #F0D5D3;
+}
+.control-actions__btn[data-tone="danger"]:hover {
+  background: #FDF3F2;
+}

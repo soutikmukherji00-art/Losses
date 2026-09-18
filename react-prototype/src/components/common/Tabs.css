@@ -1,0 +1,91 @@
+.tabs {
+  display: flex;
+}
+
+.tabs__tab {
+  appearance: none;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap-inline);
+  cursor: pointer;
+}
+
+/* ============================================================
+   PRIMARY — underline. Belongs to the page: a full-bleed rail the
+   tabs sit on in equal shares, so the active tab's underline reads
+   as lifting off a continuous line rather than floating in space.
+   ============================================================ */
+.tabs--underline {
+  background: var(--valmo-white);
+  box-shadow: inset 0 -1px 0 var(--border-subtle);
+}
+
+/* Equal shares of the full width. These were hugged and gutter-inset, which
+   bunched three tabs into the left two-thirds of the row and left the rest
+   dead — and made each underline the width of its own word, so the active
+   marker changed size as you moved along the row. */
+.tabs--underline .tabs__tab {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: 0;
+  padding: var(--space-12) var(--space-8) var(--space-8);
+  font-size: var(--body-01-size);
+  line-height: var(--body-01-lh);
+  font-weight: var(--fw-medium);
+  color: var(--text-secondary);
+}
+
+/* The underline is the whole active treatment — 2px of brand ink on the rail,
+   plus the ink on the label. Drawn with an inset shadow rather than a border
+   so the tab's height never changes between states and the row cannot shift
+   as you switch. */
+.tabs--underline .tabs__tab[data-active="true"] {
+  color: var(--valmo-navy);
+  font-weight: var(--fw-bold);
+  box-shadow: inset 0 -2px 0 var(--valmo-navy);
+}
+
+/* ============================================================
+   SECONDARY — segmented. A bounded, contained control, which is
+   what a choice *within* a surface is. Inset in the page gutter,
+   so it reads as sitting on the surface the primary row selected.
+   ============================================================ */
+.tabs--segmented {
+  margin: var(--gap-group) var(--pad-screen) 0;
+}
+
+.tabs--segmented .tabs__tab {
+  flex: 1;
+  min-height: var(--control-height-sm);
+  font-size: var(--button-03-size);
+  line-height: var(--button-03-lh);
+  font-weight: var(--fw-book);
+  color: var(--text-secondary);
+  background: var(--valmo-white);
+  border: 1px solid var(--border-subtle);
+  /* Segments are flush: each one pulls onto its neighbour's border so the
+     seam between them is a single line, not two stacked. */
+  margin-left: -1px;
+}
+
+/* Corners come off position in the row, so a row of two, three or five needs
+   no per-tab flags from the view model. */
+.tabs--segmented .tabs__tab:first-child {
+  margin-left: 0;
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+.tabs--segmented .tabs__tab:last-child {
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.tabs--segmented .tabs__tab[data-active="true"] {
+  background: var(--valmo-tint-1);
+  color: var(--valmo-navy);
+  font-weight: var(--fw-bold);
+  /* Above its neighbours, so its own border draws the whole seam. */
+  position: relative;
+  z-index: 1;
+}

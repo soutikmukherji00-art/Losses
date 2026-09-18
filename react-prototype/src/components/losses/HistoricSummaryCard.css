@@ -1,0 +1,151 @@
+/* Geometry from CurrentCycleCard — same card, same strip, same brand-face
+   figure — because this answers the same kind of question one tab away, and a
+   Pilot should not have to learn a second money card. Both strips are neutral
+   now: this card was the first to be, and the cycle card has since followed
+   it off yellow, which left that hue with no consumer at all. */
+.historic-summary {
+  /* The same step My Earnings puts between the tab rail and its first group
+     (--gap-heading-above): this card is the first of this tab's groups, and
+     at 8px it sat on the tabs as if it belonged to them. The matching step
+     below keeps it off the first month band. */
+  margin: var(--gap-heading-above) var(--pad-screen);
+  background: var(--valmo-white);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.historic-summary__strip {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-lead);
+  background: var(--surface-sunken);
+  padding: var(--space-8) var(--space-12);
+}
+.historic-summary__strip svg {
+  flex: none;
+}
+
+.historic-summary__strip-text {
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--fw-book);
+  color: var(--text-secondary);
+}
+.historic-summary__strip-text b {
+  font-weight: var(--fw-demi);
+  color: var(--text-primary);
+}
+
+.historic-summary__body {
+  padding: var(--pad-panel);
+}
+
+.historic-summary__label {
+  font-size: var(--body-01-size);
+  line-height: var(--body-01-lh);
+  font-weight: var(--fw-book);
+  color: var(--text-secondary);
+}
+
+.historic-summary__figures {
+  display: flex;
+  align-items: baseline;
+  gap: var(--gap-lead);
+  margin-top: var(--space-4);
+}
+
+.historic-summary__amount {
+  font-family: var(--font-brand);
+  font-size: var(--display-01-size);
+  line-height: var(--display-01-lh);
+  font-weight: var(--display-01-weight);
+  color: var(--valmo-dark-grey-02);
+}
+
+/* What was charged before anything came back. Quieter and smaller, like the
+   cycle card's gross — the number a Pilot came for is the live one. */
+.historic-summary__gross {
+  font-family: var(--font-brand);
+  font-size: var(--body-01-size);
+  line-height: var(--body-01-lh);
+  font-weight: var(--fw-book);
+  color: var(--text-tertiary);
+}
+
+.historic-summary__note {
+  margin-top: var(--gap-stack);
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--fw-book);
+  color: var(--text-secondary);
+}
+.historic-summary__note b {
+  font-family: var(--font-brand);
+  font-weight: var(--fw-demi);
+  color: var(--text-primary);
+}
+
+/* Foot of the card: the same rule + claim + link the cycle card ends on, so
+   "there is a break-up behind this figure" is announced the one way this app
+   announces it. */
+.historic-summary__rule {
+  height: 1px;
+  background: var(--border-subtle);
+  margin-top: var(--gap-group);
+}
+
+.historic-summary__more {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-group);
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.historic-summary__more-text {
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--fw-book);
+  color: var(--text-secondary);
+}
+/* Only the count is lifted out of the sentence — it is the fact that decides
+   whether the break-up is worth a tap. */
+.historic-summary__more-text b {
+  font-weight: var(--fw-demi);
+  color: var(--text-primary);
+}
+
+.historic-summary__more-cta {
+  flex: none;
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--fw-demi);
+  color: var(--valmo-navy);
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
+/* The 48dp target without the 48px box: the row is as tall as its text, and
+   an invisible hit area bleeds out from its middle. Same device the filter
+   chip and the section-header info icon already use. `min-height` here was
+   inflating a single 16px line to 48 and centring it, so the card ended on
+   ~16px of dead space stacked on its own 12px padding — the gap under
+   "View Details". */
+.historic-summary__more {
+  position: relative;
+  margin-top: var(--gap-group);
+}
+.historic-summary__more::after {
+  content: '';
+  position: absolute;
+  inset: 50% 0 0 0;
+  height: var(--tap-target-min);
+  transform: translateY(-50%);
+}

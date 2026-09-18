@@ -1,0 +1,209 @@
+/* THE BANNER PATTERN — mark · text block · action.
+ *
+ * Two surfaces use it and both are banners in the same sense: an inset,
+ * tinted, bordered card that sits on top of a list and says one thing, with a
+ * way in on the right. The loss entry point on My Earnings
+ * (components/earnings/LossesEntryPoint) and the contextual insight above the
+ * losses list (components/losses/InsightBanner).
+ *
+ * It lives here rather than in either of them because they had drifted into
+ * two dialects of the same idea — different padding, different headline size,
+ * a different emphasis device, one with a chevron and one without — and
+ * nothing in either file could have told you that, since neither could see
+ * the other. A shared base is what makes "the same pattern" a fact rather
+ * than a thing to re-check by eye.
+ *
+ * The rules of the pattern:
+ *
+ *   ONE TONE at a time, picked by what the banner is about, never by how loud
+ *   we want it. `--banner-accent` is that tone's single emphasis colour.
+ *
+ *   ONE FAMILY, TWO WEIGHTS. The body of every line is Book (400); anything
+ *   emphasised inside it is Demi (600). That is the whole ladder — no third
+ *   weight, no second family. It is the DS's own pairing (Body 02 13/20 Book
+ *   against Heading 05 13/20 Demi) and it comes from the mock, Figma
+ *   WCghUzecsonToq8dCxpm3W · 7197:46123.
+ *
+ *   The base is Book rather than the Demi it used to be, and the size went
+ *   13/20 to pay for it: at 12px a Book base was the version that gave up
+ *   legibility, which is the objection that had put the whole line at 600 and
+ *   pushed emphasis to 700. One step up in size buys the lighter base, and
+ *   with it a real difference between the many and the few. This is the one
+ *   place in the app running the DS scale un-shifted (styles/tokens.css
+ *   shifts everything else one step down) — the banner is a single short
+ *   sentence that has to be read at a glance, not a page of body text.
+ *
+ *   COLOUR LIVES ON ONE LINE — whichever one carries the state — and the
+ *   other line emphasises in ink alone. Where there is a countdown, the
+ *   countdown is that line (`.banner__sub` in the accent) and the headline
+ *   above it marks its money and count with `.banner__strong`. Where nothing
+ *   is running out there is no countdown to colour, so the headline takes the
+ *   accent (`.banner__accent`) and the advice beneath it goes neutral.
+ *
+ *   Within the coloured line, colour marks the CLAIM rather than one word of
+ *   it: the insight banner accents both "Unclear photos" and "₹1004" and
+ *   leaves only "cost you" — the grammar joining them — in the base ink. One
+ *   line's worth of colour is still one thing for the eye to land on.
+ *
+ *   The mark leading the row wears that same accent (it strokes
+ *   `currentColor`), so the colour is one declaration rather than two values
+ *   kept in sync by hand.
+ *
+ *   THE ACTION IS A WORD AND A CHEVRON, right-aligned, travelling together.
+ *   The whole card is the tap target; the CTA is a `<span>`, never a nested
+ *   button, because a button inside a button is a coin toss about which one
+ *   fires.
+ *
+ * A banner adds its own class alongside these for what is genuinely its own —
+ * the entry point's shake, the insight's measured habit line and dot row.
+ */
+
+/* WHERE A BANNER SITS ON THE PAGE — the step down off the tab rail, and the
+ * page gutter. Both banners are the first thing under the segmented tab rail
+ * and both had been answering that separately: 20px on My Earnings, 8px on
+ * the Losses list, which is the same drift the SHAPE had before this file
+ * existed. The step is `--gap-heading-above` because that is exactly what
+ * this is — the separation above the first group on the screen — and because
+ * 12px was tried on My Earnings and left the banner sitting on the tabs as
+ * though it were a fourth row of navigation chrome.
+ *
+ * TOP AND SIDES ONLY, and the step BELOW is stated per screen — not because
+ * it may differ, but because it has to be COMPUTED to come out the same.
+ * What follows a banner already declares its own step above itself, and the
+ * two differ: a section title asks for 20px on My Earnings, a chip row for
+ * 12px on the Losses list. So one padding-bottom here would produce two
+ * different gaps. The thing that has to match is the MEASURED distance from
+ * the card's edge to the next thing's ink, and that number is the same 20px
+ * the slot puts above it — each screen subtracts whatever the next element
+ * already brings and writes the remainder, with the arithmetic visible in a
+ * `calc()` rather than left as a number nobody can check.
+ *
+ * This is the side that drifts. It was right, then the Losses list's dot row
+ * was removed and took the 8px it was carrying with it, which quietly dropped
+ * that side to 12 against My Earnings' 20. Measure it, don't read it. */
+.banner-slot {
+  padding-top: var(--gap-heading-above);
+  padding-inline: var(--pad-screen);
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-lead);
+  width: 100%;
+  min-height: var(--tap-target-min);
+  padding: var(--pad-panel);
+  border: 1px solid;
+  border-radius: var(--radius-md);
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Money at risk, or a deadline running — Orange Sunstone Tint 1 on a Tint 2
+   edge, which is the `--tone-risk-*` ramp the case-detail status card already
+   stands on. This banner was on the app's yellow; the mock puts it back on
+   orange, which also closes the divergence that move opened (the same money
+   position was reading yellow here and orange on StatusHero).
+
+   ACCENT DIVERGES FROM THE MOCK, ON MEASUREMENT. The mock's accent is Orange
+   Main #EC7600, which on this Tint 1 surface measures 2.57:1 — under 4.5 for
+   the 12px countdown, and under 3.0 for the 24px mark. Orange Deep #B85A00
+   reaches 4.09:1 and still misses. `--tone-risk-ink` #8A5003 is the only rung
+   on the ramp that clears both, at 5.70:1, so it is the accent here. A
+   brighter orange would need a lighter ground; this surface is what rules it
+   out. */
+.banner[data-tone="risk"] {
+  --banner-accent: var(--tone-risk-ink);
+  background: var(--tone-risk-surface);
+  border-color: var(--tone-risk-line);
+}
+
+/* Held, in progress, advisory — anything the Pilot is not on the clock for.
+   Its accent is quiet on purpose: a shift in hue rather than a jolt.
+
+   The fill is the ramp's T2 rung (#E3EDFF), per the mock, rather than the
+   shared `--tone-progress-surface`. That token cannot move here: StatusHero
+   stands a T2 CHIP on it, and same-hue fills at the pale end of a ramp
+   separate by ~1.04:1 (styles/tokens.css states the case at length). A banner
+   carries no chip, so it can stand on the rung the card has to leave free. */
+.banner[data-tone="progress"] {
+  --banner-accent: var(--tone-progress-ink);
+  background: var(--valmo-blue-tint-2);
+  border-color: var(--tone-progress-line);
+}
+
+.banner__icon {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* The mark wears the accent — every icon in a banner strokes
+     `currentColor`, so this is one declaration rather than two values kept in
+     sync by hand. */
+  color: var(--banner-accent);
+}
+
+.banner__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Body 02 in the DS — 13/20 Book. The scale in styles/tokens.css has no
+   13/20/400 step (it floors at 12 and carries 13/20 only as Heading 05, at
+   Demi), so the metrics come from that step and the weight is stated here. */
+.banner__headline {
+  font-size: var(--heading-05-size);
+  line-height: var(--heading-05-lh);
+  font-weight: var(--fw-book);
+  color: var(--text-primary);
+}
+
+/* The second line, when a banner has one: Body 03, 12/16 Book, in the
+   secondary ink so it sits under the headline rather than beside it. */
+.banner__sub {
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--fw-book);
+  color: var(--text-secondary);
+}
+
+/* EMPHASIS, UNCOLOURED — Demi in the primary ink. One rule covers both places
+   it appears, because both are the same act: on a headline the ink is already
+   primary and this is purely the weight step (the mock's "₹624" and
+   "6 losses"); on a sub-line it also lifts the secondary ink to primary, so
+   the advice outweighs the words framing it ("light the parcel"). */
+.banner__strong {
+  font-weight: var(--fw-demi);
+  color: var(--text-primary);
+}
+
+/* EMPHASIS, COLOURED — the same weight step in the tone's accent, and the one
+   coloured thing on the banner. It goes on the countdown where there is one,
+   and on the headline's own emphasis where there is not. */
+.banner__headline b,
+.banner__accent {
+  font-weight: var(--fw-demi);
+  color: var(--banner-accent);
+}
+
+.banner__action {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Reads as the link it is — the treatment "View Details" uses on the Current
+   Cycle card — and never wraps. */
+.banner__cta {
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--fw-demi);
+  color: var(--valmo-navy);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}

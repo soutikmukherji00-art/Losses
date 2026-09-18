@@ -1,0 +1,130 @@
+/* The banner's SHAPE is the shared pattern — components/common/Banner.css.
+   What is left here is what only this banner does: the page inset it shares
+   with its dot row, the rolling track, the habit line that measures itself,
+   and the dots.
+
+   Height is the constraint this component is designed against, not a
+   preference: it sits on top of the Needs-action list a Pilot opened the
+   screen for, so anything it takes is a loss they have to scroll to reach.
+   That is why the habit line degrades to one habit rather than wrapping. */
+
+/* The step off the tab rail and the gutter are the shared `.banner-slot` —
+   the same ones the loss entry point on My Earnings stands in, so the two
+   banners cannot drift apart again on where they sit.
+
+   THE STEP BELOW is the slot's 20px minus the 12px the chip row (and, in the
+   unified layout, the summary row) already declares above itself. It reads as
+   a different number from My Earnings' zero and it is the same step: there a
+   section title brings the whole 20 on its own. What must match is the
+   measured gap from the card's edge to the next thing's ink, not the padding
+   either side of it declares.
+
+   This was 8px before, carried by the dot row. The dots went — the peeking
+   card says "there is more" on its own — and took the step with them, which
+   left this side at 12 against My Earnings' 20. */
+.insight {
+  padding-bottom: calc(var(--gap-heading-above) - var(--space-12));
+}
+
+/* ROLLING — the gutter moves off the wrapper and onto the track, because the
+   track has to reach both screen edges: a scroll port inset by 16px would cut
+   the next card off 16px early and the peek would read as a misaligned card
+   rather than as more to come. */
+.insight[data-rolling="true"] {
+  padding-inline: 0;
+}
+
+/* HOW MUCH OF THE NEXT CARD SHOWS, and it is a SLIVER because the card's
+   height is worth more than the peek is.
+ 
+   A fixed width rather than a share of the screen: the peek's job is the same
+   on a 360px phone as on a 430px one, so the card takes the difference and
+   the peek is sized against the narrowest frame.
+ 
+   WHY 20 AND NOT 44. The first cut spent 44px on it, which reads better as a
+   second card — and cost the claim its single line. The card's chrome (mark,
+   gaps, padding, the "More" action) is a fixed 116px, the longest claim in
+   today's registry wants 189px, so the claim holds its line only while the
+   card is wider than ~305px: at 360 that caps the peek at 30px before the
+   banner grows a third line and, with the dots, goes from 83px tall to 100.
+   Height is the constraint this component is designed against — every pixel
+   is a loss the Pilot has to scroll to reach — so the peek takes the cut and
+   keeps ~12px of margin for a longer loss-type noun (NFR-5 lets the reason
+   list grow to ~10). With the dots gone this sliver is the ONLY thing saying
+   the row continues, which is an argument for more of it and loses to the
+   height argument: a wrapped claim costs 20px, which is more than the whole
+   peek is wide.
+ 
+   Below ~320px the claim wraps again; the frame is 360 and there is no
+   narrower one to design for. */
+.insight__track {
+  --insight-peek: 20px;
+
+  display: flex;
+  gap: var(--gap-stack);
+  overflow-x: auto;
+  /* Mandatory, not proximity: there is no half-way this row is allowed to
+     rest at — every stop is a card at the gutter. */
+  scroll-snap-type: x mandatory;
+  /* Cards snap to the page gutter, not to the screen edge. */
+  scroll-padding-inline-start: var(--pad-screen);
+  /* A sideways drag here is about this row, never the page or a back-swipe. */
+  overscroll-behavior-x: contain;
+
+  /* THE TWO PADDINGS DIFFER, and the asymmetry is what makes the rest of this
+     block simple. Left is the page gutter. Right is peek + gap — exactly the
+     room the LAST card needs to still reach the gutter when the row is
+     scrolled to its end; without it the row runs out of travel and the last
+     card rests askew, which is the classic peeking-carousel bug.
+
+     Together they leave a content box exactly one card wide, which is why the
+     slide below is a plain 100% instead of a percentage nobody could check. */
+  padding-inline: var(--pad-screen) calc(var(--insight-peek) + var(--gap-stack));
+}
+
+/* Snapping fights a scrollLeft written by hand, so the drag handler turns it
+   off for the length of the drag (InsightBanner.jsx → useCarousel) and snaps
+   to the nearest card itself on release. */
+.insight__track[data-dragging="true"] {
+  scroll-snap-type: none;
+  user-select: none;
+}
+
+.insight__slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  display: flex;
+  scroll-snap-align: start;
+}
+
+/* Cards in a row are the same height whatever their text does — the slides
+   stretch, and the button has to fill the slide it was given rather than
+   sizing to its own two lines. */
+.insight__slide > .insight__body {
+  height: 100%;
+}
+
+/* One line, always. The habits take what is left after the action has its
+   width, so the way in can never be the thing that gets pushed off. */
+.insight__byline {
+  display: flex;
+  align-items: baseline;
+  gap: var(--gap-stack);
+}
+
+/* The measured span. `nowrap` is what makes scrollWidth mean "how wide this
+   wants to be", which is how the component decides whether a second habit
+   fits; the ellipsis is the backstop for a first habit long enough to
+   overflow on its own. */
+.insight__habits {
+  flex: 0 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The advice itself wears `.banner__strong` — the pattern's uncoloured
+   emphasis, Demi in the primary ink — so it outweighs the words framing it.
+   It had its own rule here at 500, a weight the pattern no longer uses; the
+   shared class is now the single place that ladder is stated. */

@@ -1,0 +1,20 @@
+.cool-off {
+  padding: var(--pad-row) var(--pad-screen);
+  background: var(--valmo-white);
+}
+
+.cool-off__title {
+  display: block;
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+  font-weight: var(--fw-bold);
+  color: var(--text-warning-ink);
+}
+
+.cool-off__body {
+  display: block;
+  margin-top: var(--gap-tight);
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  color: var(--text-row-label);
+}

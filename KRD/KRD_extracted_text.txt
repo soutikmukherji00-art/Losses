@@ -1,0 +1,1340 @@
+KEY RESULTS DOCUMENT (KRD)
+FE Loss Report Card
+Loss visibility + dispute-before-debit for Pilots, in the Valmo Partner app
+Fulfilment Product Space · F&E / Valmo / SX Claims & Losses · Doc version 7 · 3 Sep 2026 → v8
+A Pilot who causes a shipment loss today finds out only when money leaves their payment — one line, no
+break-up, no reason, no way to respond. This KRD builds a Losses section in the Valmo Partner app that
+shows each loss with its proof, and lets the Pilot accept it or dispute it before the money is cut.
+Disputes are checked by human agents. Silence after fair notice means the amount is deducted.
+Read Me — scope in one minute
+• Who it is for. Pilots (also called FEs) only. Captains and other entities come later, on the same rails.
+• What it covers. The in-app Losses section (three tabs: Needs action / Debits / Wrong Pickups),
+the accept/dispute flow, the human review via Kapture, and the data work to power it (debit-date
+column, day-0 Lost-in-Field feed).
+• What it does not cover. Automating payout deduction for SX-claims losses — today executed
+manually via file upload in the loss engine — deferred; taken up after this ships. The attribution
+pipeline itself (stays as-is).
+• How this new solution differs from the previous one. The earlier read-only two-card model
+(Actual vs Potential debit) is replaced by a three-way choice: accept / dispute / stay silent. This came
+from the leadership direction: show likely debits first, give the Pilot the right to respond, deduct only
+after.
+Words used in this doc
+Pilot / FE — the delivery partner using the Valmo Partner app. AWB — one shipment.
+Gold table (SX Claims POD, gold.sx_report_debit) — where SX-claims losses live today, owned by
+the SX Claims POD.
+Loss engine (Losses POD) — the central loss database (Loss Engine POD). Target home for all
+entity losses.
+Payout engine — powers the Earnings/Payments tabs and executes deductions. Separate from the
+loss engine.
+Kapture — the 3P ticketing tool where disputes go; 12–15 agents on a 3P payroll review them.
+Co-Ownership at a Glance
+Function 	Owns 	Bar
+Product (PM) 	Problem, solution, versioning,
+thresholds, post-launch validation
+Pressure-tested logic; every edge case
+owned; risk register
+Business /
+Biz-Fin
+Selection % (Y), cool-off values,
+leakage budget, GTM, cost
+Y/X/T set with data; leakage signed off
+Design 	Screens, states, comprehension 	Pilot understands the 3 choices in
+10–15s; ≥3 real Pilot walkthroughs
+Analytics 	Metrics, data contracts, dashboards,
+alerts
+debit_date contract verified; funnel +
+overturn dashboards live
+Engineering 	Read/act services, Kapture integration,
+LiF day-0 feed, SLA clock
+Auto-waive fires even if Kapture is
+stuck; no double-push
+
+-- 1 of 25 --
+
+Function 	Owns 	Bar
+Support / Ops
+(CX)
+Agent rubric, queue, decision-tree
+reroute
+Rubric + QC live before launch; no
+duplicate ticket paths
+KR Snapshot
+POD 	F&E / Valmo / SX Claims & Losses
+KR / Feature 	FE Loss Report Card — loss visibility + dispute-before-debit
+Current Version 	V1 (first build) — draft, doc version 8
+Status 	KRD review → Kapture API + security discussion (PoC: Sanam Suri;
+Kapture: Priyanka)
+Target timeline 	To be updated
+Contributors 	PM [Shreyash] · Designer [TBD — V9 design under review] · Eng [TBD] ·
+Analyst [Sanjay] · Business [Rachit] · Support [Nandini, Nikhil, Niharika]
+Approvers 	Product Mentor · EM · Design Mgr · Analytics Mgr · Biz-Fin · Biz Mentor ·
+Security (Kapture image hand-off)
+Linked docs 	Flow diagram (FE_Settlement_Flow_v3) · Design V9 · Wireframes v3 ·
+Business flow doc · Kapture call transcript (3 Sep ’26)
+
+-- 2 of 25 --
+
+SECTION I · Executive Summary
+1. The Problem
+Owner: Product; sized with Business / Biz-Fin.
+Problem statement. When a loss is attributed to a Pilot, money is deducted from their payment with no
+explanation and no chance to respond. In the app they see one cumulative line (e.g. “Lost Shipments
+−₹255”) with no shipment-level break-up and no reason (Pilot app mock screens below). If the attribution
+is wrong, the Pilot has no way to contest it — the money is already gone.
+What this causes.
+• Pilots cannot correct the behaviour behind a loss they never see explained — so the same mistakes
+repeat.
+• Every unexplained deduction becomes a support query. Deduction break-ups are pulled and
+explained manually by the support team today (support team, Kapture call 3 Sep ’26).
+• Deducting before hearing the Pilot means wrong attributions cost Pilots money with no recourse — a
+fairness and trust problem, and a grievance/attrition risk.
+Size. ≈₹800 debited per Pilot per month across the ~4K Pareto Pilots (372 hubs) → ≈₹32L/month,
+≈₹3.8Cr annualised, before attribution coverage extends to the full base [analytics, Jun ’26]. ~3 attributed
+loss events per Pilot per month on average [analytics, Jun ’26]. Full-base sizing [TBD].
+Mock example of currently live Pilot Payment section in Valmo1/Valmo Partner application
+Deductions section not showing any AWB level details Adjustment section not showing any AWB level details
+
+-- 3 of 25 --
+
+2. High-Level Solutioning
+Owner: Product.
+Direction. “Innocent until proven guilty” (leadership direction, Aug ’26): show the Pilot the likely debit first,
+give them the right to respond, and deduct only after — by their acceptance, by a failed dispute, or by
+silence after fair notice.
+Hypothesis. If a Pilot can see each loss with its proof and act on it (accept or dispute) before money is
+cut, then wrong attributions get corrected and repeat mistakes fall, thereby reducing loss events per
+active Pilot. The flywheel: visibility → Pilots fix behaviour and contest wrong attributions → SX claims go
+down → SX improves → CPS reduced
+The model in summary: A loss is attributed and shown in the app with the Pilot’s own photos. The Pilot
+has 7 days from the day it is attributed to them (one clock for every case; no separate seen-based
+window) to choose:
+If they choose Accept (“yes, my mistake” + a reason chip — business then selects Y% of accepted
+shipments for full deduction; the rest are not deducted; the Pilot is told the outcome before payout, and
+the app never promises a waiver),
+If they choose Dispute (one chance, reason chip + optional text note — no voice notes — goes to
+Kapture, a human agent reviews 100% of disputes within a 7-day SLA; right → marked loss waived off;
+wrong → full loss marked value deducted; SLA missed → auto-waived), or stay silent → full amount
+deducted at window close.
+A Pilot whose last X disputes in a row were found wrong gets disputes paused for [T] days (accept and
+silence stay open; one won dispute resets the counter).
+The three tabs.
+● Needs action — open losses, sorted by days left; act here.
+● Debits — what was deducted and why, grouped by date, each item pointing to the exact line in
+the payment.
+● Wrong Pickups — information only; never debited.
+Lost in Field (LiF) is special. A parcel taken out but neither delivered nor returned is auto-deducted the
+same day by the payout engine, and the Pilot has 7 days to return it to the hub to get the money back. So
+it appears in both tabs from day 0: a recovery card in Needs action (“₹40 already cut — return by
+<date> to get it back”) and a live row in Debits. On return, the card leaves Needs action and a green
+credit row is added in Debits — like a bank statement.
+Scope / phasing.
+• V1 — the three tabs; the accept / dispute / silence flow; Kapture ticket integration (two-way);
+Lost-in-Field day-0 in both tabs; SMS at attribution + day-4/6 reminders; debit-date column in the
+loss engine; simple-English copy, localised to the app’s language set. Also in V1 (v8): deep-link
+from a payment’s deduction line to the matching loss, at line-item level (F27).
+• V2 — central loss DB in the loss engine as the single read path for all entity losses; Captain report
+card on the same rails. Push notifications for needs action/debits/wrong RVP..
+
+-- 4 of 25 --
+
+• Deferred — automating payout deduction for SX-claims losses (today a manual file upload in the
+loss engine) — after this ships. In design: fraud-awareness overlay stays — treatment to be refined
+with the designer.
+3. Goals, NSM — Success & Check Metrics
+Owner: Product; computation with Analytics.
+Element 	Definition
+KR goal 	Reduce losses from seller claims, fairly: fewer repeat mistakes (behaviour
+change) and wrong attributions corrected before money is deducted.
+NSM 	Loss (claims) events per active Pilot per week, exposed vs holdout,
+trending down. Robustness cut: loss events per 50 reverse-pickup
+shipments. Clarification: the NSM counts debited loss types only (photo
+junk, mismatch, Lost in Field). Wrong pickups carry no deduction (only
+tracked for now) separately as a wrong-pickup rate (advisory), outside
+the NSM. The per-50-RVP cut normalises by reverse-pickup volume
+(exposure), not by wrong-RVP events.
+Model-health metrics 	Action rate (% of marked losses acted on in-window); accept rate;
+dispute rate; silence rate; overturn rate (disputes won) by reason and by
+agent; SLA compliance (% disputes closed in 7 days) and auto-waive
+count; Lost-in-Field recovery rate (% returned in window).
+Leading indicators 	Loss-bearing-Pilot view rate; view-to-improvement delta (defect-rate drop
+in the 3–7 days after a view).
+Money metrics 	Total loss events and ₹, exposed vs holdout; selection leakage (₹ not
+deducted on accepted-but-not-selected shipments) — a budgeted cost,
+signed by Biz-Fin [TBD].
+Expected impact 	[TBD] once baseline locks
+Non-goals 	No payout automation; no appeal-on-appeal; the old Potential-debit
+concept is gone; other debit entities out (own KRDs);awareness overlay
+— design treatment with the designer [open].
+Guardrails (each wired to a threshold, window, action, owner).
+Guardrail 	Breach 	Window 	Action 	Owner
+Wrong-Pilot data / photo
+shown (privacy)
+Any confirmed
+case
+Immediate 	Alert → pause tab
+(feature flag) →
+root-cause
+PM + Eng
+Deducted amount ≠ what
+the app showed
+(reconciliation)
+Any confirmed
+mismatch
+Weekly 	Alert → reconcile →
+pause if systemic
+Biz +
+Eng+PM
+Dispute volume > agent
+capacity (SLA at risk)
+[TBD]% queue
+breach
+Daily 	Add capacity / tighten
+dedupe; auto-waive
+still fires
+Support +
+Biz
+Grievance / escalation
+spike
+[TBD]% over
+holdout
+2 weeks 	Investigate → pause if
+sustained
+Ops + Biz
+App performance (low-end
+/ 2G)
+> NFR target 	Continuous Fix → pause at scale Eng
+
+-- 5 of 25 --
+
+Kill-switches. Feature flag on the Losses section (by cohort/DC). The Kapture ticket feed and the LiF
+day-0 feed each have their own off-switch — turning one off never blocks the auto-waive clock (it runs in
+our system).
+4. Opportunities to Use AI [Contextual]
+Owner: Product.
+None in V1 (show, choose, review). V2 candidates: agent-assist on dispute review (photo checks),
+repeat-pattern coaching. Identify patterns of fraudulent pilots to refine the debit process further.
+
+-- 6 of 25 --
+
+SECTION II · Product Requirement Documentation
+5. User Stories and Capabilities
+Owner: Product.
+5a. User Stories
+ID 	As a… I want to… 	So that… 	Pain today
+US-01 Pilot 	see every loss marked to me,
+with my own photos and the
+reason
+I know what went
+wrong and how much is
+at stake
+One cumulative
+deduction line; no
+break-up, no reason
+US-02 Pilot 	dispute a loss I did not cause,
+before money is cut
+a wrong attribution
+does not cost me
+Money is cut first; no
+way to respond
+US-03 Pilot 	accept a genuine mistake with
+my reason
+the case closes and I
+know the outcome
+before my payout
+No channel to respond
+at all
+US-04 Pilot 	see a lost parcel the day (or
+D+1) it is marked, with the
+return deadline
+I can return it and get
+the money back
+I learn about it days
+later, after the window
+is gone
+US-05 Pilot 	match each deduction in my
+payment to a shipment and
+reason
+my payment makes
+sense without calling
+support or captain
+Support pulls the
+break-up manually
+US-06 Support
+agent
+receive disputes as structured
+tickets with evidence attached
+I can decide cases
+consistently and fast
+Queries arrive as
+free-form
+WhatsApp/support
+messages
+US-07 Pilot 	tap a deduction line in my
+payment and land directly on
+that exact loss
+I never have to hunt for
+why money was cut
+The payment line and
+the loss explanation
+are unconnected
+screens today
+5b. Key Functional & Non-Functional Requirements
+Owner: Product. P0 = V1-blocking, P1 = fast-follow.
+Surface & tabs
+# 	Requirement 	Pri 	Notes / edge
+cases
+F1 	Resolve the Pilot from the authenticated app session (stable ID;
+fallback = phone + name where unique ID is absent)
+P0 	Unmapped ID
+→ clean zero
+state, never
+another Pilot’s
+data
+F2 	Losses appears as the third segment in the existing Earnings
+screen (My Earnings / Payments / Losses); rate card hidden while
+Losses is active
+P0 	Badge on the
+segment when
+open cases
+exist
+
+-- 7 of 25 --
+
+# 	Requirement 	Pri 	Notes / edge
+cases
+F3 	Three tabs, in this order: Needs action / Debits / Wrong Pickups 	P0 	Tab names are
+config
+(vernacular
+pass §11)
+Needs action (open cases + window)
+# 	Requirement 	Pri 	Notes / edge
+cases
+F4 	Show each open loss with reason (plain words), ₹, AWB, and days
+left. Sort by days left, ascending
+P0 	Amount never
+reorders; new
+items land by
+their own
+deadline
+F5 	Window = 7 days from the day of attribution — one clock for
+every case. Window state drives the countdown chip
+P0 	First-view event
+still logged
+(F26) —
+analytics only; it
+does not drive
+the window (v8)
+F6 	Badge and “at-risk” total count actionable disputable items only
+— exclude decision-pending cases and Lost-in-Field recovery cards
+P0 	LiF money is
+recoverable,
+not at risk
+[Open
+decision — v8]
+exact counting
+rules to be
+finalised (see
+6h).
+F7 	Acted-on cases stay visible with a Decision pending chip and a
+3-step tracker (raised → your reason → decision expected). A
+Closed strip at the bottom keeps no-money outcomes (dispute won,
+accepted-not-selected) visible
+P0 	Tracker for
+accepted cases
+says “decision
+before your
+payout” — no
+dated reply
+promise
+Loss detail (evidence first)
+# 	Requirement 	Pri 	Notes / edge
+cases
+F8 	Detail shows the Pilot’s own photos above the choices; image set
+per reason-code mapping (mismatch = 4: 2 pickup + 2 QC;
+photo-junk = 2; Lost-in-Field = none)
+P0 	Image missing
+→ placeholder
++ reason + tip;
+row never
+blocked
+F9 	Two option cards, each stating what can happen: Dispute shows
+both endings (₹0 if right / full ₹ if wrong); Accept states the process
++ confirmation promise. Silence consequence printed on-screen
+P0 	Copy never
+promises a
+waiver, never
+shows odds or
+
+-- 8 of 25 --
+
+# 	Requirement 	Pri 	Notes / edge
+cases
+Y% [Open
+decision — v8]
+how the silence
+consequence is
+displayed
+on-screen (see
+6h).
+F10 Voice-out button on every explanation block (text-to-speech in the
+app language)
+P0 	Low-literacy
+support
+Accept path
+# 	Requirement 	Pri 	Notes / edge
+cases
+F11 Accept = one mandatory reason chip (structured) + optional note;
+“Other” requires a note. Case closes on confirm
+P0 	Chips feed
+coaching
+segmentation
+F12 Business selection runs on accepted cases: Y% of accepted
+shipments (not Y% of amount) are selected for full deduction; the
+rest are not deducted. Y and the selection logic are
+business-internal config
+P0 	Identical
+acceptances
+can end
+differently —
+FAQ owns this
+question (§14,
+§22)
+F13 Proactive confirmation before payout: whichever way selection
+lands, tell the Pilot in-app + SMS before the payout adjusts
+[Ope
+n
+deci
+sion]
+Proposed by
+Product;
+firmness,
+channel
+(in-app vs
+SMS) and
+timing to be
+decided (v8,
+see 6h)
+Dispute path (Kapture)
+# 	Requirement 	Pri 	Notes / edge
+cases
+F14 Dispute is single and final per loss: one mandatory reason chip +
+optional text note — no voice notes. No photo upload — the
+parcel is gone and the evidence is already on screen
+P0 	“Other” requires
+a note
+F15 On submit, create a Kapture ticket (AWB-tagged, evidence links,
+Pilot’s reason); agent decisions flow back via the update-ticket API
+and update the case + notify the Pilot
+P0 	One ticket per
+AWB; if
+multi-select
+ever ships,
+parent ticket +
+per-AWB child
+cases
+
+-- 9 of 25 --
+
+# 	Requirement 	Pri 	Notes / edge
+cases
+F16 The 7-day dispute SLA clock runs in our system, not Kapture’s.
+On breach, the case auto-waives (₹0) regardless of ticket state
+P0 	A stuck 3P
+queue must
+never become
+a stuck debit
+F17 Cool-off: > X consecutive disputes found wrong → dispute option
+paused for [T] days (shown with reason + reopen date); accept and
+silence stay open; one won dispute resets the counter to 0
+P0 	X, T = business
+config [TBD]
+Lost in Field (day-0, both tabs)
+# 	Requirement 	Pri 	Notes / edge
+cases
+F18 Ingest a day-0 (or by D+1) Lost-in-Field signal from the payout
+engine (side-channel until the loss engine holds provisional
+records). Show a recovery card in Needs action (“₹X already cut —
+return to your hub by <date> to get it back”) and a live row in Debits
+P0 	SDE aligned
+(Sep ’26); exit =
+hub return
+F19 On return in window: remove the card from Needs action; keep the
+Debits debit row (status “Returned ✓”) and add a green credit row
+in the next cycle — bank-statement style, nothing deleted
+P0 	Credit event
+must arrive on
+the same
+channel
+F20 Shared dedupe key (AWB + debit event) so the day-7 loss-engine
+record merges into the same case — never a duplicate row
+P0 	Dual-source
+integrity, NFR-7
+Debits, Wrong Pickups, notifications
+# 	Requirement 	Pri 	Notes / edge
+cases
+F21 Debits grouped by date (business call, Sep ’26), newest first; every
+row states its path (accepted / dispute checked / no action /
+auto-deducted) and sits under its debit date
+P0 	Debit date = the
+payout engine’s
+execution date
+— see the data
+contract in 6b
+F22 Every debited item carries a payment pointer — the exact payout
+date + section + line it appears in (claims → Adjustments ·
+“Shipment Loss for Junk/Mismatch”; LiF → Deductions · “Lost
+Shipments”). Pointer text is real data, not hardcoded copy;
+mappings are config
+P0 	Line labels
+must match the
+payment screen
+word-for-word
+F23 History kept 3 months in-app (data persists in the loss engine
+beyond)
+P0 	Older → scroll;
+no calendar
+picker
+F24 Wrong Pickups tab: information only, never debited; shows the
+Pilot’s recorded responses + optional “Add your side”;
+reverse-chronological; no red, no minus signs
+P0 	Repeated
+cases may be
+reviewed by the
+hub — stated
+honestly
+F25 Notifications — P1, feasibility itself to be decided. Proposed:
+SMS at attribution + day-4/6 reminders; push also P1→V2. Whether
+SMS/notifications are possible is an open decision; working
+P1
+[deci
+sion]
+Window validity
+no longer
+depends on
+
+-- 10 of 25 --
+
+# 	Requirement 	Pri 	Notes / edge
+cases
+assumption meanwhile: Pilots open the app regularly since
+payments are visible only there. Day-0 Lost-in-Field SMS ask: keep
+or drop [open] (owner: opstech/payout).
+notifications —
+7 days from
+attribution (v8)
+F26 Emit events: case viewed (analytics only) option opened,
+accept/dispute submitted, decision received, credit posted
+P0 	Powers §3
+metrics + §7
+F27 Deep-link (V1 — v8). Tapping a loss deduction line in Payment
+Details opens the matching case in the Losses tab, at line-item
+level. Reverse of the F22 pointer.
+P0 	Payments-surfa
+ce change —
+payout
+front-end team
+dependency
+(6f)
+Non-functional requirements (each a pass/fail UAT).
+• NFR-1 (low-end device): section renders < [TBD]s on a 2GB-RAM Android; text renders before
+images.
+• NFR-2 (2G): thumbnails lazy-load; full image on tap; summary and lists usable before images
+resolve.
+• NFR-3 (offline): last-fetched view cached and readable with an “as of <date>” state [frontend
+feasibility check pending].
+• NFR-4 (image serving, two rules): in the Pilot app, images use the public links already stored in
+the gold table (decision, Jul ’26). Into Kapture (3P), images go via a broker service issuing
+expiring links (2–4h) — never raw links to a third party [security sign-off pending]. [Marked open:
+tracked in 6h so it is not forgotten.]
+• NFR-5 (reason scalability): reasons rendered are controlled by a whitelisted-reasons array
+(config); the list may grow to ~10 without redesign.
+• NFR-6 (SLA correctness): the auto-waive fires exactly once per breached case, even if Kapture is
+unreachable; a late agent decision after auto-waive cannot un-waive.
+• NFR-7 (dual-source integrity): while LiF arrives via the side-channel (payouts engine), merges with
+loss-engine rows must never double-count (F20 key) and totals must still match the payment lines to
+the rupee.
+6. Solution Deep Dive
+Owner: Product (validated with Eng, Analytics, Support).
+6a. Solution Pathways — Trade-offs
+Option 	Pros 	Cons
+A. Read-only
+transparency (v6
+model)
+Simple; no ops load 	Pilot still has no voice; wrong
+attributions still cost money;
+grievance risk stays
+B.
+Dispute-before-debit
+with accept option
+(chosen)
+Fair process; wrong attributions
+corrected before money moves;
+disputes audit the attribution pipeline
+for free
+Agent workload; SLA machinery;
+selection fairness must be
+communicated well
+C. Sampled merit
+review (X% of
+Caps agent load by design 	Considered and dropped: with the
+accept option, dispute volume
+
+-- 11 of 25 --
+
+Option 	Pros 	Cons
+disputes checked,
+rest auto-waived)
+self-sorts to genuine cases, so 100%
+review is affordable and cleaner
+6b. Solution Details
+Current state (unchanged by this KRD). Hub-checkpoint images → analyst audit → audited data →
+gold.sx_report_debit assigns the debitable entity, reason and cycle date → Finance executes deductions.
+Lost-in-Field is separate: detected and auto-deducted the same day by the payout engine; the loss engine
+receives only unresolved cases, 7 days later; returned-in-window cases are auto-credited and never
+recorded.
+Core rules of the model.
+• Every loss gets a hearing window. 7 days from the day of attribution. Notification approach is
+an open decision (F25); the working assumption is Pilots open the app for payments. Silence after
+that = full deduction — a real choice, not a trap.
+• Accept = settlement. One reason chip; case closes. Business selects Y% of accepted shipments
+for full deduction; the rest are not deducted. The app promises the process and the date, never the
+outcome — no odds, no Y% on screen. The Pilot is told the result before payout (F13). [Confirmation
+approach — open decision]
+• Dispute = one fair shot. 100% human review in Kapture, 7-day SLA, both endings stated before
+submit. Right → ₹0. Wrong → full amount. SLA missed → auto-waived — our delay is never the
+Pilot’s cost.
+• Cool-off protects the queue. Only consecutive wrong disputes trigger it; a single win resets it;
+accept stays open throughout. It throttles gambling, never removes recourse permanently.
+• Lost in Field = recover, not argue. Already deducted upstream; the app’s job is to surface the
+7-day return remedy on day 0 and to pair the debit with its credit when the parcel comes back.
+• Wrong pickups are advice, not debits. Shown with the Pilot’s own recorded responses; never
+money.
+• Status lifecycle (data). ATTRIBUTED → (viewed) → IN-DISPUTE / ACCEPTED → DEBITED /
+WAIVED / NOT-DEDUCTED, plus LiF RETURNED-CREDITED. This lifecycle is the shape the
+central loss DB should hold for every entity — Lost-in-Field day-0 is just its first provisional writer.
+The reconciliation contract (load-bearing).
+• A new debit_date column is added to the loss engine (this KRD). It must equal the payout
+engine’s execution date — the “Payment for <date>” date, not the credited date, not an ingestion
+timestamp.
+• Debits post on their resolution date (a loss attributed 7 Aug, resolved 11 Aug, shows under 11
+Aug). The detail screen’s timeline carries the attribution date, so nothing double-counts.
+• Claims losses reach the payment via the adhoc-adjustment rail → they appear inside Adjustments
+as “Shipment Loss for Junk/Mismatch” (a cumulative negative line per the Pilot’s payout period). LiF
+appears inside Deductions as “Lost Shipments”. The app’s per-item payment pointer (F22) must
+name these exactly. Ask logged: move claims losses to Deductions later; line-level match is the
+contract either way.
+Edge cases.
+• Pilot never opens the app → the 7-day window runs from attribution and closes on schedule;
+deduction proceeds. [Open decision] whether SMS/notifications are feasible; working assumption:
+Pilots open the app regularly since payments are visible only there; the case remains explained in
+Debits.
+• Dispute submitted at day 6, resolved day 13 → posts under its resolution date; tracker shows the
+journey.
+• Kapture down / ticket stuck → SLA clock (ours) still fires auto-waive; ticket reconciled later (NFR-6).
+
+-- 12 of 25 --
+
+• Agent decision arrives after auto-waive → waive stands; decision logged for QC only.
+• LiF returned but hub scan failed → case lands as “not returned”; the Debits detail carries “Returned
+already? Raise a ticket” — the escape hatch for exactly this error.
+• Same AWB from side-channel and loss engine → F20 key merges; never two rows.
+• Reason code missing from tip/image mapping → generic tip / no-image state; gap logged.
+• BTS / peak traffic: image serving degrades to text-first (NFR-1/2); lists paginate. [Open decision]
+exact pagination/degradation behaviour at peak (see 6h).
+6c. Operating-Model Coverage Matrix
+Support operating model changes: dispute tickets shift from free-form WhatsApp decision-tree entries to
+structured in-app tickets. The decision tree must reroute its payment-dispute path to the app (owners:
+Nikhil, Niharika) or double-ticketing breaks the SLA/auto-waive logic. Agent rubric + QC = new ops
+artefacts (6k).
+Ticket-channel map — where this feature does and does not interact:
+Channel 	What it carries today 	Interaction with this
+feature
+Change needed
+In-app Losses tab (new) — 	The only channel for
+disputing an attributed
+loss
+New (this KRD)
+WhatsApp decision tree Payment/deduction
+queries land here
+Must NOT accept loss
+disputes after launch —
+double-ticketing breaks
+the SLA/auto-waive
+clock
+Reroute
+payment-dispute
+path to the app —
+launch gate
+Email-based tickets 	General support /
+escalations [to verify
+with Support]
+No loss-dispute
+handling; agents
+redirect to the app
+Redirect macro +
+agent brief [TBD]
+Helpline / captain
+escalation
+Ad-hoc queries on the
+floor
+Explain + redirect to the
+app; captains briefed
+(§14)
+Briefing content only
+6d. Designs
+Owner: Design. Reference build: FE Report Card V9 (by PM); designer review pending.
+Screens covered in V9: Needs action (in-situ, sorted); loss detail with two option cards; accept sheet +
+accepted state; dispute sheet; decision-pending tracker; dispute-won; Debits ledger with credit rows;
+closed-case receipts; cool-off; Wrong Pickups with catalog comparison; Lost-in-Field; empty state;
+voice-out on all explanation blocks. Copy corrections in flight from KRD review: tracker’s accepted-case
+promise (“before your payout”, not a dated reply), dispute card’s two endings restored, tab order (Debits
+second). Design bar: a Pilot understands the three choices in 10–15s; ≥3 real Pilot walkthroughs before
+sign-off.
+https://claude.ai/design/p/d575b3af-5b11-48a6-807e-1b697967139f?file=FE+Report+Card+V9.dc.ht
+ml&via=share
+
+-- 13 of 25 --
+
+6e. Tech Feasibility Checks
+Point 	Concern 	Implication 	Status
+LiF day-0 feed from
+payouts engine
+Case lives in the payout
+engine on day 0; loss
+engine gets it day 7+
+Side-channel read +
+F20 dedupe key + credit
+event on the same
+channel
+SDE thinking through
+(Sep ’26)
+Kapture APIs 	Create-ticket +
+update-ticket; Meesho
+instances are
+customised per team
+Contract discussion with
+Kapture (Priyanka) once
+this KRD is shared;
+two-way sync
+Open
+Image hand-off to 3P 	Raw links to a 3P are
+not acceptable
+Broker service, expiring
+links (2–4h); security
+sign-off
+Open (Sanam to loop
+security)
+SLA clock ownership 	Breach → auto-waive
+must fire even if
+Kapture is stuck
+Clock + waive trigger in
+our system; ticket state
+reconciled after (NFR-6)
+Open
+debit_date column 	New column; must
+equal the payout
+execution date
+One source event for
+both systems;
+UAT-verified line-level
+equality
+Open (Analytics)
+Status lifecycle in the
+central DB
+Loss engine today
+stores settled records
+only
+Provisional records +
+status transitions —
+same shape the dispute
+flow needs anyway
+Open (Loss Engine
+POD)
+6f. Dependencies & Cross-POD Alignment
+Owner: Program + Product. “Told” ≠ done — verify delivered.
+Dependency 	Owner 	Needed by 	Status
+debit_date column in the loss
+engine (= payout execution date)
+Analytics + Loss
+Engine POD
+Build start 	[TBD] / No
+Day-0 LiF signal + return/credit
+event + dedupe key (F18–F20)
+Payout engine + Eng Build start 	SDE apprised / No
+Kapture create/update ticket APIs +
+instance customisation review
+Kapture (Priyanka) +
+Sanam
+Build start 	Call done 3 Sep / No
+Image broker with expiring links +
+security sign-off
+Eng + Security (via
+Sanam)
+Before UAT 	[TBD] / No
+Support decision-tree reroute
+(payment-dispute path → app)
+Nikhil + Niharika
+(Support)
+Launch 	[TBD] / No
+Agent rubric + QC + queue setup
+(12–15 3P agents, existing
+capacity)
+Nandini (Support) +
+Product + Biz
+Before UAT 	[TBD] / No
+Day-0 LiF SMS from the opstech
+deduction flow
+Opstech / payout
+team
+Launch 	Ask logged / No →
+Open (v8): keep or
+
+-- 14 of 25 --
+
+Dependency 	Owner 	Needed by 	Status
+drop this ask
+[decision]
+Reason-code → tip and →
+image-set mappings (config)
+Business 	Build start 	[TBD] / No
+Y%, X, [T] values +
+selection-leakage budget
+Business 	Before
+experiment
+[TBD] / No
+Payment line labels confirmed
+(“Shipment Loss for
+Junk/Mismatch” in Adjustments;
+“Lost Shipments” in Deductions);
+section-move ask logged
+Payout team +
+Finance
+Build start 	Confirmed Sep ’26 /
+ask open
+Payment Details → Losses
+deep-link at line-item level (F27)
+Payout front-end
+team + Eng
+Build start 	[TBD] / No
+6g. Implications on Ground Operations
+No new capture step — the delivery/pickup flow is unchanged. Ground implications are behavioural:
+(1) Pilots must understand three choices, in vernacular, fast — FGD-tested;
+(2) identical acceptances can end differently (selection) — floor comparisons will happen; captains and
+the FAQ must own the answer (“every accepted case goes through the same review”);
+(3) LiF recovery depends on the hub return loop working — captains briefed to accept and scan returns
+promptly..
+6h. Key Alignment Points
+Decided.
+Call 	What was decided 	Decided with
+Dispute SLA breach 	Auto-waive — our delay never costs the
+Pilot
+Anant + team, Aug ’26
+Selection on accepted cases Y% of accepted shipments, full deduction
+on selected; never Y% of amount; outcome
+confirmed before payout
+Business, Sep ’26
+Silence 	Full deduction at window close — with SMS
++ reminders, seen-based window, 14-day
+cap as protections
+Business, Aug ’26
+Cool-off 	> X consecutive wrong disputes → pause
+[T] days; win resets; accept stays open
+Team, Aug ’26
+Lost in Field 	Day-0 in both tabs; hub return is the exit; on
+return — leave Needs action,
+bank-statement credit pair in Debits
+Team, Sep ’26
+Debits grouping 	By dates (not payout periods) — business
+call; item-level payment pointer carries
+reconciliation
+Business, Sep ’26
+
+-- 15 of 25 --
+
+Call 	What was decided 	Decided with
+Dispute inputs 	One dispute, chips + text/voice; no photo
+upload (parcel gone; evidence on screen)
+Team, Sep ’26
+Posting basis 	Resolution date (closes the old claim-date
+vs debit-date question)
+Team, Sep ’26
+Dispute window basis 	7 days from attribution for every case —
+no seen-based clock, no 14-day cap
+Product + Business,
+Sep ’26
+Payment deep-link 	Line-item deep-link from Payment Details
+into the Losses tab ships in V1 (F27); push
+notifications move to V2
+Product, Sep ’26
+Dispute inputs 	Chips + optional text note only — no voice
+notes
+Product, Sep ’26
+Reason naming 	“Delivery photo not clear” is ICUD junk —
+same reason, FE-facing name
+Product + Business,
+Sep ’26
+Awareness overlay 	Stays in the design; copy/treatment refined
+with the designer
+Product + Business,
+Sep ’26
+Open.
+• Y%, X, [T] values and the leakage budget [Business + Biz-Fin].
+• Fraud-awareness overlay — in or out, copy, and triggers [debate scheduled; concerns logged: tone
+on the losses surface, force-show after a lost dispute].
+• Kapture instance customisation + API contract details [Priyanka].
+• Security sign-off on the image broker [Security via Sanam].
+• Offline caching feasibility [Frontend].
+• Notification feasibility: whether SMS/push are possible at all; if yes, templates + cadence; day-0
+LiF SMS — keep or drop [Product + Eng + opstech].
+• Pre-payout confirmation, F13: firm requirement or not; channel and timing [Product + Business].
+• Badge / at-risk counting rules, F6: exact inclusion rules to finalise [Product + Design].
+• Silence-consequence display, F9: how it is shown on-screen [Product + Design].
+• BTS / peak degradation behaviour: pagination + image fallback specifics [Eng].
+6i. Versioning Calls
+When 	Item 	Why
+V1 	Full model as scoped in §2 +
+payment deep-link
+The choice flow and LiF day-0 are the
+product; shipping read-only first would
+rebuild trust twice
+V2 	Central-DB single read path; Captain
+report card + push notifications
+Same lifecycle, next entities
+Deferred 	Automating payout deduction for
+SX-claims losses — today a manual
+file upload in the loss engine
+After the report card is done (team call,
+Jul ’26)
+In design 	Fraud-awareness overlay 	copy/treatment refined with the designer
+
+-- 16 of 25 --
+
+6j. Pressure-Testing Thresholds & Configuration
+High-blast-radius config, all [TBD], none shipped from gut feel
+Y% (selection rate — sets both deterrence and leakage; sized with Sanjay on real claim distributions),
+X (consecutive wrong disputes — too low punishes unlucky honest Pilots),
+[T] (cool-off length — one debit cycle is the starting suggestion), window length (7 days from
+attribution), reminder days, whitelisted reasons, tip/image mappings, payment line labels. All config, no
+hardcoding.
+6k. Manual Interventions
+Dispute review is deliberately manual: 12–15 3P agents on the existing queue, working to a written rubric
+(reason required on both accept and reject decisions; correct-loss vs wrong-loss classification) with
+maker/checker QC — with auto-waive on SLA, agent throughput converts directly to waived money, so
+per-ticket contract incentives must be checked. Mappings (tips, image sets, labels) are maintained lists
+with named owners. The support decision tree needs upkeep after the reroute.
+6l. Risk Register
+# 	Risk 	Likeli. Impact Mitigation 	Owner
+R1 Pilot never learns of the window
+→ silent lapse feels like today’s
+system with extra steps
+Med High 	Notification feasibility is itself
+open (F25, v8) — until
+decided, discovery rests on
+in-app visits (payments live
+there), the segment badge
+and the bell. If notifications
+are ruled out, revisit window
+length. Deep-link from
+payments (F27) adds a
+discovery path in V1.
+Product
++ Eng
+R2 Wrong-Pilot data or photo shown
+(privacy)
+Low 	Very
+High
+Authenticated ID join;
+immediate-pause guardrail
+Eng +
+PM
+R3 Dispute flood → SLA breaches
+→ auto-waive leaks money
+Med High 	Accept option self-sorts
+volume; evidence-first UX;
+cool-off; capacity guardrail
+(§3); queue dashboards
+Support
++ PM
+R4 Agent inconsistency → identical
+cases decided differently
+Med High 	Rubric + reasons both ways +
+maker/checker QC +
+overturn-by-agent metric
+Support
++
+Product
+R5 Selection fairness — identical
+acceptances end differently →
+floor anger
+Med Med 	Process-language copy; FAQ
++ captain briefing own the
+answer; proactive
+confirmation (F13)
+Product
++ Biz
+R6 Double-ticketing via the old
+WhatsApp path → two SLAs,
+broken clocks
+High Med 	Decision-tree reroute is a
+launch gate (6f)
+Support
+R7 LiF dual-source drift → duplicate
+rows or totals ≠ payment
+Med Med 	F20 dedupe key; NFR-7;
+line-level UAT
+Eng +
+Analytic
+s
+
+-- 17 of 25 --
+
+# 	Risk 	Likeli. Impact Mitigation 	Owner
+R8 Kapture dependency (API
+custom work, security) slips the
+timeline
+Med Med 	Contract talks start with this
+KRD; broker scoped early;
+fallback = manual queue
+bridge for pilot cohort
+PM +
+Biz +
+Kapture
+R9 Low adoption (pull-only surface)
+→ windows lapse unseen
+Med Med 	SMS carries the surface;
+badge + bell;
+leading-indicator tracking
+from day one
+Product
+7. Data Instrumentation
+Owner: Analytics. [pending]
+Events: loss_case_viewed (starts the window), option_card_opened, accept_submitted (chip),
+dispute_submitted (chip), kapture_ticket_created / decision_received, auto_waive_fired,
+selection_result_shown, lif_recovery_shown / returned / credit_posted, payment_pointer_tapped — each
+with pilot_id, awb, reason, ₹, timestamps.
+Funnels: marked → viewed → acted → outcome; dispute → decision → overturn.
+Dashboards: §3 model-health set + SLA/queue + reconciliation counter. GATE: events reviewed before
+dev.
+8. Cost Implications [Contextual]
+Owner: Engineering + Biz-Fin. [pending]
+Agents: existing 12–15 3P capacity, incremental utilisation [TBD with Support]. Kapture: per-ticket /
+customisation cost [TBD via Sanam]. One-time: broker service, LiF side-channel, app build. Running:
+SMS (attribution + 2 reminders + confirmations) at [TBD]/case; selection leakage is a policy budget (§3),
+not a system cost.
+
+-- 18 of 25 --
+
+SECTION III · Launch Readiness
+9. Experimentation & Impact Measurement
+Owner: Product, with Analytics. Tooling [TBD].
+Element 	Detail
+What we’re testing 	Does see-and-respond reduce loss events per Pilot vs no visibility? Causal
+question → test–control: Losses section ON for exposed Pilots, OFF for
+holdout.
+Who’s in the test 	Unit: Pilot × week. Random split within similar groups (tenure, Pareto DC,
+baseline loss rate, reverse-pickup volume).
+Main metric (NSM) 	Loss events per active Pilot per week, exposed vs holdout. Robustness: per
+50 RVP shipments.
+Early signal 	View-to-improvement delta — defect-rate drop in the 3–7 days after a case
+view.
+Also read 	Action rate; accept vs dispute vs silence mix; overturn rate by reason (an
+audit of the attribution pipeline itself); SLA compliance; LiF recovery rate;
+leakage ₹.
+Guardrails 	§3 table — privacy, reconciliation, queue capacity, grievance, app
+performance.
+How big, how long 	[TBD] with Analytics (power calc). Keep a long-term holdout — confirm the
+change sticks, not a novelty dip.
+Ship rule 	Scale only if the NSM is down vs holdout at [TBD] significance with
+guardrails clean; otherwise iterate or hold. Test–control is mandatory.
+10. User Acceptance Testing [Pre-Prod]
+Owner: Product & Design. [pending]
+# 	Scenario 	Expected 	Result
+1 	Window starts on first
+view
+Countdown begins at attribution for every case;
+window closes at day 7 regardless of whether the
+case was viewed
+TBD
+2 	Sorting + badge 	Needs action sorted by days-left ascending; badge
+counts actionable items only (pending + LiF
+excluded)
+TBD
+3 	Evidence-first detail 	Photos render per reason mapping (4 / 2 / none);
+missing image → placeholder, row usable
+TBD
+4 	Accept end-to-end 	Chip required (“Other” needs note); case closes;
+selection outcome communicated per the decided
+confirmation approach (F13 — open)
+TBD
+5 	Dispute end-to-end 	One dispute only; Kapture ticket created with
+evidence links; agent decision returns and updates
+the case + notifies
+TBD
+
+-- 19 of 25 --
+
+# 	Scenario 	Expected 	Result
+6 	SLA breach 	Unresolved at day 7 → auto-waive fires once; late
+agent decision cannot un-waive
+TBD
+7 	Cool-off 	Xth consecutive wrong dispute pauses disputes
+with reason + reopen date; accept still works; a win
+resets the counter
+TBD
+8 	Silence 	No action by window close → full deduction; Debits
+row reads “no action taken”
+TBD
+9 	LiF day-0 	Recovery card + Debits row on day 0; excluded
+from at-risk total; day-7 loss-engine record merges
+(no duplicate)
+TBD
+10 LiF return 	Card leaves Needs action; Debits keeps debit row
+(Returned ✓) + green credit row next cycle
+TBD
+11 Reconciliation 	For sampled payouts: sum of app items per
+payment line = the payment line, to the rupee,
+labels word-for-word
+TBD
+12 Decision-tree reroute 	Old WhatsApp payment-dispute path redirects to
+the app; no duplicate ticket for the same AWB
+TBD
+13 Wrong Pickups 	Info-only; no ₹ minus anywhere; “Add your side”
+saves
+TBD
+14 Notifications 	Per the decided notification approach (open): if
+SMS enabled — attribution + day-4/6,
+app-language copy, deep-open (v8)
+TBD
+15 Offline / 2G / low-end 	Cached “as of” view; text before images; NFR-1
+timing
+TBD
+16 Privacy 	Unmapped ID → zero state; never another Pilot’s
+case or photo; Kapture links expire
+TBD
+17 Voice-out + languages 	Every explanation block reads aloud in the app
+language; fallback to default
+TBD
+18 Design fidelity 	Matches approved V9-derived Figma; ≥3 Pilot
+walkthroughs done
+TBD
+19 Payment deep-link (v8) 	Tap a loss deduction line in Payment Details 	Opens the
+Losses tab at
+the matching
+case
+(line-item
+level); back
+returns to the
+payment
+*Exit: zero open P0/P1 defects.*
+
+-- 20 of 25 --
+
+11. Feature Training & Content
+Owner: Product (content) + Training. [pending]
+Simple-English base copy → vernacular pass for every app language (tab names, the three choices, LiF
+recovery line). Comprehension check: three choices + “what happens if I do nothing” understood in
+10–15s. Agent-side: rubric + decision-reason templates.
+12. Demo Day [Pre-experiment in Prod]
+Owner: Product & Design. [pending]
+Real Pilots, real cases: watch the choice moment, the accepted-case confirmation, and one LiF recovery.
+Feed back before go-live.
+13. Data Instrumentation Review
+Owner: Analytics. [pending]
+Events → dashboards verified on real rows; ≥1 alert test-injected (privacy, reconciliation drift, SLA breach
+spike).
+14. GTM Plan
+Owner: Business + Product.
+• In-app announcement + first-run walkthrough of the three choices.
+• Vernacular one-pager + captain / floor-champion briefing — including the one hard question: “why
+was my accepted case deducted and his wasn’t?” (answer: every accepted case goes through the
+same review; the FAQ owns it).
+• Support briefed; decision-tree reroute live on day one (R6).
+• Sequenced rollout: Pareto cohort → broader matched cohort → all Pilots.
+SECTION IV · Experiment Launch Checklist
+15. Experiment Launch Checklist
+Owner: Product. [pending]
+Theme 	Item 	Owner 	Status
+Sign-offs 	All KRD section sign-offs, incl. Security (image
+broker)
+PM 	Pending
+Decisions 	Y%, X, [T], leakage budget locked with data 	Business + Biz-Fin 	Pending
+Decisions 	Awareness overlay copy/treatment finalised with
+the designer
+Design + Product 	Pending
+Data 	debit_date live and equal to payout execution date
+on real rows
+Analytics 	Pending
+Data 	Reason mappings + whitelisted array delivered 	Business + Product Pending
+Integrations 	Kapture create/update verified two-way; SLA clock
++ auto-waive tested (incl. Kapture-down case)
+Eng + Kapture 	Pending
+Integrations 	LiF day-0 feed + return/credit event + dedupe
+verified
+Payout eng + Eng 	Pending
+
+-- 21 of 25 --
+
+Theme 	Item 	Owner 	Status
+Ops 	Agent rubric + QC live; queue set; capacity
+confirmed
+Support 	Pending
+Ops 	Decision-tree reroute live 	Support (Nikhil) 	Pending
+Comms 	Notification approach decided (SMS/push
+feasibility); templates if applicable; day-0 LiF SMS
+keep/drop answered (v8)
+Product + Opstech 	Pending
+Quality 	UAT complete, zero open P0/P1; reconciliation
+scenario passed
+Product + Design +
+Eng
+Pending
+Safety 	Feature flag + feed kill-switches tested 	Eng 	Pending
+Decisions 	F13 pre-payout confirmation: firm or not + channel
+decided
+Product + Business Pending
+Integrations 	Payment deep-link (F27) verified end-to-end (v8) 	Payout FE team +
+Eng
+Pending
+SECTION V · Post-Launch Governance
+16. Post-Launch Bugs & Hotfixes
+Owner: Product & Tech. [filled post-launch]
+Bug log (JIRA · severity · owner · resolved) + learnings. Incident RACI covers privacy (R2) and
+reconciliation drift as sev-1.
+17. Experimentation Results & Learnings
+Owner: Product & Analytics. [filled post-experiment]
+Results vs expected · assumption register · scale / iterate / roll back call. Holdout retained; 30/90-day
+review.
+SECTION VI · Scale-Up Strategy & Governance
+18. Dashboards & Alerts (Before Scale)
+GATE: model-health + queue + reconciliation dashboards verified on real data; alerts test-injected
+(privacy, reconciliation, SLA-breach spike).
+19. Scale-Up Plan
+Phased: Pareto cohort → matched broader cohort → all Pilots (attribution coverage extends in step).
+GATE before all-Pilots: privacy clean; reconciliation clean; SLA compliance ≥ [TBD]%; grievance within
+bounds; queue stable at projected volume. RED FLAG: assuming adoption because it shipped (R9).
+20. Scale-Up Checklist
+Experiment positive · LoDs captured · UAT zero P0/P1 · reconciliation verified at scale · queue holds ·
+support ready · privacy verified · documentation done.
+
+-- 22 of 25 --
+
+Appendix
+21. Changelog
+Date 	Change 	Owner
+25–29 Jun
+2026
+v1–v2: initial read-only report card — two-card model
+(Actual/Potential), gold-read service, R-rec
+PM [Shreyash]
+13–21 Jul
+2026
+v3–v5: team-review updates — status column in gold; reason
+scalability + whitelist; mappings; public image links; comment
+resolutions
+PM [Shreyash]
+24 Jul 2026 v6: focus locked to Pilots; two loss types with correct sources
+(LiF → loss engine; SX claims → gold); central-loss-DB
+decision; payout automation removed/deferred
+PM [Shreyash]
+3 Sep 2026 v7 (this doc): model replaced — dispute-before-debit with
+accept (Y%-of-shipments selection), single dispute + 7-day
+SLA + auto-waive, cool-off; tabs Needs action / Debits /
+Wrong Pickups; LiF day-0 in both tabs with bank-statement
+credit; debit_date contract + payment pointers; Kapture
+two-way integration + image broker + decision-tree reroute;
+notifications stack; V9 design referenced. Old Potential
+concept and §9’s prior structure retired.
+PM [Shreyash]
+3 Sep 2026 dispute window = 7 days from attribution for every case —
+seen-based clock and 14-day cap removed (F5, F26, 6b, 6j,
+FAQ, UAT); (2) notifications downgraded to P1 with
+feasibility itself open (F25); working assumption = in-app
+discovery via payments; day-0 LiF SMS ask marked
+keep/drop; R1 reworked; (3) F13 pre-payout confirmation
+marked open decision (firmness + channel); (4) payment
+deep-link moved into V1 (F27, US-07, dependency,
+UAT-19); push notifications → V2; V1.5 bucket dissolved; (5)
+dispute input = chips + text only — no voice notes; (6)
+awareness overlay retained, treatment with designer; (7)
+deferred item reworded: payout deduction for SX-claims
+(today manual file upload in loss engine); (8) 6c
+ticket-channel map added; (9) NSM clarified — counts
+debited types only; wrong pickups tracked as a separate
+advisory rate; (10) “Delivery photo not clear” = ICUD junk
+(resolved); (11) open-decision register expanded in 6h
+(badge counting, silence display, security sign-off, BTS
+behaviour); timeline → “To be updated”; flywheel added to §2;
+PM’s inline edits preserved.
+PM [Shreyash]
+22. FAQs
+• Does money still get cut if the Pilot does nothing? Yes — after a 7-day window from the day
+the loss is attributed (notification approach under decision; Pilots open the app for payments) (v8).
+Silence is a choice the Pilot was clearly offered, not a trap.
+• Why did one accepted case get deducted and another not? Every accepted case goes through
+the same internal review; some are deducted, some are not. The app promises the process and tells
+the Pilot the result before payout — it never promises a waiver. (Confirmation mechanism before
+payout — under decision.)
+
+-- 23 of 25 --
+
+• What if our team misses the 7-day dispute reply? The case is auto-waived. Our delay is never
+the Pilot’s cost.
+• Can a Pilot dispute again after losing? No — one dispute per loss, stated before submit.
+Repeated wrong disputes pause the dispute option for a while; accepting stays open.
+• Why does a lost parcel show as already deducted? Lost-in-Field is auto-deducted the same day
+upstream. The app’s job is the remedy: return it to the hub within 7 days and the money comes back
+as a credit in the next cycle.
+• Why don’t the tab’s date totals match the payment line? The payment line is cumulative over the
+Pilot’s payout period; the tab groups by date. Each item therefore points to its exact payment line —
+match at the item level.
+23. For interested readers (optional)
+Skippable detail — the doc above is complete without it.
+• Why silence = deduction is fair here. The alternative (silence = waive) means nothing ever gets
+deducted and deterrence dies. Fairness is delivered by the protections instead: notice (SMS +
+reminders), a window that starts on sight, a hard cap, and an SLA that penalises us, not the Pilot.
+• Why Y% of shipments, not Y% of amount. A per-amount haircut promises a discount — which the
+business did not want to advertise. Per-shipment selection keeps recovery at the pool level while
+each case stays all-or-nothing; the cost is explainability, which the FAQ and captain briefing carry.
+• Why one dispute, reviewed 100%. The accept option absorbs genuine mistakes cheaply, so
+disputes self-sort toward genuinely contested cases — volumes small enough for full human review,
+no sampling machinery.
+• Why disputes are also a quality tool. Overturn rate by reason and by agent is a free, labelled audit
+of the attribution pipeline; if one reason keeps getting overturned, the fix is upstream, not Pilot
+coaching.
+• Why the SLA clock must be ours. With auto-waive as the breach rule, whoever owns the clock
+owns the money. A 3P queue outage must read as “waive”, not “wait”.
+• Reconciliation fine print. debit_date = the payout “Payment for” date (not the credited date).
+Claims post via the adhoc-adjustment rail into Adjustments; that rail may change later, so all
+labels/sections are config — the invariant is line-level equality between the app and the payment.
+Reviewer’s Note (self-flag)
+Assumption-heavy: sizing rests on the Pareto-cohort numbers [analytics, Jun ’26]; full-base sizing blank.
+Y%, X, [T], leakage budget, SLA-compliance target, queue-capacity threshold — all [TBD] and gating the
+experiment. Agent capacity is asserted (12–15 existing) but incremental headroom is unmeasured.
+Load-bearing integrations, none contracted yet: Kapture two-way APIs (+ per-instance customisation
+unknown), the image broker + security sign-off, and the LiF day-0 feed (SDE thinking through the
+payout-engine side-channel). Any one slipping moves the post-20-Nov target. The payment deep-link
+(F27) adds a fourth integration — a change on the payout team’s surface — now on the V1 critical path.
+Riskiest edge cases to pressure-test: SLA auto-waive under a Kapture outage (NFR-6); LiF dedupe
+when the day-7 record disagrees with the side-channel; the accepted-case confirmation racing the payout
+run (F13). (v8) Silent-lapse is now the top product risk: the window runs from attribution and notification
+feasibility is undecided — if notifications are ruled out, the 7-day window length itself should be revisited
+(6h).
+Thin / scaffolded: 6d (designer review pending on V9), 7–8, 10 results, Sections V–VI. Open decisions:
+§6h list — the awareness overlay and the ICUD-mapping question are the two that can change scope.
+# 	Reason 	Source 	Image set on card
+
+-- 24 of 25 --
+
+1 ICUD image junk 	SX claims (gold) 	2 images
+2 Pickup image junk 	SX claims (gold) 	2 images
+3 Pickup-vs-QC mismatch 	SX claims (gold) 	4 images (2 pickup + 2
+Sec-QC)
+4 Wrong-RVP pickup 	SX claims (gold) 	none (info only)
+5 Lost in Field (shipment lost by the
+pilot on field)
+Loss Engine
+(shipment-loss flow)
+none (reason + tip)
+
+-- 25 of 25 --
+

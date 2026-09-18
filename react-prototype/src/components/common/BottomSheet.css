@@ -1,0 +1,78 @@
+.bottom-sheet-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--scrim);
+  display: flex;
+  align-items: flex-end;
+  z-index: 40;
+}
+
+.bottom-sheet {
+  width: 100%;
+  overflow-y: auto;
+  background: var(--valmo-white);
+  border-top: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  padding: var(--pad-sheet);
+  display: flex;
+  flex-direction: column;
+}
+
+/* The sheet stops scrolling so the caller's body can, which is the only way
+   anything below that body (a commit button) stays pinned. */
+.bottom-sheet--scroll-body {
+  overflow: hidden;
+}
+
+/* A sheet whose body is a full-bleed list: rows bring their own gutters. */
+.bottom-sheet--flush {
+  padding-left: 0;
+  padding-right: 0;
+}
+.bottom-sheet--flush .bottom-sheet__grabber,
+.bottom-sheet--flush .bottom-sheet__head {
+  margin-left: var(--pad-screen);
+  margin-right: var(--pad-screen);
+}
+
+.bottom-sheet__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--gap-group);
+  margin-bottom: var(--gap-heading-below);
+}
+
+.bottom-sheet__title {
+  font-size: var(--heading-02-size);
+  line-height: var(--heading-02-lh);
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+}
+
+.bottom-sheet__subtitle {
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  color: var(--text-secondary);
+  margin-top: var(--gap-tight);
+}
+
+.bottom-sheet__close {
+  flex: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--heading-02-size);
+  line-height: var(--heading-02-lh);
+  color: var(--text-secondary);
+  padding: var(--space-2) var(--space-6);
+}
+
+.bottom-sheet__grabber {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border-subtle);
+  margin: 0 auto var(--gap-group);
+}

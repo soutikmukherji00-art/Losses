@@ -1,0 +1,27 @@
+.add-side__field, .add-side__field textarea { box-sizing: border-box; max-width: 100%; }
+
+
+.add-side__body {
+  font-size: var(--body-03-size);
+  line-height: 18px;
+  color: var(--text-secondary);
+  margin-top: var(--gap-tight);
+}
+
+.add-side__field {
+  margin-top: var(--gap-stack);
+  padding: var(--pad-panel);
+  border: 1.5px solid var(--border-default);
+  border-radius: var(--radius-md);
+}
+.add-side__field textarea {
+  width: 100%;
+  min-height: 48px;
+  border: none;
+  outline: none;
+  resize: none;
+  font-size: var(--body-01-size);
+  line-height: 20px;
+  color: var(--text-primary);
+  background: transparent;
+}

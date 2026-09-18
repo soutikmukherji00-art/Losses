@@ -1,0 +1,120 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+/* filter chip — loss-filter row, unified summary cards reuse the active/inactive colors */
+/* Material filter chips are 32dp tall by spec but still owe a 48dp touch
+   target; the pill keeps its size and the target grows underneath it. */
+.chip--filter {
+  position: relative;
+  flex: none;
+  min-height: var(--control-height-sm);
+  min-width: var(--tap-target-min);
+  justify-content: center;
+  padding: 0 var(--pad-control-x);
+  border-radius: var(--radius-chip);
+  border: 1px solid var(--chip-filter-border);
+  background: var(--chip-filter-bg);
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--fw-book);
+  color: var(--chip-filter-ink);
+}
+/* The border carries the selection too, not just the fill — see the token
+   block in tokens.css. A tint alone reads as "slightly different" at a glance
+   down a scrolling row; a tint plus its own border reads as "this one". */
+.chip--filter[data-active="true"] {
+  background: var(--chip-filter-active-bg);
+  border-color: var(--chip-filter-active-border);
+  color: var(--chip-filter-active-ink);
+  font-weight: var(--fw-bold);
+}
+
+/* reason chip — accept/dispute reason picker */
+/* Same inner inset and stroke as the filter chip, so both chip families put
+   their first letter in the same place. This one sat at 16px of padding
+   behind a 1.5px border — its label landed 4px further in than a filter
+   chip's on the screen directly before it. Height stays larger: this is a
+   form answer, not a filter, and it keeps the full 48dp target. */
+.chip--reason {
+  min-height: var(--tap-target-min);
+  padding: 0 var(--pad-control-x);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--valmo-white);
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+  font-weight: var(--fw-demi);
+  color: var(--text-primary);
+}
+.chip--reason[data-active="true"] {
+  border-color: var(--valmo-dark-grey-01);
+  background: var(--surface-sunken);
+}
+
+/* utility chip — "How payments work" / "Rate card" */
+.chip--utility {
+  gap: var(--gap-lead);
+  padding: var(--space-8);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--valmo-white);
+}
+.chip--utility span {
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+  font-weight: var(--fw-demi);
+  color: var(--text-primary);
+}
+
+/* status badge — the pill every loss row carries, and the app's whole badge
+   vocabulary. One palette per MEANING, so a screen asks for a kind and gets
+   the colour the rest of the app already uses for that meaning. This used to
+   be a bespoke div in ListRow, coloured by inline styles from a raw-hex map
+   in the state layer — which is why new screens kept inventing their own. */
+/* The DS's Badges/Pills object (204:25305): a tinted fill, a 0.5px stroke a
+   shade deeper in the SAME hue, and the full ink as the label — at radius 16,
+   which is what makes it read as a pill rather than the rounded rectangle it
+   was at radius 8. The stroke is what lets a pale fill hold its shape against
+   a white row; without it the badge dissolved at the edges. */
+/* THE STATUS BADGE IS TYPE, NOT A PILL — and the kind still picks the ink,
+   so a screen never hands this component a colour (see CONFIG_REFERENCE.md
+   § "A status badge").
+
+   It carried a tint, a 0.5px stroke and 8px of side padding, and that
+   padding was load-bearing in the wrong direction: it made every badge ~18px
+   wider than its own words, and the badge is what set the width of the list
+   row's right rail. "Decision in 2 days" became a 133px object and took the
+   title's line away from it.
+
+   Nothing that made the countdown urgent was in the pill. The urgency is the
+   ink and the demi weight, and both are still here; what left was a shape
+   repeated down a column of identical shapes, which had stopped reading as
+   an alarm and started reading as texture. `white-space: normal` overrides
+   the chip base, because unpilled type is allowed to wrap inside its rail —
+   a pill never could. */
+.chip--status {
+  display: inline-block;
+  white-space: normal;
+  font-size: var(--body-04-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--fw-demi);
+  color: var(--chip-neutral-ink);
+}
+.chip--status[data-kind="countdown"] { color: var(--chip-countdown-ink); }
+.chip--status[data-kind="state"]     { color: var(--chip-state-ink); }
+.chip--status[data-kind="outcome"]   { color: var(--chip-outcome-ink); }
+.chip--status[data-kind="info"]      { color: var(--chip-info-ink); }
+.chip--status[data-kind="neutral"]   { color: var(--chip-neutral-ink); }
+
+.chip--filter::after {
+  content: '';
+  position: absolute;
+  inset: 50% 0 0 0;
+  height: var(--tap-target-min);
+  transform: translateY(-50%);
+}

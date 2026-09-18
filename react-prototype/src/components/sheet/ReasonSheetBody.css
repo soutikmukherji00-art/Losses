@@ -1,0 +1,67 @@
+/* The accept / dispute FORM. Was `ReasonSheetScreen.css`, shared by the sheet
+   and a full-page presentation of the same form; the page is gone (accept and
+   dispute are always a bottom sheet now) and its chrome — the header, the
+   close button, the scroll shell and the commit bar — went with it. What is
+   left is the form itself, which `ReasonSheetOverlay` wraps in `BottomSheet`.
+
+   The class prefix stays `reason-sheet__`: it names the thing this form is
+   part of, and renaming it would churn every selector to say the same thing. */
+
+.reason-sheet__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-stack);
+}
+
+.reason-sheet__note-label {
+  display: block;
+  margin-bottom: var(--space-4);
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--fw-demi);
+  color: var(--text-secondary);
+}
+
+.reason-sheet__note-label[data-invalid="true"] {
+  color: var(--text-error-ink);
+}
+
+.reason-sheet__note {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: var(--tap-target-min);
+  padding: var(--pad-panel);
+  border: 1.5px solid var(--border-default);
+  border-radius: var(--radius-md);
+  outline: none;
+  resize: none;
+  font: inherit;
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+  font-weight: var(--body-02-weight);
+  color: var(--text-primary);
+  background: var(--valmo-white);
+}
+
+.reason-sheet__note:focus-visible {
+  border-color: var(--valmo-navy);
+}
+
+.reason-sheet__note[data-invalid="true"] {
+  border-color: var(--valmo-red-border);
+}
+
+.reason-sheet__after {
+  margin-top: var(--gap-group);
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+  font-weight: var(--body-02-weight);
+  color: var(--text-row-label);
+}
+
+.reason-sheet__tip {
+  font-size: var(--body-01-size);
+  line-height: var(--body-01-lh);
+  font-weight: var(--fw-demi);
+  color: var(--valmo-navy);
+}

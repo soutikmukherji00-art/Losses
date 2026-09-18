@@ -1,0 +1,27 @@
+.presenter-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: stretch;
+  background: var(--presenter-stage-bg, #EEF1F6);
+}
+
+.presenter-shell__stage {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 48px 40px;
+  overflow-x: auto;
+}
+
+.presenter-shell__panel {
+  flex: none;
+  width: var(--presenter-panel-width, 272px);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  border-left: 1px solid var(--presenter-panel-border, #E2E5EB);
+  background: var(--presenter-panel-bg, #FAFAFC);
+}

@@ -1,0 +1,59 @@
+.awareness__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap-lead);
+}
+
+.awareness__icon {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-circle);
+  background: var(--valmo-orange-tint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.awareness__body {
+  flex: 1;
+  min-width: 0;
+}
+
+
+.awareness__title {
+  font-size: var(--heading-03-size);
+  line-height: var(--heading-03-lh);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.awareness__text {
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+  font-weight: var(--body-02-weight);
+  color: var(--text-row-label);
+  margin-top: var(--gap-group);
+}
+
+.awareness__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-stack);
+  margin-top: var(--space-16);
+}
+
+/* The dismiss is the shared `Button`; this row only shares the width with the
+   audio chip beside it. */
+.awareness__actions .btn {
+  flex: 1;
+}
+
+.awareness__rule {
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  color: var(--text-tertiary);
+  text-align: center;
+  margin-top: var(--gap-group);
+}

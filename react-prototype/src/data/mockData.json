@@ -1,0 +1,380 @@
+{
+  "_note": "Mock data only. Every loss row now declares `reasonCode` (→ src/config/lossReasons.js) and `caseState` (→ src/config/caseStates.js) instead of carrying its own presentation. `explain`/`tip` are OPTIONAL per-row overrides of the registry default — used only where the narrative is genuinely case-specific (e.g. Lost-in-Field carries dates).",
+  "today": "15 Aug",
+  "currentCycle": {
+    "title": "Current Cycle (23 May)",
+    "date": "23 May",
+    "statusLead": "Payment credited in",
+    "statusHighlight": "2-3 Days",
+    "gross": 712
+  },
+  "dailyEarningsMonth": "May 2025",
+  "dailyEarnings": [
+    {
+      "date": "Sun, 22nd May",
+      "amt": 356,
+      "inc": 70
+    },
+    {
+      "date": "Sat, 21st May",
+      "amt": 356,
+      "inc": 70
+    },
+    {
+      "date": "Fri, 20th May",
+      "amt": 356,
+      "inc": 70
+    },
+    {
+      "date": "Thu, 19th May",
+      "amt": 356,
+      "inc": 70
+    },
+    {
+      "date": "Wed, 18th May",
+      "amt": 356,
+      "inc": 70
+    },
+    {
+      "date": "Tue, 17th May",
+      "amt": 356,
+      "inc": 70
+    },
+    {
+      "date": "Mon, 10th May",
+      "amt": 356,
+      "inc": 70
+    }
+  ],
+  "layerDefaults": {
+    "_note": "The stock catalogue row is ON here: Mock rows have no real photographs, so the listing row is the only thing on the page that shows what the product was, and it is the arrangement being reviewed.",
+    "catalogImages": true
+  },
+  "productImages": [
+    "/catalog/product-1.avif",
+    "/catalog/product-2.avif",
+    "/catalog/product-3.avif"
+  ],
+  "marked": [
+    {
+      "awb": "881244903318",
+      "reasonCode": "PICKUP_QC_MISMATCH",
+      "caseState": "IN_DISPUTE",
+      "date": "14 Aug",
+      "amt": 186,
+      "days": 6,
+      "actedOn": "15 Aug",
+      "actedReason": "My photo was correct"
+    },
+    {
+      "awb": "881245660421",
+      "reasonCode": "PICKUP_IMG_JUNK",
+      "caseState": "ACCEPTED",
+      "date": "13 Aug",
+      "amt": 75,
+      "days": 3,
+      "actedOn": "14 Aug",
+      "actedReason": "I was in a hurry"
+    },
+    {
+      "awb": "881242308954",
+      "reasonCode": "ICUD_IMG_JUNK",
+      "caseState": "ATTRIBUTED",
+      "date": "12 Aug",
+      "amt": 96,
+      "days": 5
+    },
+    {
+      "awb": "881240215602",
+      "reasonCode": "LOST_IN_FIELD",
+      "caseState": "LIF_RECOVERY_OPEN",
+      "date": "12 Aug",
+      "amt": 40,
+      "days": 6,
+      "debitDate": "13 Aug",
+      "returnBy": "21 Aug",
+      "explain": "You took this parcel for delivery on 12 Aug. It did not reach the customer and did not come back to the hub."
+    },
+    {
+      "awb": "881243117208",
+      "reasonCode": "PICKUP_IMG_JUNK",
+      "caseState": "ATTRIBUTED",
+      "date": "12 Aug",
+      "amt": 82,
+      "days": 4
+    },
+    {
+      "awb": "881241885630",
+      "reasonCode": "PICKUP_QC_MISMATCH",
+      "caseState": "ATTRIBUTED",
+      "date": "11 Aug",
+      "amt": 145,
+      "days": 3
+    }
+  ],
+  "wrong": [
+    {
+      "awb": "881251947219",
+      "reasonCode": "WRONG_RVP",
+      "caseState": "INFO_ONLY",
+      "date": "11 Aug",
+      "amt": 65,
+      "answer": "“Matched parcel with list” · 11 Aug, 2:14 pm"
+    }
+  ],
+  "closed": [
+    {
+      "awb": "881218561116",
+      "reasonCode": "PICKUP_IMG_JUNK",
+      "caseState": "WAIVED",
+      "date": "26 Jul",
+      "amt": 118,
+      "waiveReason": "agent_right",
+      "outcome": "You disputed this loss. The team checked your photo on 29 Jul and found you were right. Nothing was deducted."
+    },
+    {
+      "awb": "881219340104",
+      "reasonCode": "PICKUP_QC_MISMATCH",
+      "caseState": "NOT_DEDUCTED",
+      "date": "6 Aug",
+      "amt": 90,
+      "outcome": "You accepted this loss and added your reason. After review the team decided not to deduct the amount."
+    },
+    {
+      "awb": "881221447790",
+      "reasonCode": "PICKUP_QC_MISMATCH",
+      "caseState": "DEBITED",
+      "date": "5 Aug",
+      "amt": 210,
+      "debitDate": "12 Aug",
+      "pathLabel": "no reply in 7 days",
+      "outcome": "The 7-day window closed without a response, so the full amount was deducted."
+    },
+    {
+      "awb": "881239004521",
+      "reasonCode": "LOST_IN_FIELD",
+      "caseState": "RETURNED_CREDITED",
+      "date": "4 Aug",
+      "amt": 65,
+      "debitDate": "5 Aug",
+      "returnedOn": "8 Aug",
+      "creditDate": "12 Aug",
+      "explain": "You took this parcel for delivery on 4 Aug. It did not reach the customer and did not come back to the hub that day.",
+      "outcome": "You returned the parcel to your hub on 8 Aug, inside the 7-day window, so the amount was credited back."
+    },
+    {
+      "awb": "881222903117",
+      "reasonCode": "ICUD_IMG_JUNK",
+      "caseState": "WAIVED",
+      "date": "22 Jul",
+      "amt": 132,
+      "waiveReason": "sla_breach",
+      "outcome": "You disputed this loss. Our team did not finish the review inside 7 days, so the case was waived automatically and nothing was deducted."
+    },
+    {
+      "awb": "881201338745",
+      "reasonCode": "ICUD_IMG_JUNK",
+      "caseState": "DEBITED",
+      "date": "24 Jul",
+      "amt": 96,
+      "debitDate": "29 Jul",
+      "pathLabel": "you accepted it",
+      "outcome": "You accepted this loss. After review the team kept the deduction."
+    },
+    {
+      "awb": "881203994612",
+      "reasonCode": "LOST_IN_FIELD",
+      "caseState": "RETURNED_CREDITED",
+      "date": "21 Jul",
+      "amt": 175,
+      "debitDate": "22 Jul",
+      "returnedOn": "27 Jul",
+      "creditDate": "29 Jul",
+      "explain": "You took this parcel for delivery on 21 Jul. It did not reach the customer and did not come back to the hub that day.",
+      "outcome": "You returned the parcel to your hub on 27 Jul, inside the 7-day window, so the amount was credited back."
+    },
+    {
+      "awb": "881207721904",
+      "reasonCode": "PICKUP_QC_MISMATCH",
+      "caseState": "WAIVED",
+      "date": "18 Jul",
+      "amt": 84,
+      "waiveReason": "agent_right",
+      "outcome": "You disputed this loss. The team checked your photo on 21 Jul and found you were right. Nothing was deducted."
+    }
+  ],
+  "pilot": {
+    "_note": "Account-level facts about the Pilot, not about any one loss. The dispute cool-off counts CONSECUTIVE WRONG disputes and one win resets it to 0 — see config/disputeCoolOff.js.",
+    "_joinedNote": "When the Pilot joined. The grace window (config/gracePeriod.js) runs 4 weeks from here, so on this fixture it ends 22 Aug and covers every loss from 25 Jul on \u2014 which leaves the July history uncovered on purpose: turning the toggle on has to show BOTH a deduction the window caught and one it did not.",
+    "joinedOn": "25 Jul",
+    "wrongDisputesInARow": 2
+  },
+  "acceptChips": [
+    "I was in a hurry",
+    "Did not know the rule",
+    "Item was confusing",
+    "Other"
+  ],
+  "disputeChips": [
+    "My photo was correct",
+    "Not my parcel",
+    "Item was correct",
+    "Other"
+  ],
+  "payments": [
+    {
+      "date": "Mon, 22nd May",
+      "caption": "Credited on 23 May",
+      "amt": 654,
+      "inc": 137
+    },
+    {
+      "date": "Sun, 21st May",
+      "caption": "Credited with 22 May cycle",
+      "amt": 468,
+      "inc": 37
+    },
+    {
+      "date": "Mon, 20th May",
+      "caption": "Credited on 13 May",
+      "amt": 356,
+      "inc": 70
+    },
+    {
+      "date": "Mon, 19th May",
+      "caption": "Credited with 20 May cycle",
+      "amt": 468,
+      "inc": 37
+    },
+    {
+      "date": "Mon, 18th May",
+      "caption": "Credited on 13 May",
+      "amt": 468,
+      "inc": 37
+    },
+    {
+      "date": "Mon, 17th May",
+      "caption": "Credited on 13 May",
+      "amt": 468,
+      "inc": 37
+    },
+    {
+      "date": "Mon, 16th May",
+      "caption": "Credited on 13 May",
+      "amt": 468,
+      "inc": 37
+    },
+    {
+      "date": "Mon, 15th May",
+      "caption": "Credited on 13 May",
+      "amt": 468,
+      "inc": 37
+    }
+  ],
+  "basePay": {
+    "delivery": [
+      {
+        "label": "240 Deliveries @ ₹13/Delivery",
+        "amt": 3120
+      },
+      {
+        "label": "100 Deliveries @ ₹14/Delivery",
+        "amt": 1400
+      },
+      {
+        "label": "10 Consolidated Deliveries @ ₹10/Delivery",
+        "amt": 100
+      }
+    ],
+    "pickup": [
+      {
+        "label": "240 Pickup @ ₹13/Pickup",
+        "amt": 3120
+      },
+      {
+        "label": "10 Additional Pickups @ ₹10/Pickup",
+        "amt": 100
+      }
+    ]
+  },
+  "pdCards": [
+    {
+      "key": "incentives",
+      "title": "Incentives",
+      "items": [
+        {
+          "label": "First Attempt Delivery Incentives",
+          "amt": 4
+        },
+        {
+          "label": "Weight Incentives for 5 Deliveries",
+          "amt": 6
+        },
+        {
+          "label": "Distance Incentives for 20 Deliveries",
+          "amt": 6
+        }
+      ]
+    },
+    {
+      "key": "adjustments",
+      "title": "Adjustments",
+      "items": [
+        {
+          "label": "Missing Shipment Credit",
+          "amt": 20
+        },
+        {
+          "label": "Previous Day Correction",
+          "amt": 20
+        },
+        {
+          "label": "Discrepancy Adjustment",
+          "amt": 10
+        }
+      ]
+    },
+    {
+      "key": "deductions",
+      "title": "Deductions",
+      "items": [
+        {
+          "label": "TDS 1%",
+          "amt": -48
+        },
+        {
+          "label": "Facilitation Fee",
+          "amt": -48
+        }
+      ]
+    }
+  ],
+  "pdExpandedDefault": {
+    "incentives": false,
+    "adjustments": false,
+    "deductions": true
+  },
+  "paymentForDate": "19 May",
+  "lossFilterChips": [
+    {
+      "id": null,
+      "label": "All"
+    },
+    {
+      "id": "needsAction",
+      "label": "Needs Decision"
+    },
+    {
+      "id": "pending",
+      "label": "Disputes in Review"
+    },
+    {
+      "id": "wrong",
+      "label": "Wrong Pickups"
+    },
+    {
+      "id": "closed",
+      "label": "Decision closed"
+    }
+  ]
+}

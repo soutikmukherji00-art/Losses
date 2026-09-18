@@ -1,0 +1,43 @@
+/* GROUPING IS DONE WITH SPACE HERE — there is no card, no rule and no tint
+   separating this tab's three entities, so the only thing that can say where
+   one ends and the next begins is how far apart things are.
+   
+   It was 16px on all four sides of each section title. Symmetric, which means
+   the gap that BINDS a heading to its content was the same size as the gap
+   that SEPARATES one group from the next — so "Current Cycle (23 May)" was as
+   close to the losses banner above it as to the card it names, and the screen
+   read as five loose things instead of three groups.
+   
+   Asymmetric now, and the asymmetry is the whole point: a heading sits close
+   to what it names and far from what it doesn't. */
+.my-earnings__section-title {
+  font-size: var(--heading-05-size);
+  line-height: var(--heading-05-lh);
+  font-weight: var(--heading-05-weight);
+  color: var(--text-primary);
+  /* The proximity pair — separation above, binding below (tokens.css). */
+  padding: var(--gap-heading-above) var(--pad-screen) var(--gap-heading-below);
+}
+.my-earnings__section-title span {
+  font-size: var(--body-02-size);
+  font-weight: var(--fw-book);
+  color: var(--text-secondary);
+}
+
+/* The step off the tab rail and the gutter are now the shared `.banner-slot`
+   (components/common/Banner.css) — the same ones the contextual insight on
+   the Losses list stands in. This wrapper had the value the slot took (20px,
+   "clear of the tab rail": 12px left the banner sitting on the tabs as though
+   it belonged to them), and nothing else, so it is gone entirely.
+   Nothing below it either, and that is the computed answer rather than an
+   omission: the slot's step below is 20px measured to the next thing's ink,
+   and the Current Cycle title already declares the whole 20 above itself. */
+
+/* Gutter only. The vertical rhythm is not this wrap's to own — the section
+   title above already carries its 16px step, and the next section title
+   carries its own — so a gap here would be a second opinion about the same
+   space. Horizontally it takes the page inset every row, section and header
+   on the screen uses, so the card's edges line up with theirs. */
+.my-earnings__cycle-card-wrap {
+  padding: 0 var(--pad-screen);
+}

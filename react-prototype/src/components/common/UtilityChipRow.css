@@ -1,0 +1,12 @@
+/* No vertical padding. The row sat 12px clear of the header above and 12px
+   clear of the tabs below, but neither of those neighbours needs the help:
+   the header centres its title inside a fixed 56px band, and the underline
+   tabs carry 12px of their own padding above the label. The row was adding a
+   third helping of air to a gap that already had two, and 24px of it on the
+   one screenful a Pilot opens the app to. */
+.utility-chip-row {
+  display: flex;
+  gap: var(--gap-stack);
+  padding: 0 var(--pad-screen);
+  overflow-x: auto;
+}

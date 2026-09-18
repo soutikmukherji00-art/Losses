@@ -1,0 +1,22 @@
+/* The body is bled out to the sheet's edges and given the app's grey ground,
+   so `Section` reads exactly as it does on the full page: white blocks
+   separated by a 4px gap of ground. Inside a plain white sheet those gaps
+   would be invisible and the sections would merge into one slab. */
+.reason-overlay__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 0 calc(-1 * var(--space-16));
+  background: var(--surface-app-bg);
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* Outside the scroll region on purpose: the commit control must stay reachable
+   with the keyboard up and must never scroll out of view. */
+.reason-overlay__bar {
+  flex: none;
+  margin: 0 calc(-1 * var(--space-16)) calc(-1 * var(--space-16));
+  padding: var(--space-12) var(--pad-sheet) var(--pad-sheet);
+  background: var(--valmo-white);
+  border-top: 1px solid var(--border-subtle);
+}

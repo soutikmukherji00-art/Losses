@@ -1,0 +1,29 @@
+/* The device outline only — no inset. The 12px of white padding this used to
+   carry read as a strip of page bleeding into the screen, not as a bezel:
+   the screen's own surfaces are white too, so the two fused and the frame
+   just looked like the app had a stray margin. The screen now runs edge to
+   edge inside the outline, clipped to it. */
+.phone-frame-shell {
+  padding: 0;
+  border: 1px solid var(--border-default);
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.phone-frame {
+  width: var(--screen-width);
+  height: var(--screen-height);
+  background: var(--valmo-white);
+  border-radius: inherit;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.phone-frame__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}

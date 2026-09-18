@@ -1,0 +1,196 @@
+/* The card is the tone's object at card scale: a T3 fill and the tone ink
+   inherited by every line inside it. NO outer stroke — on this page a stroke
+   means "you can press this" (the सुनें pill has one, the buttons have one),
+   and the card is a statement, not a control. The fill carries the shape.
+
+   The elements INSIDE it keep their strokes for the same reason: the clock
+   chip is a badge the DS strokes by definition, and the सुनें pill is the one
+   thing here a Pilot can actually press.
+
+   Defaults are the neutral tone, so a hero rendered without one is a plain
+   settled card rather than an untinted block. */
+.status-hero {
+  --tone-surface: var(--tone-neutral-surface);
+  --tone-line: var(--tone-neutral-line);
+  --tone-chip-fill: var(--tone-neutral-chip-fill);
+  --tone-chip-line: var(--tone-neutral-chip-line);
+
+  padding: var(--pad-panel);
+  border-radius: var(--radius-lg);
+  background: var(--tone-surface);
+  color: var(--tone-ink, var(--tone-neutral-ink));
+}
+
+/* ROW 1 — the money, and the clock at the other end of it. Money left, clock
+   right: two poles the eye can land on without reading, and the figure keeps
+   the same position whatever the status sentence below it turns out to be. */
+.status-hero__lead {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--gap-inline) var(--gap-stack);
+}
+
+.status-hero__figure {
+  font-size: var(--display-01-size);
+  line-height: var(--display-01-lh);
+  font-weight: var(--display-01-weight);
+  color: currentColor;
+  font-variant-numeric: tabular-nums;
+}
+
+/* What the figure was going to be, struck — the Current Cycle card's device,
+   so a struck amount reads the same way on both surfaces. Tinted from the
+   panel's own ink rather than grey, which would go off-hue on the tints, and
+   at full strength: faded to .72 it measured 3.45:1 on the green, and a
+   struck amount is still an amount the Pilot has to be able to read. The
+   strike, the 21px→13px drop and the weight step carry the rank instead. */
+.status-hero__was {
+  font-size: var(--body-01-size);
+  line-height: var(--body-01-lh);
+  font-weight: var(--fw-book);
+  color: currentColor;
+  font-variant-numeric: tabular-nums;
+}
+
+/* THE DS BADGE (Figma WCghUzecsonToq8dCxpm3W · 5769:2075), not a white pill.
+   Tint fill, a 0.5px stroke a shade deeper in the same hue, the tone ink as
+   the label, radius 16 and Heading 07 — the same object the L1 rows carry
+   (Chip.css `.chip--status`), so a countdown reads identically in the list
+   and on the card it opens.
+
+   It was a white pill in black 12px bold: white belongs to no hue's ramp, so
+   it read as a hole in the card, and it was the same fill, shape and size as
+   the सुनें CONTROL below the rule — two indistinguishable pills, one of them
+   information and the other a button.
+
+   Its stroke is Main where the DS reference uses T1, because the reference
+   chips sit on white and this one sits on a tinted card of its own hue. See
+   the tone-ramp note in tokens.css. */
+.status-hero__chip {
+  flex: none;
+  margin-left: auto;
+  align-self: center;
+  padding: var(--pad-badge);
+  border: 0.5px solid var(--tone-chip-line);
+  border-radius: var(--radius-badge);
+  background: var(--tone-chip-fill);
+  font-size: var(--heading-07-size);
+  line-height: var(--heading-07-lh);
+  font-weight: var(--heading-07-weight);
+  color: currentColor;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ROW 2 — where the money stands. */
+.status-hero__line {
+  display: flex;
+  align-items: baseline;
+  gap: var(--gap-inline);
+  margin-top: var(--gap-tight);
+}
+
+/* Leads the FIRST line of the statement. Centred, it drifted into the gap
+   between the two lines whenever the statement wrapped. */
+.status-hero__mark {
+  flex: none;
+  align-self: flex-start;
+  margin-top: 1px;
+  display: flex;
+}
+
+.status-hero__text {
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+  font-weight: var(--body-02-weight);
+}
+
+/* ROW 3 — what the Pilot can do. Divided off because it answers a different
+   question from the three facts above it: those describe the case, this one
+   is addressed to the reader. */
+.status-hero__rule {
+  height: 1px;
+  margin: 0 0 var(--space-12);
+  background: currentColor;
+  opacity: 0.16;
+}
+
+/* The instruction and the control that reads it aloud, on one row. The chip
+   leads the first line rather than centring on the block, so a one-line and a
+   three-line guidance put it in the same place. */
+.status-hero__foot {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap-lead);
+}
+
+/* The rule carries the separation now, so the row does not also need a gap
+   above it — the two together would read as a divider floating in space. */
+.status-hero__rule {
+  margin-top: var(--gap-heading-above);
+}
+
+/* The सुनें pill stays WHITE, and that is now a statement rather than an
+   accident: on this card a tint fill means information and a white fill means
+   a control you can press. What changes is its edge — the shared
+   --border-default is a cool grey that went off-hue on a warm card, and at T3
+   the white fill alone (~1.09:1) can no longer hold the pill's shape. It
+   borrows the card's own stroke instead. */
+.status-hero .audio-chip {
+  border-color: var(--tone-line);
+}
+
+.status-hero__guidance {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+  font-weight: var(--fw-medium);
+  color: currentColor;
+  /* Optically centres the 18px first line against the 32px control beside it. */
+  padding-top: var(--space-6);
+}
+
+/* ============================================================
+   Tone = money position (config/caseStates.js TONE).
+   Red is reserved for system errors, never for a loss (KRD F24).
+   One ink per tone, inherited by every line in the panel — the figure
+   included, which used to reach for an undefined `--valmo-grey-base` and
+   land on neutral grey in three tones out of four.
+   A tone sets RAMP VARIABLES and nothing else; the shell rule above paints
+   from them. That way the card, its stroke, its chip and its ink can never
+   drift onto four different hues, which is how the white pill survived.
+   ============================================================ */
+
+.status-hero--risk {
+  --tone-surface: var(--tone-risk-surface);
+  --tone-line: var(--tone-risk-line);
+  --tone-ink: var(--tone-risk-ink);
+  --tone-chip-fill: var(--tone-risk-chip-fill);
+  --tone-chip-line: var(--tone-risk-chip-line);
+}
+
+.status-hero--progress {
+  --tone-surface: var(--tone-progress-surface);
+  --tone-line: var(--tone-progress-line);
+  --tone-ink: var(--tone-progress-ink);
+  --tone-chip-fill: var(--tone-progress-chip-fill);
+  --tone-chip-line: var(--tone-progress-chip-line);
+}
+
+.status-hero--resolved-good {
+  --tone-surface: var(--tone-good-surface);
+  --tone-line: var(--tone-good-line);
+  --tone-ink: var(--tone-good-ink);
+  --tone-chip-fill: var(--tone-good-chip-fill);
+  --tone-chip-line: var(--tone-good-chip-line);
+}
+
+.status-hero--resolved-neutral {
+  --tone-surface: var(--tone-neutral-surface);
+  --tone-line: var(--tone-neutral-line);
+  --tone-ink: var(--tone-neutral-ink);
+  --tone-chip-fill: var(--tone-neutral-chip-fill);
+  --tone-chip-line: var(--tone-neutral-chip-line);
+}

@@ -1,0 +1,415 @@
+/* ============================================================
+   Valmo Partner App — Design tokens
+   Ported verbatim from the original prototype's <style> token
+   blocks (Design System/VISUAL_DESIGN_SPEC.md is the source of
+   truth these were extracted from). Do not hardcode hex values
+   in component CSS — reference these variables so retheming /
+   pixel-perfect passes only ever touch this one file.
+   ============================================================ */
+:root {
+  /* ---------- Brand / Primary (Blue Sapphire) ---------- */
+  --valmo-navy: #092D5E;
+  --valmo-navy-deep: #1E232C;
+  --valmo-navy-press: #071F45;   /* pressed/hover state of the primary action */
+  --valmo-cyan: #61EEFF;
+  --valmo-action-blue: #2A67FF;
+  --valmo-blue-line: #C5D7FF;
+  --valmo-blue-bg: #EAF0FF;
+  --valmo-blue-tint-1: #C7DCFF;
+  --valmo-blue-tint-2: #E3EDFF;
+  --valmo-tint-1: #DDE7FE; /* active-segment bg, added per Figma SOT_Valmo reconciliation */
+
+  /* ---------- Primary / Indigo Sapphire ----------
+     The Rider-app SOT's own primary — "Indigo Sapphire (Primary)/Main (CTA)"
+     and its Tint 1 (Figma 8BqXD6Tkt7d5zDx9fPtnZX · 204:25340). It is NOT the
+     navy above: navy is this prototype's brand ink, indigo is what the SOT
+     paints a SELECTED control in. Its own ramp rather than folded into the
+     blues, because they are different hues doing different jobs. */
+  --valmo-indigo: #3C29B7;
+  --valmo-indigo-tint-1: #EDEAFF;
+
+  /* ---------- Neutrals (grey ramp) ---------- */
+  --valmo-white: #FFFFFF;
+  --valmo-grey-light-02: #E6EBF2;
+  --valmo-grey-light-01: #C3C9D4;
+  --valmo-grey-mid-01: #8E96A3;
+  --valmo-grey-mid-02: #5A5E66;
+  --valmo-dark-grey-01: #272829;
+  --valmo-dark-grey-02: #353543;
+  --valmo-ink-616173: #616173;
+
+  /* ---------- Semantic: Success / Green ---------- */
+  --valmo-green-emerald: #038D63;
+  --valmo-green-action: #43A92C;
+  --valmo-green-tint: #E7FBE0;
+  --valmo-green-border: #C2EAB4;
+
+  /* ---------- Semantic: Error / Red ---------- */
+  --valmo-red-main: #F44240;
+  --valmo-red-tint: #FFEEED;
+  --valmo-red-border: #FFCBC9;
+
+  /* ---------- Semantic: Warning / Orange ---------- */
+  /* ORANGE SUNSTONE, the Supplier DS ramp (Figma 8BqXD6Tkt7d5zDx9fPtnZX ·
+     204:25305 and WCghUzecsonToq8dCxpm3W · 6220:60096). Main and Tint 2 were
+     already exact; Tint 1 was #FFEFDE, two points off the DS's #FFEDDE. */
+  --valmo-orange-main: #EC7600;      /* Orange Sunstone / Main */
+  --valmo-orange-deep: #B85A00;      /* carries white text at 4.67:1 */
+  --valmo-orange-tint: #FFEDDE;      /* Orange Sunstone / Tint 1 */
+  --valmo-orange-border: #FFD2AB;    /* Orange Sunstone / Tint 2 */
+
+  /* ---------- Accent ---------- */
+  --valmo-pink: #F43397;
+  --valmo-jamun: #9F2089;
+
+  /* ---------- Semantic aliases — prefer these in components ---------- */
+  --text-primary: var(--valmo-dark-grey-01);
+  --text-secondary: var(--valmo-grey-mid-02);
+  /* The brand grey ramp's --valmo-grey-mid-01 (#8E96A3) is a fine BORDER and
+     icon value, but as type it lands at 2.98:1 on white — under half the
+     4.5:1 floor — and it was carrying the photo captions, the payment-line
+     label and the page footer on every L1 state. Tertiary TEXT gets its own
+     ink, dark enough to clear 4.5:1 on white and on all four panel surfaces
+     while still reading a clear step below secondary. */
+  --text-tertiary: #606875;
+  --text-row-label: #666666;   /* Figma Grey/T1 — label side of a label/value row */
+  --text-on-navy: var(--valmo-white);
+  --text-success: var(--valmo-green-action);
+  --text-error: var(--valmo-red-main);
+  --text-warning: var(--valmo-orange-main);
+  /* Readable ink for text SITTING ON the tinted surfaces — the tint colours
+     themselves do not clear 4.5:1 as type. */
+  --text-warning-ink: #8A5003;
+  --text-success-ink: #146B31;
+  --text-error-ink: #B3261E;
+  --text-on-raised: #3D4E68;
+
+  /* The loss surface was running six near-identical off-whites — #FBFBFD,
+     #F6F9FE, #F2F5FA, #F1F3F7, #F3FAF5 and white — none of them named and
+     none of them meaning anything. Two roles cover every panel on it:
+     `raised` is the cool blue-tinted panel a card header or an in-flight
+     state sits on; `sunken` is the neutral one a settled or disabled thing
+     sits on. `good` is the green resolved surface. */
+  /* Figma "Grey/T4 - BG". Sections are full-bleed WHITE blocks sitting on
+     this ground with a 4px gap showing between them — that gap is the whole
+     sectioning device in this design language. No cards, no borders. */
+  --surface-app-bg: #EAEAF2;
+  --surface-raised: #F6F9FE;
+  --surface-sunken: #F2F5FA;
+  --surface-good: #F3FAF5;
+  --surface-brand: var(--valmo-navy);
+
+  /* ---------- "No money lost" green ----------
+     One meaning, one ink, two tints for two scales. This collapses four
+     near-identical greens that had drifted apart (#146B31 vs #1B7F3B as ink;
+     #E7F5EC / #F3FAF5 / #E7FBE0 / #E1F3E7 as tint) while all saying the same
+     thing. Badge-scale fills need more saturation than a full panel to read
+     at all, which is the only reason two tints survive. */
+  --good-ink: var(--text-success-ink);
+  --good-tint-strong: #E7F5EC;   /* badges, small fills */
+  --good-tint-soft: var(--surface-good);  /* full-width panels */
+
+  /* ---------- Status badge palettes ----------
+     One pair per badge MEANING — the whole L0 badge vocabulary (see the
+     grammar in config/caseStates.js). A screen asks Chip for a `kind`, never
+     for a colour. `info` and `neutral` deliberately share: both mean "this
+     badge carries no colour signal", and they were two greys a hair apart. */
+  /* Each pair gains a BORDER, because the DS badge is a three-part object:
+     lightest tint as fill, a mid-tone of the same hue as a 0.5px stroke, the
+     full ink as the label (Badges/Pills, 204:25305). The three mid-tones were
+     already sitting in mockData.json's `chipColors` block, written by hand and
+     read by nothing — they belong here, next to the fills they edge. */
+  /* Aligned to the DS Orange ramp rather than three hand-picked near-misses
+     (#FFF4E5 / #EFD9B0 / #A05E03), so the countdown badge on an L1 row and
+     the countdown chip on the status card are the same colours. These sit on
+     WHITE rows, so they keep the reference rungs: T2 fill, T1 stroke. */
+  --chip-countdown-bg: var(--valmo-orange-tint);  --chip-countdown-border: var(--valmo-orange-border);  --chip-countdown-ink: var(--text-warning-ink);
+  /* FILTER CHIP — SOT Valmo · Chips Row (Figma 8BqXD6Tkt7d5zDx9fPtnZX · 204:22057).
+     The DS row maps onto this palette almost exactly: its idle border
+     (Grey Coral/Medium T1 #C3C9D4) and idle ink (Grey Coral/Dark T2 #272829)
+     ARE two colours already in here. The selected state takes the SOT's own
+     Indigo Sapphire, hex and all (204:25340) — a selected chip in the Rider
+     app is purple, not navy, and substituting the house blue for it made
+     the one state that has to announce itself the quietest in the row.
+     The chip was reading off `--border-subtle` and `--text-secondary`, both a
+     step lighter than the DS, and its selected state changed fill and weight
+     but never its border — which is the DS's loudest selection signal. */
+  --chip-filter-bg: var(--valmo-white);
+  --chip-filter-border: var(--valmo-grey-light-01);
+  --chip-filter-ink: var(--text-primary);
+  --chip-filter-active-bg: var(--valmo-indigo-tint-1);
+  --chip-filter-active-border: var(--valmo-indigo);
+  --chip-filter-active-ink: var(--valmo-indigo);
+
+  --chip-state-bg: var(--surface-raised);     --chip-state-border: #C6D6EE;                --chip-state-ink: var(--valmo-navy);
+  --chip-outcome-bg: var(--good-tint-strong); --chip-outcome-border: #BFE0CA;              --chip-outcome-ink: var(--good-ink);
+  --chip-info-bg: var(--surface-sunken);      --chip-info-border: var(--border-subtle);    --chip-info-ink: var(--text-secondary);
+  --chip-neutral-bg: var(--surface-sunken);   --chip-neutral-border: var(--border-subtle); --chip-neutral-ink: var(--text-secondary);
+
+  /* ============================================================
+     TONE RAMPS — the tinted status card and everything sitting on it.
+     (Supplier DS - Mobile + Valmo Partner App (New Version); the DS
+     Badges/Pills object, Figma WCghUzecsonToq8dCxpm3W · 5769:2075.)
+
+     The DS badge is one three-part object: a tint FILL, a STROKE a shade
+     deeper in the same hue, and the full ink as the LABEL. Every chip in the
+     reference set is that object on WHITE — fill at Tint 2, stroke at Tint 1.
+
+     The status card broke it by putting a WHITE pill on a Tint 2 card: white
+     is not a rung on any hue's ramp, so the chip read as a hole punched in
+     the card rather than as a badge, and it was indistinguishable in fill,
+     shape and size from the सुनें CONTROL two rows below it.
+
+     Restoring the object costs the card its old fill. A chip cannot sit on
+     the rung it needs (T2) while the card is already standing on it — same-
+     hue fills at the pale end of a ramp separate by ~1.04:1, which is nothing.
+     So each tone gains a rung BELOW T2 for the card to stand on:
+
+        T3 (card fill)  ->  T1 (card stroke)  ->  T2 (chip fill)
+                        ->  Main (chip stroke)  ->  ink (all label text)
+
+     T3 is the tone's Main washed to 8% on white — the same construction the
+     rest of the ramp uses, not a new colour invented for the card.
+
+     The chip's stroke steps one rung deeper than the DS reference (Main, not
+     T1) for exactly one reason: the reference chips sit on white, these sit
+     on a tinted card of their OWN hue, which eats a T1 stroke. Fill, stroke,
+     ink, radius 16 and Heading 07 are unchanged — the pattern holds, only the
+     rung moves. T1 fills were tried first and do NOT survive the hue sweep:
+     Blue T1 (#6E9DEE) is so much darker than Orange T1 (#FFD2AB) that the
+     navy label lands at 2.7:1 on it. T2 is the one rung that reads in all four.
+     ============================================================ */
+  /* Orange Sunstone Tint 1 itself, not a tint computed off Main. This was
+     #FDF4EB — "Orange Main @ 8% on white", a value derived here rather than
+     taken from the ramp, which put the one card a Pilot has to act on in a
+     shade the DS does not contain. */
+  --tone-risk-surface: var(--valmo-orange-tint);
+  --tone-risk-line: var(--valmo-orange-border);
+  --tone-risk-ink: var(--text-warning-ink);
+  /* Tint 2, a step deeper than the card it sits on. With the card moved to
+     Tint 1 the chip was the SAME fill as its own background — only a 0.5px
+     stroke separating them — so the ramp is used across three steps instead:
+     Tint 1 card, Tint 2 badge, Main as the badge's edge. */
+  --tone-risk-chip-fill: var(--valmo-orange-border);
+  --tone-risk-chip-line: var(--valmo-orange-main);
+
+  --tone-progress-surface: #EEF3FF;   /* Accent Blue Main @ 8% on white */
+  --tone-progress-line: var(--valmo-blue-line);
+  --tone-progress-ink: var(--valmo-navy);
+  --tone-progress-chip-fill: var(--valmo-blue-tint-2);
+  --tone-progress-chip-line: var(--valmo-action-blue);
+
+  --tone-good-surface: #F0F8EE;   /* Green Main @ 8% on white */
+  --tone-good-line: var(--valmo-green-border);
+  --tone-good-ink: var(--good-ink);
+  --tone-good-chip-fill: var(--valmo-green-tint);
+  --tone-good-chip-line: var(--valmo-green-action);
+
+  /* The one tone with no hue: its "Main" is the grey ramp's mid tone, and its
+     stroke steps up to --border-default because a grey T1 on white is the
+     weakest edge of the four and the card still has to hold its shape. */
+  --tone-neutral-surface: #F7F8FA;
+  --tone-neutral-line: var(--border-default);
+  --tone-neutral-ink: var(--text-secondary);
+  --tone-neutral-chip-fill: var(--surface-sunken);
+  --tone-neutral-chip-line: var(--valmo-grey-mid-01);
+
+  /* The one dimming treatment in the app — bottom sheets and the
+     confirmation popup were hardcoding this same value separately. */
+  --scrim: rgba(3, 28, 64, 0.55);
+
+  /* The photo viewer's ground, and it is deliberately NOT --scrim. A scrim
+     dims a surface you can still see through, because what is behind it is
+     still the subject. Here the photograph IS the subject, and the thing a
+     Pilot is doing is judging whether it is too dark or too blurred — a navy
+     wash at 55% sits over the image's own tones and puts a thumb on that
+     scale. Near-black and opaque so the only thing being judged is the photo.
+     Also why the caption and the close mark are white rather than the grey
+     ramp: nothing in that ramp is legible on this. */
+  --viewer-ground: rgba(8, 10, 14, 0.96);
+  --viewer-ink: #FFFFFF;
+  --viewer-ink-muted: rgba(255, 255, 255, 0.72);
+  --viewer-control-fill: rgba(255, 255, 255, 0.14);
+
+  /* The faint grey behind a list group heading. */
+  --surface-group-head: #FAFAFC;
+
+  /* WARN — the fourth tone, and the app's yellow. It was `--surface-cycle` /
+     `--border-cycle`: one card's private colour, named after the card rather
+     than after what it meant. The Current Cycle card has since moved to the
+     neutral treatment its sibling on the Losses tab already used (a payment
+     on its way is not a warning), which left the hue free to become what it
+     always read as — the attention tone, for the one thing on a surface that
+     wants acting on.
+     Its ink is the orange ramp's deepest step for a contrast reason: on this
+     surface Orange Main measures 2.73:1 and Orange Deep 4.34:1, both under
+     the 4.5 floor for body text, while this one clears it at 6.05:1.
+
+     CURRENTLY UNUSED. The loss entry banner was its only consumer and the
+     banner mock (Figma WCghUzecsonToq8dCxpm3W · 7197:46123) moved it to
+     `--tone-risk-*`, which is also what StatusHero uses for the same money
+     position — so the hue is free again rather than wrong. Kept defined
+     because the ramp is sound and the decision that produced it is not
+     re-derivable from a deletion. */
+  --tone-warn-surface: #FFF7D6;
+  --tone-warn-line: #FFDB4C;
+  --tone-warn-ink: var(--text-warning-ink);
+
+  --border-subtle: var(--valmo-grey-light-02);
+  --border-default: var(--valmo-grey-light-01);
+
+  /* ---------- Typography ---------- */
+  /* Brand face "Mier B02" is commercial (Estudio Mola) and not bundled here —
+     substitute your own @font-face for it in fonts.css when you have the
+     licensed files; system-ui is the fallback in the meantime. */
+  --font-brand: "Mier B02", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-numeric: "Roboto", "Mier B02", system-ui, sans-serif;
+
+  --fw-book: 400;
+  --fw-medium: 500;
+  --fw-demi: 600;
+  --fw-bold: 700;
+
+  /* ------------------------------------------------------------------
+     One step down the ladder from the Figma scale (28/21/19/17/15/13/12),
+     floored at 12px: the prototype read bulky at the original sizes.
+     Relations are preserved by shifting every role together.
+
+     The floor collapses two roles onto 12px — Body 02 (the default body)
+     and Body 03 (sub-information) — so their distinction is now carried by
+     weight and colour rather than size: body is 500 on primary ink, sub is
+     400 on tertiary. Nothing renders below 12px anywhere.
+     ------------------------------------------------------------------ */
+
+  --display-01-size: 21px;  --display-01-lh: 28px;  --display-01-weight: 600;
+
+  --heading-02-size: 17px;  --heading-02-lh: 24px;  --heading-02-weight: 700;
+  --heading-03-size: 15px;  --heading-03-lh: 20px;  --heading-03-weight: 700;
+  /* HEADING 05 — the DS's section-subheading step (13/20 Demi), which this
+     scale did not have. Every section head in the app was reaching for
+     heading-04 instead: 13/18 BOLD in near-black, a heavier object than the
+     body text under it. The reference pages' subheadings ("Total Shipments :
+     4", Figma WCghUzecsonToq8dCxpm3W · 6147:44474) are Demi, at 20px line,
+     in grey — they name the group and then get out of the way. */
+  --heading-04-size: 13px;  --heading-04-lh: 18px;  --heading-04-weight: 700;
+  --heading-05-size: 13px;  --heading-05-lh: 20px;  --heading-05-weight: 600;
+  --heading-07-size: 12px;  --heading-07-lh: 16px;  --heading-07-weight: 600;
+
+  --body-01-size: 13px;     --body-01-lh: 18px;     --body-01-weight: 500;
+  --body-02-size: 12px;     --body-02-lh: 18px;     --body-02-weight: 500;  /* DEFAULT BODY */
+  --body-03-size: 12px;     --body-03-lh: 16px;     --body-03-weight: 400;
+  --body-04-size: 12px;     --body-04-lh: 16px;     --body-04-weight: 400;
+
+  --button-01-size: 13px;   --button-01-lh: 18px;   --button-01-weight: 600;
+  --button-03-size: 12px;   --button-03-lh: 16px;   --button-03-weight: 700;
+
+  --heading-tracking: -0.035em;
+
+  /* ============================================================
+     SPACING
+     Two layers, and components only ever touch the second one.
+
+     The scale is named by its own value, so `--space-12` is 12px
+     and needs no lookup. The previous positional scale hid that
+     (`--space-4` was 10px, `--space-5` was 12px) and the cost was
+     predictable: 10 and 12 were used interchangeably for the same
+     jobs — both as the inset of a tinted panel, both as the gap
+     between related items, and together in `10px 12px` — because
+     nothing in the names said which job either one was for. 10px
+     is gone from the scale; the roles below took its work.
+
+     14px stays and is NOT drift. VISUAL_DESIGN_SPEC.md §3 pins it
+     from the Figma SOT (past-payment tile 14px vertical; Payment
+     Details shell 14px/16px), and PRODUCT.md makes Figma the
+     source of truth over this prototype.
+     ============================================================ */
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-6: 6px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-14: 14px;   /* Figma SOT only — see note above */
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-28: 28px;
+
+  /* ---------- Spacing roles ----------
+     A component asks for the JOB, never for a number — the same
+     move this file already makes for colour, where a screen asks
+     Chip for a `kind` and never for a hex. Two roles sharing a
+     value is deliberate (as `--chip-info-bg` and `--chip-neutral-bg`
+     do): they are separate jobs that happen to agree today, and
+     when one needs to move the other should not follow. */
+  --gap-tight: var(--space-2);    /* a qualifier belonging to the value above it */
+  --gap-subline: var(--space-6);  /* metadata under a title in a list row */
+  --gap-inline: var(--space-4);   /* icon <-> label inside a compact control */
+  --gap-lead: var(--space-8);     /* icon or mark leading a text block */
+  --gap-stack: var(--space-8);    /* siblings in a list, chip row, button row */
+  --gap-group: var(--space-12);   /* between distinct blocks or cards */
+
+  /* The horizontal inset of a pill-shaped control. Button, both chip
+     families and the audio chip all reached for `--space-12` here, which
+     means four atoms already agreed on this job and none of them could say
+     so — the first one to need 14 would have moved alone. */
+  --pad-control-x: var(--space-12);
+
+  /* PROXIMITY — the pair that does the grouping. A heading belongs to what
+     comes AFTER it, so these two must never be equal: the moment they are,
+     a heading sits as close to the group it just ended as to the one it is
+     starting, and a surface with no cards or rules to group it reads as a
+     flat list of loose parts rather than as sections. Apply them wherever a
+     heading introduces content in the flow; where a card border or a rule
+     already binds the group, that device is doing this job instead. */
+  --gap-heading-above: var(--space-20);
+  --gap-heading-below: var(--gap-stack);
+
+  --pad-badge: var(--space-2) var(--space-8);  /* status chip, count badge */
+  --pad-panel: var(--space-12);   /* inset of a tinted panel, field, or card */
+  --pad-row: var(--space-12);     /* vertical inset of a list or tap row */
+  --pad-tile: var(--space-14);    /* Figma: past-payment tile, 14px vertical */
+  --pad-screen: var(--screen-gutter);  /* horizontal page inset */
+  --pad-sheet: var(--space-16);   /* bottom-sheet and popup inset */
+
+  /* Heading blocks get more room above than below, so the heading
+     binds to what it labels rather than floating between groups. */
+  --pad-head-top: var(--space-14);
+  --pad-head-bottom: var(--space-6);
+
+  /* Expands a small control's tap target to the 48dp floor without
+     moving its visible mark. */
+  --tap-bleed: var(--space-12);
+
+  --screen-gutter: 16px;
+
+  --screen-width: 360px;
+  --screen-height: 780px;
+
+  /* The finalised Tasks page (Figma 8BqXD6Tkt7d5zDx9fPtnZX · 204:25305) uses
+     four radii and no others: 4 on buttons and info chips, 8 on cards, 16 on
+     badge pills, 24 on filter chips. `--radius-lg` (12) is not in it — cards
+     there are 8 — so the panels that reach for 12 are the open question, and
+     the scale stops inventing steps between the four the page actually uses. */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-badge: 16px;
+  --radius-chip: 24px;
+  --radius-xl: 18px;
+  --radius-pill: 999px;
+  --radius-circle: 50%;
+
+  --tap-target-min: 48px;   /* Android/Material floor (48dp) */
+
+  /* ---------- Standing heights ----------
+     Two heights this app repeats, and repeated as raw numbers until now.
+     `min-height: 56px` appeared in four files — AppHeader, ScreenHeader,
+     the bottom tab bar and the reason sheet's header — three of them with a
+     comment pointing at the fourth ("the same 56px band AppHeader uses"). A
+     number that four files agree on by cross-reference is a role nobody
+     named: move the band and you are editing four files and hoping.
+     Likewise 32px, the small pill's height, in the filter chip and the
+     segmented tab. */
+  --bar-height: 56px;          /* app bar, pushed-screen header, tab bar */
+  --control-height-sm: 32px;   /* filter chip, segmented tab item */
+}

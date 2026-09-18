@@ -1,0 +1,44 @@
+.action-bar {
+  flex: none;
+  background: var(--valmo-white);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.action-bar__buttons {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-stack);
+  padding: var(--pad-row) var(--pad-screen);
+}
+
+/* The reason a control in the bar cannot be used, said above it. Quiet by
+   construction — tertiary icon, secondary text — because it explains the
+   state of a button rather than asking for anything. */
+.action-bar__note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap-lead);
+  padding: var(--space-12) var(--pad-screen) 0;
+}
+
+.action-bar__note svg {
+  flex: none;
+  margin-top: 1px;
+}
+
+.action-bar__note span {
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+  color: var(--text-secondary);
+}
+
+/* The bar owns only how its buttons divide the width — everything else about
+   them lives in Button.css. The primary takes the greater share, as in the
+   reference. */
+.action-bar .btn {
+  flex: 1;
+}
+
+.action-bar .btn[data-variant="primary"] {
+  flex: 1.35;
+}

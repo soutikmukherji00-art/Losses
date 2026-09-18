@@ -1,0 +1,286 @@
+{
+  "_note": "LIVE DATA — one real Pilot, nine real audited losses. Every loss row below is transcribed from 'External Memory/Debit reason master table.xlsx', sheet 'Sheet4' — the 18 Sep pull that replaces the earlier 'Sample data' extract. Nothing is added to the list: if it is not one of those rows, it is not here. Sheet4 holds two blocks and they are shaped differently, so they land in two lists: the DEBIT block (columns debit_reason, awb_num, audit_dt, amount_rs, hub, image_1..image_4) → `marked`; the WRONG RVP block (columns awb, entinty, price, pickup_image_1..3, catalog_image_link, and five question/answer pairs) → `wrong`. The `image_*` URLs were downloaded into `public/evidence/<awb>/` so the photographs ship with the build instead of being fetched from images.meesho.com at view time — see `photos` on each row and the provenance table in `evidence-sources.md`. Everything OUTSIDE the loss rows (earnings, payments, base pay, PD cards, chips) has no column in the sheet, so it carries the prototype's own numbers, rebased onto September so the dates do not contradict the audit date.",
+  "_debitRowsNote": "SIX OF THE SHEET'S SEVENTEEN DEBIT ROWS, and which six is a demo decision, not a data one. The sheet's 17 rows total ₹7,745 — more than this Pilot's whole cycle earns — so showing all of them would put a list on screen that no real payout could absorb, and the Losses list would run to a scroll nobody walks through in a review. The six are spread across all three debitable reasons in the sheet's own proportions (1 ICUD junk · 3 pickup junk · 2 pickup-vs-QC) and across its amount range (₹95 to ₹1,079), so every treatment the page has is exercised on real numbers. Left out: the other 6 pickup-junk rows (VLR082748079241 ₹223, VLR082752371924 ₹879, VLR082753622598 ₹433, VLR082758298818 ₹337, VLR082762483186 ₹366, VLR082763700440 ₹185) and the other 5 pickup-vs-QC rows (VLR082780554235 ₹149, VLR082811753255 ₹383, VLR082834642033 ₹188, VLR082835016663 ₹1,356, VLR082733531262 ₹417 — that last one audited 8 Sep, whose 7-day window has already closed on an 18 Sep 'today'). Add any of them back by copying its sheet row here and pulling its two-or-four images.",
+  "today": "18 Sep",
+  "currentCycle": {
+    "title": "Current Cycle (18 Sep)",
+    "date": "18 Sep",
+    "statusLead": "Payment credited in",
+    "statusHighlight": "2-3 Days",
+    "gross": 3480
+  },
+  "dailyEarningsMonth": "September 2026",
+  "dailyEarnings": [
+    { "date": "Thu, 17th Sep", "amt": 612, "inc": 96 },
+    { "date": "Wed, 16th Sep", "amt": 548, "inc": 78 },
+    { "date": "Tue, 15th Sep", "amt": 496, "inc": 64 },
+    { "date": "Mon, 14th Sep", "amt": 604, "inc": 92 },
+    { "date": "Sun, 13th Sep", "amt": 452, "inc": 56 },
+    { "date": "Sat, 12th Sep", "amt": 588, "inc": 88 },
+    { "date": "Fri, 11th Sep", "amt": 516, "inc": 72 }
+  ],
+  "layerDefaults": {
+    "_note": "The stock catalogue row is OFF here. Every row in this dataset carries the Pilot’s REAL photographs, and the catalogue layer is three dummy product shots (a face wash, a hair oil, a soap bar) that have nothing to do with the parcels he actually handled. Six tiles of somebody else’s products under his own pickup photos would be the one invented thing on a screen whose whole claim is that nothing on it is invented. Note this is the LAYER, not the wrong-pickup rows' own `catalog` photo — that one is the real listing cover off the sheet's `catalog_image_link`, and it shows whatever the toggle says. The toggle is still in the panel — flip it to show the arrangement.",
+    "catalogImages": false
+  },
+  "productImages": [
+    "/catalog/product-1.avif",
+    "/catalog/product-2.avif",
+    "/catalog/product-3.avif"
+  ],
+  "marked": [
+    {
+      "awb": "VLR082828771125",
+      "reasonCode": "PICKUP_QC_MISMATCH",
+      "caseState": "ATTRIBUTED",
+      "date": "16 Sep",
+      "amt": 506,
+      "days": 5,
+      "hub": "vyn",
+      "photos": {
+        "own": [
+          "/evidence/VLR082828771125/own-1.jpg",
+          "/evidence/VLR082828771125/own-2.jpg"
+        ],
+        "qc": [
+          "/evidence/VLR082828771125/qc-1.jpg",
+          "/evidence/VLR082828771125/qc-2.jpg"
+        ]
+      }
+    },
+    {
+      "awb": "VLR082820371194",
+      "reasonCode": "PICKUP_QC_MISMATCH",
+      "caseState": "ATTRIBUTED",
+      "date": "16 Sep",
+      "amt": 279,
+      "days": 5,
+      "hub": "vyn",
+      "photos": {
+        "own": [
+          "/evidence/VLR082820371194/own-1.jpg",
+          "/evidence/VLR082820371194/own-2.jpg"
+        ],
+        "qc": [
+          "/evidence/VLR082820371194/qc-1.jpg",
+          "/evidence/VLR082820371194/qc-2.jpg"
+        ]
+      }
+    },
+    {
+      "awb": "VLR082741397175",
+      "reasonCode": "PICKUP_IMG_JUNK",
+      "caseState": "ATTRIBUTED",
+      "date": "16 Sep",
+      "amt": 552,
+      "days": 5,
+      "hub": "pas",
+      "photos": {
+        "own": [
+          "/evidence/VLR082741397175/own-1.jpg",
+          "/evidence/VLR082741397175/own-2.jpg"
+        ]
+      }
+    },
+    {
+      "awb": "VLR082738981967",
+      "reasonCode": "PICKUP_IMG_JUNK",
+      "caseState": "ATTRIBUTED",
+      "date": "16 Sep",
+      "amt": 348,
+      "days": 5,
+      "hub": "syz",
+      "photos": {
+        "own": [
+          "/evidence/VLR082738981967/own-1.jpg",
+          "/evidence/VLR082738981967/own-2.jpg"
+        ]
+      }
+    },
+    {
+      "awb": "VLR082757394936",
+      "reasonCode": "PICKUP_IMG_JUNK",
+      "caseState": "ATTRIBUTED",
+      "date": "16 Sep",
+      "amt": 95,
+      "days": 5,
+      "hub": "g78",
+      "photos": {
+        "own": [
+          "/evidence/VLR082757394936/own-1.jpg",
+          "/evidence/VLR082757394936/own-2.jpg"
+        ]
+      }
+    },
+    {
+      "awb": "VLR082730980679",
+      "reasonCode": "ICUD_IMG_JUNK",
+      "caseState": "ATTRIBUTED",
+      "date": "16 Sep",
+      "amt": 1079,
+      "days": 5,
+      "hub": "icp",
+      "photos": {
+        "own": [
+          "/evidence/VLR082730980679/own-1.jpg",
+          "/evidence/VLR082730980679/own-2.jpg"
+        ]
+      }
+    }
+  ],
+  "_wrongNote": "THREE OF THE SHEET'S EIGHT WRONG-RVP ROWS, chosen for what each one puts on the page rather than for the row itself: VLR082406378860 answered every check 'same' (the ordinary case — five answers, all matching, and the pickup was still wrong), VLR082411058372 answered 'Different Colour' on one (the Pilot DID flag something, and the page must not flatten that into 'you said it all matched'), VLR082408131054 was never asked the damage question (four answers, not five — the set is variable-length in the real data, so the page cannot be built for exactly five rows). `answers` is the `*_question` / `*_answer` column pairs in the sheet's own order — category, colour, design, damage, quantity — with the question cell title-cased ('category' → 'Category') and the answer cell carried through verbatim. Nothing marks an answer right or wrong: the sheet records the attribution against the pickup as a whole and says nothing about WHICH check was misanswered, so a tick or a cross beside any one line would be the app inventing a finding. The photographs carry that argument instead — the Pilot's own three pickup shots against the listing's cover. `entinty` (the customer's name and phone) is deliberately NOT transcribed: it is the other party's personal data and nothing on this screen has a use for it. The sheet's wrong-RVP block carries no date column, so `date` here is the date of the EXTRACT (18 Sep), not a pickup date — the one thing it is used for is filing the case under a payout cycle, and the pull is the only dated fact these rows have. Nothing on screen prints it: a wrong pickup's list row shows no date and its page shows 'No deadline', so the value is structural, never a claim to the Pilot about when he picked the parcel up.",
+  "wrong": [
+    {
+      "awb": "VLR082406378860",
+      "reasonCode": "WRONG_RVP",
+      "caseState": "INFO_ONLY",
+      "date": "18 Sep",
+      "amt": 599,
+      "answers": [
+        { "q": "Category", "a": "Same Category" },
+        { "q": "Colour", "a": "Same Colour" },
+        { "q": "Design", "a": "Same Design" },
+        { "q": "Damage", "a": "Product Not Damaged" },
+        { "q": "Quantity", "a": "Same Quantity" }
+      ],
+      "photos": {
+        "own": [
+          "/evidence/VLR082406378860/own-1.jpg",
+          "/evidence/VLR082406378860/own-2.jpg",
+          "/evidence/VLR082406378860/own-3.jpg"
+        ],
+        "catalog": [
+          "/evidence/VLR082406378860/catalog-1.jpg"
+        ]
+      }
+    },
+    {
+      "awb": "VLR082411058372",
+      "reasonCode": "WRONG_RVP",
+      "caseState": "INFO_ONLY",
+      "date": "18 Sep",
+      "amt": 242,
+      "answers": [
+        { "q": "Category", "a": "Same Category" },
+        { "q": "Colour", "a": "Different Colour" },
+        { "q": "Design", "a": "Same Design" },
+        { "q": "Damage", "a": "Product Not Damaged" },
+        { "q": "Quantity", "a": "Same Quantity" }
+      ],
+      "photos": {
+        "own": [
+          "/evidence/VLR082411058372/own-1.jpg",
+          "/evidence/VLR082411058372/own-2.jpg",
+          "/evidence/VLR082411058372/own-3.jpg"
+        ],
+        "catalog": [
+          "/evidence/VLR082411058372/catalog-1.jpg"
+        ]
+      }
+    },
+    {
+      "awb": "VLR082408131054",
+      "reasonCode": "WRONG_RVP",
+      "caseState": "INFO_ONLY",
+      "date": "18 Sep",
+      "amt": 288,
+      "answers": [
+        { "q": "Category", "a": "Same Category" },
+        { "q": "Colour", "a": "Same Colour" },
+        { "q": "Design", "a": "Same Design" },
+        { "q": "Quantity", "a": "Same Quantity" }
+      ],
+      "photos": {
+        "own": [
+          "/evidence/VLR082408131054/own-1.jpg",
+          "/evidence/VLR082408131054/own-2.jpg",
+          "/evidence/VLR082408131054/own-3.jpg"
+        ],
+        "catalog": [
+          "/evidence/VLR082408131054/catalog-1.jpg"
+        ]
+      }
+    }
+  ],
+  "closed": [],
+  "pilot": {
+    "_note": "A real Pilot being shown the prototype starts with a clean dispute record, so no cool-off is in force and every one of the six debitable cases can actually be disputed in front of him.",
+    "_joinedNote": "When the Pilot joined. The grace window (config/gracePeriod.js) runs 4 weeks from here, so it ends 29 Sep and covers every audited loss in this extract.",
+    "joinedOn": "1 Sep",
+    "wrongDisputesInARow": 0
+  },
+  "acceptChips": [
+    "I was in a hurry",
+    "Did not know the rule",
+    "Item was confusing",
+    "Other"
+  ],
+  "disputeChips": [
+    "My photo was correct",
+    "Not my parcel",
+    "Item was correct",
+    "Other"
+  ],
+  "payments": [
+    { "date": "Wed, 17th Sep", "caption": "Credited on 18 Sep", "amt": 612, "inc": 96 },
+    { "date": "Tue, 16th Sep", "caption": "Credited with 17 Sep cycle", "amt": 548, "inc": 78 },
+    { "date": "Mon, 15th Sep", "caption": "Credited on 16 Sep", "amt": 496, "inc": 64 },
+    { "date": "Sun, 14th Sep", "caption": "Credited with 15 Sep cycle", "amt": 604, "inc": 92 },
+    { "date": "Sat, 13th Sep", "caption": "Credited on 14 Sep", "amt": 452, "inc": 56 },
+    { "date": "Fri, 12th Sep", "caption": "Credited on 13 Sep", "amt": 588, "inc": 88 },
+    { "date": "Thu, 11th Sep", "caption": "Credited on 12 Sep", "amt": 516, "inc": 72 },
+    { "date": "Wed, 10th Sep", "caption": "Credited on 11 Sep", "amt": 534, "inc": 74 }
+  ],
+  "basePay": {
+    "delivery": [
+      { "label": "240 Deliveries @ ₹13/Delivery", "amt": 3120 },
+      { "label": "100 Deliveries @ ₹14/Delivery", "amt": 1400 },
+      { "label": "10 Consolidated Deliveries @ ₹10/Delivery", "amt": 100 }
+    ],
+    "pickup": [
+      { "label": "240 Pickup @ ₹13/Pickup", "amt": 3120 },
+      { "label": "10 Additional Pickups @ ₹10/Pickup", "amt": 100 }
+    ]
+  },
+  "pdCards": [
+    {
+      "key": "incentives",
+      "title": "Incentives",
+      "items": [
+        { "label": "First Attempt Delivery Incentives", "amt": 4 },
+        { "label": "Weight Incentives for 5 Deliveries", "amt": 6 },
+        { "label": "Distance Incentives for 20 Deliveries", "amt": 6 }
+      ]
+    },
+    {
+      "key": "adjustments",
+      "title": "Adjustments",
+      "items": [
+        { "label": "Missing Shipment Credit", "amt": 20 },
+        { "label": "Previous Day Correction", "amt": 20 },
+        { "label": "Discrepancy Adjustment", "amt": 10 }
+      ]
+    },
+    {
+      "key": "deductions",
+      "title": "Deductions",
+      "items": [
+        { "label": "TDS 1%", "amt": -48 },
+        { "label": "Facilitation Fee", "amt": -48 }
+      ]
+    }
+  ],
+  "pdExpandedDefault": {
+    "incentives": false,
+    "adjustments": false,
+    "deductions": true
+  },
+  "paymentForDate": "15 Sep",
+  "lossFilterChips": [
+    { "id": null, "label": "All" },
+    { "id": "needsAction", "label": "Needs action" },
+    { "id": "pending", "label": "Decision pending" },
+    { "id": "wrong", "label": "Wrong pickups" },
+    { "id": "closed", "label": "Decision closed" }
+  ]
+}

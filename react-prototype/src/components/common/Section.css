@@ -1,0 +1,142 @@
+/* pt-16 / pb-12, the DS section's own inset. With the 4px ground gap between
+   blocks that puts 32px above a section head and 8 below it — see the
+   proximity pair in tokens.css. */
+.sec {
+  background: var(--valmo-white);
+  padding: var(--space-16) 0 var(--space-12);
+}
+
+/* The status panel is its own tint and provides its own padding; a section's
+   padding on top of it would double the inset. */
+.sec--panel {
+  padding: var(--space-8) 0;
+}
+
+/* Sections run continuous. The 4px band of app-ground between them was a
+   divider doing a job the rhythm already does: 32px of air above a section
+   head against 8px below it says where one section ends far more clearly
+   than a grey stripe, and the stripe cut the page into slabs on a surface
+   the DS keeps as one white sheet. */
+
+.sec__head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--gap-lead);
+  padding: 0 var(--pad-screen);
+  margin-bottom: var(--gap-heading-below);
+}
+
+.sec__title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  /* Heading 05, grey — the DS's section-subheading object. Bold near-black
+     made every section head outweigh the content it introduced. */
+  font-size: var(--heading-05-size);
+  line-height: var(--heading-05-lh);
+  font-weight: var(--heading-05-weight);
+  color: var(--text-secondary);
+}
+
+/* The value keeps the near-black: it is the answer the head is asking for,
+   and the DS pairs a grey label with a dark figure everywhere it shows one. */
+.sec__value {
+  flex: none;
+  font-size: var(--heading-05-size);
+  line-height: var(--heading-05-lh);
+  font-weight: var(--heading-05-weight);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.sec__body {
+  padding: 0 var(--pad-screen);
+}
+
+/* for content that must reach the screen edge (photo rows, list rows) */
+.sec__body--flush {
+  padding: 0;
+}
+
+/* ---------- label / value rows ---------- */
+
+.sec-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gap-group);
+  padding: var(--pad-row) 0;
+  border-bottom: 1px dashed var(--border-default);
+}
+
+.sec-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.sec-row__label {
+  min-width: 0;
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+  font-weight: var(--body-02-weight);
+  color: var(--text-row-label);
+}
+
+.sec-row__sub {
+  display: block;
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  color: var(--text-tertiary);
+}
+
+.sec-row__value {
+  flex: none;
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+  font-weight: var(--body-02-weight);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.sec-row--strong {
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: none;
+  padding-top: var(--space-12);
+  margin-top: var(--space-4);
+}
+
+.sec-row--strong .sec-row__label,
+.sec-row--strong .sec-row__value {
+  font-size: var(--heading-04-size);
+  line-height: var(--heading-04-lh);
+  font-weight: var(--heading-04-weight);
+  color: var(--text-primary);
+}
+
+/* A second group inside the same section — the reference stacks Base pay,
+   Incentives and Deductions this way rather than giving each its own block. */
+.sec__group {
+  margin-top: var(--gap-heading-above);
+}
+
+.sec__group-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--gap-lead);
+  margin-bottom: var(--gap-heading-below);
+  font-size: var(--heading-05-size);
+  line-height: var(--heading-05-lh);
+  font-weight: var(--heading-05-weight);
+  color: var(--text-secondary);
+}
+
+.sec__group-note {
+  min-width: 0;
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--body-03-weight);
+  color: var(--text-tertiary);
+}

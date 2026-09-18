@@ -1,0 +1,27 @@
+.bottom-tab-bar {
+  display: flex;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--valmo-white);
+}
+
+.bottom-tab-bar__tab {
+  flex: 1;
+  min-height: var(--bar-height);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap-tight);
+  cursor: pointer;
+}
+
+.bottom-tab-bar__tab span {
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  color: var(--text-tertiary);
+}
+
+.bottom-tab-bar__tab--active span {
+  font-weight: var(--fw-bold);
+  color: var(--valmo-navy);
+}

@@ -1,0 +1,7 @@
+/* The sub-tab row stays put; only the half beneath it scrolls. Switching
+   halves therefore never moves the control you switched with. */
+.losses-surface__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}

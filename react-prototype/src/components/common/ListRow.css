@@ -1,0 +1,175 @@
+/* THUMB · STATEMENT · AMOUNT · CHEVRON — four ranks, left to right, and the
+   row centres all of them against each other. The statement is the only
+   part that grows. */
+.list-row {
+  display: flex;
+  gap: var(--gap-group);
+  align-items: center;
+  padding: var(--pad-tile) var(--pad-screen);
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+}
+
+/* The only thing in the list that says WHICH parcel, now that the AWB has
+   moved to the page this row opens. It also sets the row's height, which is
+   why a decided row carrying no clock is still the same height as one that
+   does, and the list keeps an even rhythm down the screen. */
+.list-row__thumb {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: var(--radius-md);
+  /* 0.5px, like every other product image on the surface — at 1px the
+     44px thumb read as a bordered box rather than a bounded photo. */
+  border: 0.5px solid var(--border-subtle);
+  object-fit: cover;
+}
+
+/* THE STATEMENT: what happened, which parcel, and by when.
+
+     reason   13/18 demi, near-black   the heading
+     AWB      12/16 book, grey         the quietest line in the row
+     clock    12/16 demi, kind ink     the accent
+
+   Heavy · thin · coloured. The AWB is in the middle and ranks last, which
+   only holds because it is the one line with no emphasis of any kind on it;
+   the moment it takes weight or colour it starts interrupting the two lines
+   that actually decide the row.
+
+   ONE GAP FOR BOTH COLUMNS. This stack used to have none — the line boxes
+   did the spacing — while the rail put `--gap-subline` between the amount
+   and the clock. Two stacks of two lines sitting side by side in the same
+   row, set to different rhythms: the AWB read as tucked under the reason
+   while the clock sat loose under the amount, and nothing about the row's
+   meaning asked for that. Both columns now take the same token, so they
+   cannot drift apart again. It costs no height — the rail is the taller of
+   the two columns and still sets the row. */
+.list-row__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--gap-subline);
+}
+
+.list-row__title {
+  font-size: var(--body-01-size);
+  line-height: var(--body-01-lh);
+  font-weight: var(--fw-demi);
+  color: var(--text-primary);
+}
+
+/* Which parcel. Book weight and secondary grey, the same byline treatment
+   the payments row gives its "Credited on 23 May" caption — a line you can
+   find when you go looking for it and skip when you are not. */
+.list-row__sub {
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--fw-book);
+  color: var(--text-secondary);
+}
+
+/* The clock closes the statement: `Chip variant="status"`, which owns the
+   kind → ink mapping. Same weight as the title, one size down, and the
+   emphasis is the COLOUR — the entry banner's rule, and the reason a
+   countdown can sit inside a block without competing with its heading.
+   See .chip--status in Chip.css. */
+
+/* THE RAIL. Content-sized, and in most designs it holds nothing but the
+   amount — every row's figure still ends on the same edge, because the
+   chevron after it is fixed and the statement takes all the slack. Centred
+   against the whole statement rather than aligned to its first line: level
+   with the block the amount reads as the row's value, level with the title
+   it reads as a second heading competing with the reason.
+
+   Same `--gap-subline` as the body, declared the same way, so the two
+   columns of the row keep one rhythm. */
+.list-row__end {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--gap-subline);
+  text-align: right;
+}
+
+/* THE VALUE.
+   Three tones, because the amount answers three different questions: money
+   still at stake (primary), money already gone (settled), and money the Pilot
+   kept or got back (kept). Which one a row takes is the state table's call,
+   not this file's — see the money grammar in config/caseStates.js. */
+.list-row__amount {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  /* An outcome and its struck stake are two figures, and a long pair wraps
+     rather than squeezing the statement. */
+  flex-wrap: wrap;
+  gap: var(--gap-inline);
+  text-align: right;
+  font-size: var(--body-01-size);
+  line-height: var(--body-01-lh);
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+  /* A column of rupee figures is tabular data. The section-header total and
+     the status card's chip already set this; the row that feeds them did
+     not, so its digits shifted against each other down the list. */
+  font-variant-numeric: tabular-nums;
+}
+.list-row__amount[data-tone="settled"] { color: var(--text-secondary); }
+.list-row__amount[data-tone="kept"]    { color: var(--good-ink); }
+
+/* The stake that never left. Second and quieter than the outcome beside it —
+   the earnings card's rule, where the number the Pilot actually gets comes
+   first and the struck one follows. Tertiary rather than a faded inherit, so
+   it stays readable against the green it sits next to. */
+.list-row__was {
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--fw-book);
+  color: var(--text-tertiary);
+}
+
+.list-row__go {
+  flex: none;
+  display: flex;
+}
+
+/* ── LINE ITEM DESIGNS (config/lineItemDesigns.js) ─────────────────────────
+   Everything above is the row. These are the four readings of it, and each
+   one changes exactly what its name says it changes — no design gets its own
+   type scale, its own colours or its own order.
+
+   NO IMAGE — nothing to override. The thumb is simply not rendered, and the
+   statement starts at the gutter.
+
+   NO AWB — nothing to override either. One fewer line in the body.
+
+   THE CLOCK IN THE RAIL (no-image, all-details-2-rows) — the one structural
+   variant, and the rule below keys on `data-clock`, not on a design's name,
+   because the width it fixes is a consequence of the clock being in the rail
+   rather than of either design.
+
+   In the rail the clock sets the rail's width, and it is the longest text in
+   the row ("Decision in 2 days"), so the rail is FIXED rather than
+   content-sized. Without that, the title column would be 172px in Needs
+   Decision and 127px in Disputes in Review — the same list wrapping
+   in one section and not the next, which is what this list did before the
+   clock moved.
+
+   108px, because that is what the LONGEST clock measures on one line
+   ("Decision in 3 days" renders at 107px). It was 72px — the width of
+   "6 days left" — which left every pending row's clock to wrap onto a second
+   line. A countdown broken across two lines stops reading as one fact, and
+   it is the widest string in the rail that has to decide the rail's width,
+   not the narrowest. `nowrap` below makes that a rule rather than a
+   measurement that happens to hold today. */
+.list-row[data-clock="rail"] .list-row__end {
+  flex: 0 0 108px;
+}
+
+.list-row[data-clock="rail"] .chip--status {
+  white-space: nowrap;
+}
+

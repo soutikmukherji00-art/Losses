@@ -1,0 +1,26 @@
+.alert-pill {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap-lead);
+  padding: var(--pad-panel);
+  border-radius: var(--radius-md);
+}
+
+.alert-pill--warning { background: var(--valmo-orange-tint); }
+.alert-pill--info { background: var(--surface-raised); }
+
+.alert-pill__icon {
+  flex: none;
+  display: flex;
+  /* optical: drops the icon onto the first text baseline */
+  padding-top: 1px;
+}
+
+.alert-pill__text {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+  font-weight: var(--body-02-weight);
+  color: var(--text-primary);
+}

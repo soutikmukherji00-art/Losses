@@ -1,0 +1,10 @@
+.section-divider {
+  background: var(--border-subtle);
+  padding: var(--space-4) var(--pad-screen);
+}
+.section-divider span {
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+  font-weight: var(--fw-demi);
+  color: var(--text-secondary);
+}

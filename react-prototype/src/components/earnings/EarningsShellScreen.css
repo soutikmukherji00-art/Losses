@@ -1,0 +1,12 @@
+.earnings-shell {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.earnings-shell__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}

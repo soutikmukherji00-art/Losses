@@ -1,0 +1,76 @@
+.payment-details {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  background: var(--valmo-white);
+  position: relative;
+}
+
+.payment-details__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-stack);
+}
+
+.payment-details__help {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-inline);
+  cursor: pointer;
+}
+.payment-details__help span {
+  font-size: var(--body-01-size);
+  line-height: var(--body-01-lh);
+  color: var(--text-secondary);
+}
+
+.payment-details__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--surface-sunken);
+}
+
+/* The page gutter, like every other surface. This was 14 — the one horizontal
+   value in the app that wasn't --pad-screen — and because the cards inside it
+   add their own 1px border and 12px inset, every label on Payment Details
+   started at 27px while the identical object on every other screen started at
+   29. Two pixels is invisible on one screen and obvious the moment you scroll
+   between two. */
+.payment-details__summary-wrap {
+  padding: var(--space-16) var(--pad-screen);
+}
+
+.payment-details__summary-card {
+  background: var(--valmo-white);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.payment-details__summary-header {
+  background: var(--surface-sunken);
+  padding: var(--space-8) var(--space-12);
+}
+.payment-details__summary-header span {
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+  color: var(--text-secondary);
+}
+
+.payment-details__summary-amount {
+  padding: var(--space-14) var(--space-12);
+  font-family: var(--font-numeric);
+  font-size: var(--display-01-size);
+  line-height: var(--display-01-lh);
+  font-weight: var(--display-01-weight);
+  color: var(--valmo-dark-grey-02);
+}
+
+.payment-details__cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-group);
+  padding: 0 var(--pad-screen) var(--space-16);
+}

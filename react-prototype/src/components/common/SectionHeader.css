@@ -1,0 +1,110 @@
+.section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gap-lead);
+  padding: var(--pad-head-top) var(--pad-screen) var(--pad-head-bottom);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--surface-group-head);
+}
+
+/* Only while a tooltip is up — a permanent stacking context here would put
+   every later header above the one whose tooltip is open. */
+.section-header[data-tip-open] {
+  position: relative;
+  z-index: 5;
+}
+
+/* The DS has no uppercase heading anywhere, and no positive tracking. Its
+   equivalent object is the list label above a group of rows ("Total
+   Shipments : 4", Figma WCghUzecsonToq8dCxpm3W · 6147:44474) — Heading 05,
+   Demi, grey, sentence case. Uppercase at 12px with 0.72px of tracking was
+   the loudest small type in the app and the only place it appeared, which is
+   what made these heads read as a different system from everything below. */
+.section-header__label {
+  font-size: var(--heading-05-size);
+  line-height: var(--heading-05-lh);
+  font-weight: var(--heading-05-weight);
+  color: var(--text-secondary);
+}
+
+.section-header__end {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--gap-inline);
+}
+
+/* Grey label, dark figure — the pairing the DS uses wherever a label carries
+   a value beside it. */
+.section-header__total {
+  font-size: var(--heading-05-size);
+  line-height: var(--heading-05-lh);
+  font-weight: var(--heading-05-weight);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.section-header__info {
+  position: relative;
+  display: flex;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+/* The glyph stays 16px; the touch area does not (48dp floor). */
+.section-header__info::after {
+  content: '';
+  position: absolute;
+  inset: calc((16px - var(--tap-target-min)) / 2);
+}
+
+.section-header__info[aria-expanded="true"] {
+  color: var(--valmo-navy);
+}
+
+/* Navy bubble, right-aligned to the icon it belongs to. Dark on purpose:
+   a tooltip is transient, and reading as a surface would make it look like
+   one more panel in the list it is floating over. */
+.section-header__tip {
+  position: absolute;
+  top: calc(100% + var(--space-8));
+  right: 0;
+  width: max-content;
+  max-width: 244px;
+  box-sizing: border-box;
+  padding: var(--pad-panel);
+  border-radius: var(--radius-md);
+  background: var(--surface-brand);
+  color: var(--text-on-navy);
+  font-size: var(--body-03-size);
+  line-height: 17px;
+  font-weight: var(--body-03-weight);
+  text-transform: none;
+  letter-spacing: 0;
+  box-shadow: 0 4px 12px rgba(9, 45, 94, 0.22);
+  animation: section-header-tip-in 120ms ease-out;
+}
+
+/* The caret sits under the icon, not under the bubble's corner, so the
+   tooltip points at what raised it. */
+.section-header__tip::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  right: 4px;
+  border: 5px solid transparent;
+  border-bottom-color: var(--surface-brand);
+}
+
+@keyframes section-header-tip-in {
+  from { opacity: 0; transform: translateY(-2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-header__tip { animation: none; }
+}

@@ -1,0 +1,46 @@
+.base-pay-card {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-12) var(--space-12) var(--space-16);
+  background: var(--valmo-white);
+}
+
+.base-pay-card__header {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: var(--space-8);
+  border-bottom: 1px dashed var(--border-subtle);
+  margin-bottom: var(--space-12);
+  font-size: var(--heading-04-size);
+  line-height: var(--heading-04-lh);
+  font-weight: var(--fw-bold);
+  color: var(--valmo-navy);
+}
+
+.base-pay-card__group-title {
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+  font-weight: var(--fw-demi);
+  color: var(--text-primary);
+  margin-bottom: var(--space-6);
+}
+
+.base-pay-card__lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-stack);
+  margin-bottom: var(--gap-group);
+}
+.base-pay-card__lines:last-child { margin-bottom: 0; }
+
+.base-pay-card__line {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+  color: var(--text-secondary);
+}
+
+.base-pay-card__line-amt {
+  color: var(--text-primary);
+}

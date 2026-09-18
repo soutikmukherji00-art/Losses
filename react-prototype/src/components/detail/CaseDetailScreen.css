@@ -1,0 +1,64 @@
+.case-detail {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  background: var(--surface-app-bg);
+}
+
+.case-detail__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: var(--space-16);
+  animation: feup 220ms ease-out;
+}
+
+/* Body prose inside a section: 13/500, the design language's default. */
+.case-detail__prose {
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+  font-weight: var(--body-02-weight);
+  color: var(--text-primary);
+}
+
+/* Slot 8's prevention steps. Numbered, because they are a sequence a Pilot
+   performs in order at the parcel — not a list of qualities to have. The
+   number sits in its own column so a step that wraps stays aligned under its
+   own text rather than running back under the digit. */
+.case-detail__steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: prevention;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lead);
+}
+
+.case-detail__steps li {
+  counter-increment: prevention;
+  display: grid;
+  grid-template-columns: var(--space-20) 1fr;
+  align-items: baseline;
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+  font-weight: var(--body-02-weight);
+  color: var(--text-primary);
+}
+
+.case-detail__steps li::before {
+  content: counter(prevention) ".";
+  font-weight: var(--fw-bold);
+  color: var(--valmo-navy);
+}
+
+/* The closure line sits on the app ground, not in a section — it is a note
+   about the page, not part of it. */
+.case-detail__foot {
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  color: var(--text-tertiary);
+  text-align: center;
+  padding: var(--pad-row) var(--pad-screen) 0;
+}

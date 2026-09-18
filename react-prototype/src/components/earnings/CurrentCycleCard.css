@@ -1,0 +1,146 @@
+/* NEUTRAL, and identical to HistoricSummaryCard — the same card, the same
+   strip, the same brand-face figure — because the two answer the same kind of
+   question one tab away and a Pilot should not have to learn two money cards.
+   That card had already worked this out for itself and said so in its own
+   header; this one was the outlier.
+
+   It was yellow, which put the loudest surface on My Earnings around the one
+   block that needs no decision: a payment arriving on schedule is the good
+   news, not the warning. The yellow is now `--tone-warn-*` and unused — the
+   loss banner above it, where something actually is running out, carries the
+   orange at-risk ramp instead. */
+.current-cycle-card {
+  background: var(--valmo-white);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* The strip carries the payment status rather than the card's label — the
+   reference's one structural move. */
+.current-cycle-card__status {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-lead);
+  background: var(--surface-sunken);
+  padding: var(--space-8) var(--space-12);
+}
+.current-cycle-card__status svg {
+  flex: none;
+}
+
+.current-cycle-card__status-text {
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--fw-book);
+  color: var(--text-primary);
+}
+.current-cycle-card__status-text b {
+  font-weight: var(--fw-demi);
+}
+
+.current-cycle-card__body {
+  padding: var(--pad-panel);
+}
+
+.current-cycle-card__label {
+  font-size: var(--body-01-size);
+  line-height: var(--body-01-lh);
+  font-weight: var(--fw-book);
+  color: var(--text-secondary);
+}
+.current-cycle-card__label b {
+  font-weight: var(--fw-demi);
+}
+
+.current-cycle-card__figures {
+  display: flex;
+  align-items: baseline;
+  gap: var(--gap-lead);
+}
+
+.current-cycle-card__gross {
+  font-family: var(--font-brand);
+  font-size: var(--body-01-size);
+  line-height: var(--body-01-lh);
+  font-weight: var(--fw-book);
+  color: var(--text-tertiary);
+}
+
+.current-cycle-card__amount {
+  font-family: var(--font-brand);
+  font-size: var(--display-01-size);
+  line-height: var(--display-01-lh);
+  font-weight: var(--display-01-weight);
+  color: var(--valmo-dark-grey-02);
+  margin-top: var(--space-4);
+}
+
+.current-cycle-card__rule {
+  height: 1px;
+  background: var(--border-subtle);
+  margin-top: var(--space-8);
+}
+
+/* Sits directly under the cycle figure, because it is a claim ON that figure.
+   The sentence reads at body weight; only the two numbers carry the red, so
+   the row states an amount rather than sounding an alarm. */
+.current-cycle-card__loss {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-group);
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.current-cycle-card__loss-text {
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--fw-book);
+  color: var(--text-secondary);
+}
+/* Both figures are lifted out of the sentence, but only the money is red —
+   the reference reserves the colour for the amount, and a red count would
+   make "4" look like its own warning rather than a quantity. */
+.current-cycle-card__loss-text b {
+  font-family: var(--font-brand);
+  font-weight: var(--fw-demi);
+  color: var(--text-primary);
+}
+.current-cycle-card__loss-text b.current-cycle-card__loss-amount {
+  color: var(--text-error);
+}
+
+.current-cycle-card__loss-cta {
+  flex: none;
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--fw-demi);
+  color: var(--valmo-navy);
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
+/* The 48dp target without the 48px box: the row is as tall as its text, and
+   an invisible hit area bleeds out from its middle. Same device the filter
+   chip and the section-header info icon already use. `min-height` here was
+   inflating a single 16px line to 48 and centring it, so the card ended on
+   ~16px of dead space stacked on its own 12px padding — the gap under
+   "View Details". */
+.current-cycle-card__loss {
+  position: relative;
+  margin-top: var(--gap-group);
+}
+.current-cycle-card__loss::after {
+  content: '';
+  position: absolute;
+  inset: 50% 0 0 0;
+  height: var(--tap-target-min);
+  transform: translateY(-50%);
+}

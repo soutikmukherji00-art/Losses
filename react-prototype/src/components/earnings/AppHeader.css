@@ -1,0 +1,53 @@
+/* The reference appbar is a fixed 56px band with a 16px gutter (Figma
+   TxIUrBKg7mRQhksWl4IS9y · 1939:25543). Fixing the height rather than padding
+   it out keeps the Help control's 48px tap target from inflating the bar —
+   48 sits inside 56 with room to spare. */
+/* Same band, same padding and same top-alignment as ScreenHeader, so the
+   title lands at one y across the whole app. It was a fixed 56px with its
+   content centred, which put the title 4px lower than a pushed page's — the
+   shift you see stepping from Earnings into any screen below it. */
+.app-header {
+  flex: none;
+  box-sizing: border-box;
+  min-height: var(--bar-height);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: var(--pad-row) var(--pad-screen);
+}
+
+.app-header__title {
+  font-size: var(--heading-02-size);
+  line-height: var(--heading-02-lh);
+  font-weight: var(--heading-02-weight);
+}
+
+.app-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-group);
+}
+
+/* The 48dp target as an invisible bleed, not as box height — at min-height
+   it set the header's height and fought the 56px band. */
+.app-header__action {
+  position: relative;
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  gap: var(--gap-inline);
+  cursor: pointer;
+}
+.app-header__action::after {
+  content: '';
+  position: absolute;
+  inset: 50% 0 0 0;
+  height: var(--tap-target-min);
+  transform: translateY(-50%);
+}
+
+.app-header__action span {
+  font-size: var(--body-01-size);
+  line-height: var(--body-01-lh);
+  color: var(--text-secondary);
+}

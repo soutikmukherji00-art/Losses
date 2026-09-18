@@ -1,0 +1,7 @@
+.filter-chip-row {
+  display: flex;
+  gap: var(--gap-stack);
+  padding: var(--space-12) var(--space-16) var(--space-12);
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}

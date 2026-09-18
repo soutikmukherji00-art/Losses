@@ -1,0 +1,36 @@
+/* Everything about this banner's SHAPE is the shared pattern —
+   components/common/Banner.css. What is left here is the one thing only this
+   banner does: the mark moves, because a countdown is the only thing in it
+   that is actually running. */
+
+/* THE SHAKE. It moves the way a clock would if you shook it, not the way a
+   notification badge pulses: ±9° with the pauses far longer than the shake (a
+   2.4s cycle, ~0.5s of movement). A continuous animation on a screen a Pilot
+   opens several times a day stops being a signal and becomes a tic.
+   `transform-origin: 50% 50%` keeps it rotating about the clock's own face
+   rather than pivoting off a corner. */
+.losses-entry__icon[data-animate] {
+  animation: losses-entry-shake 2.4s ease-in-out infinite;
+  transform-origin: 50% 50%;
+}
+
+@keyframes losses-entry-shake {
+  0%, 82%, 100% { transform: rotate(0deg); }
+  85% { transform: rotate(-9deg); }
+  88% { transform: rotate(9deg); }
+  91% { transform: rotate(-7deg); }
+  94% { transform: rotate(5deg); }
+  97% { transform: rotate(-2deg); }
+}
+
+/* An attention device nobody asked for is exactly what this setting turns
+   off. The state still reads as urgent without it — the surface, the mark and
+   the accented countdown are all still there. */
+@media (prefers-reduced-motion: reduce) {
+  .losses-entry__icon[data-animate] { animation: none; }
+}
+
+/* A timer broken across two lines stops being a single fact. */
+.losses-entry__timer {
+  white-space: nowrap;
+}

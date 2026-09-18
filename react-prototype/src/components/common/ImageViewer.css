@@ -1,0 +1,97 @@
+/* Above the bottom sheets (40) and below the confirmation popup (60). A photo
+   opens over the page, so it has to clear a sheet; a confirmation is the app
+   telling the Pilot what just happened to their money, so nothing covers
+   that. */
+.image-viewer {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  background: var(--viewer-ground);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap-group);
+  padding: var(--pad-screen);
+  /* The ground is a way out, so it says so on the pointer — the same
+     affordance the tile that opened this carries. */
+  cursor: pointer;
+}
+
+/* Top right, as its own layer rather than in the flow, so the photo stays
+   optically centred in the frame instead of being pushed down by a header
+   the viewer does not otherwise have. Inset from the corner by the screen
+   gutter, clear of the phone frame's 24px radius. */
+.image-viewer__close {
+  position: absolute;
+  top: var(--pad-screen);
+  right: var(--pad-screen);
+  z-index: 1;
+  /* 40px of target around a 20px mark — a close control on a full-screen
+     overlay is the only way out you can see, and it is reached by a thumb. */
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: var(--radius-circle);
+  /* A bare white mark can land on a pale patch of the photograph and vanish.
+     The disc is what keeps it findable whatever is behind it. */
+  background: var(--viewer-control-fill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* The dialog is focused on open (see ImageViewer.jsx) and is not a control,
+   so it shows nothing for it. */
+.image-viewer:focus {
+  outline: none;
+}
+
+.image-viewer__close:focus-visible {
+  outline: 2px solid var(--viewer-ink);
+  outline-offset: 2px;
+}
+
+/* min-height: 0 so a tall photo is bounded by the flex row it sits in rather
+   than overflowing it — without it, a 3:4 photograph pushes the caption off
+   the bottom of the frame. */
+.image-viewer__stage {
+  flex: 0 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+
+/* `contain`, not `cover`: the grid crops every photo to a square on purpose,
+   because a comparison only works when the frames match. Here the whole
+   photograph is the point — a crop could hide the very blur or dark corner
+   the case turns on. */
+.image-viewer__img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+  border-radius: var(--radius-md);
+}
+
+.image-viewer__caption {
+  flex: none;
+  display: flex;
+  align-items: baseline;
+  gap: var(--gap-inline);
+  color: var(--viewer-ink);
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  text-align: center;
+}
+
+/* The group is context for the label, so it reads quieter than it — "QC
+   photos" tells you whose photo this is, "Photo 2" tells you which. */
+.image-viewer__group {
+  color: var(--viewer-ink-muted);
+}
