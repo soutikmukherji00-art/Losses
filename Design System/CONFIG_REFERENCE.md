@@ -12,6 +12,20 @@ in `src/app/presenterSections.js`. That file is the only place that connects
 the generic `presenter/` folder to this app's specific screens and state —
 see its own header comment.
 
+**The panel starts collapsed, and a tab on the seam brings it back** — chevron
+only at rest, labelled on hover. The prototype opens on the thing it is a
+prototype of: a Pilot being shown a screen, a link opened from Slack, a
+screenshot for a deck were all being handed a column of controls beside the
+phone that was the point, and the cost is asymmetric — a reviewer pays one
+click a session, a viewer paid every time. `⌘\` / `Ctrl+\` does the same,
+and the choice persists in `localStorage` (`presenter:panelOpen`, only an
+explicit `'true'` opens it), because the reason for wanting the panel rarely
+lasts less than a session. The panel stays **mounted** while collapsed —
+clipped to zero width, `inert` so it is out of the tab order — which is what
+keeps the layer registry alive and the scroll position where you left it. It
+lives in `presenter/PresenterShell.jsx`; like the rest of that folder it knows
+nothing about this app and travels with it to the next prototype.
+
 **Controls carry a name and nothing else.** There are no bylines under them
 (the `hint` prop is gone from `Toggle`, `Select` and `ActionButtons`) — what a
 control does is documented next to it in `presenterSections.js` and in this
@@ -67,9 +81,9 @@ What each group of losses is called, in one place, keyed by bucket id.
 
 | id | Name |
 |---|---|
-| `needsAction` | **Needs Decision** |
-| `pending` | **Disputes in Review** |
-| `closed` | **Past Losses** |
+| `needsAction` | **Needs Attention** |
+| `pending` | **Team is checking** |
+| `closed` | **History** |
 | `wrong` | **Wrong Pickups** |
 
 A bucket name appears on five surfaces — the sectioned list's section heads,
@@ -82,12 +96,15 @@ it read "Wrong pickups". The fixtures still carry a `label` on each filter
 chip, but only "All" is read from it now — a chip resolves its name by id.
 
 The names say what the Pilot has to do, or what has already happened, never
-what our system calls the state. **Disputes in Review** says whose turn it
-is, which the older "Decision pending" left open — the one thing a Pilot
-waiting on us needs to be sure of — and it names the thing in the group
-rather than the state those things are in, as the other three do. **Past Losses** describes what the group
-*is*; "Decisions" named the event that closed the case and read as a place to
-go and decide something.
+what our system calls the state. **Needs Attention** asks for the thing they
+can actually give; a decision is what *we* want out of them. **Team is
+checking** says whose turn it is in the plainest words available — a sentence
+about people, where the earlier "Disputes in Review" was a noun phrase about
+a process, and where "Decision pending" left the turn open altogether. It
+also covers a group that holds accepted cases as well as disputes, which
+"Disputes in Review" quietly did not. **History** is the shortest true
+description of the group and the only one of these names nobody has to read
+twice.
 
 ## 0. How the prototype holds a case
 
@@ -103,7 +120,7 @@ exactly predicted by state (marked = open / in-flight, wrong = `INFO_ONLY`,
 closed = terminal), so flattening them changed no bucket.
 
 That means acting on a loss **really moves it**: accept a case and it leaves
-"Needs Decision" for "Disputes in Review", in the list, in the tab count,
+"Needs Attention" for "Team is checking", in the list, in the tab count,
 in the summary totals — because all of those read the same pool. Previously the new
 state was written onto the *pointer* to the case, so it looked right on the
 detail page and vanished the moment you went back.
@@ -191,7 +208,7 @@ from it:
 | the settled loss | `₹0` with the amount struck, then *"Not deducted — this loss fell in your first 4 weeks"*, then *"From 22 Aug, a loss you ignore or a dispute you lose comes out of your payout"* — the whole explanation, in the hero, in reading order |
 | its list row | `₹0` against the struck amount, like any other loss that cost nothing |
 | Payment Details | the covered line is simply not there; the payout is higher by that much |
-| historic ledger · Past Losses head | *deducted* falls, *came back* rises |
+| historic ledger · History head | *deducted* falls, *came back* rises |
 
 **The hero is the entire explanation**, and it is the only place in the app
 that mentions the window. The guidance line is the sentence the free loss was
@@ -341,7 +358,7 @@ The totals widget at the top is deliberately minimal: it is the slot insights
 will grow into.
 
 The Active and Historic homes are confined to this arrangement — the other two
-keep the Needs Decision / Disputes in Review / Wrong Pickups / Past Losses buckets,
+keep the Needs Attention / Team is checking / Wrong Pickups / History buckets,
 so the variants stay comparable. The cycle line is the exception, and is
 shared by all three.
 
@@ -352,13 +369,13 @@ above.
 
 | Name | Values | State key | What it changes | Where it's read |
 |---|---|---|---|---|
-| Losses list layout | `sectioned` (default) · `unified` · `loss-wise` | `lossesLayout` | **Sectioned** groups by lifecycle bucket (Needs Decision / Disputes in Review / Wrong Pickups / Past Losses). **Unified** is one flat, date-ordered feed. **Loss Wise** groups the whole list by the *remedy* each loss needs — see § Remedy groups below. All three render the same `ListRow` and `SectionHeader`; a layout decides order and grouping, never how a loss looks. **Chip row:** Sectioned and Loss Wise both take the filter chips (Unified takes the summary cards instead), but Loss Wise drops the **Wrong Pickups** chip — that is a loss *type*, and Loss Wise already cuts the list by type, so its chips can only be decision states. A `wrong` filter carried in from Sectioned is dropped with it, so the list is never silently trimmed by a chip that isn't on screen. | `useLossesApp.js` (`layout` / `isUnified` / `isLossWise` / `isSectioned`, `lossFilter`, `lossFilterChips`), rendered in `LossesBody.jsx` |
+| Losses list layout | `sectioned` (default) · `unified` · `loss-wise` | `lossesLayout` | **Sectioned** groups by lifecycle bucket (Needs Attention / Team is checking / Wrong Pickups / History). **Unified** is one flat, date-ordered feed. **Loss Wise** groups the whole list by the *remedy* each loss needs — see § Remedy groups below. All three render the same `ListRow` and `SectionHeader`; a layout decides order and grouping, never how a loss looks. **Chip row:** Sectioned and Loss Wise both take the filter chips (Unified takes the summary cards instead), but Loss Wise drops the **Wrong Pickups** chip — that is a loss *type*, and Loss Wise already cuts the list by type, so its chips can only be decision states. A `wrong` filter carried in from Sectioned is dropped with it, so the list is never silently trimmed by a chip that isn't on screen. | `useLossesApp.js` (`layout` / `isUnified` / `isLossWise` / `isSectioned`, `lossFilter`, `lossFilterChips`), rendered in `LossesBody.jsx` |
 
 | Line item design | `no-image` · `no-awb` · `three-row` (default) · `two-row` | `lineItemDesign` | How ONE loss reads, on every surface that lists one — see § Line item design below. |
 
 There was an "Entry point style" variant here (card vs banner). It's gone —
-the widget is always the banner now, one line reading "₹763 at stake from 6
-Losses". A variant with only one surviving option is a branch pretending to be
+the widget is always the banner now, one line reading "₹763 from 6 losses
+may be deducted". A variant with only one surviving option is a branch pretending to be
 a choice, so the state key, the setter and the control were deleted rather
 than left defaulted.
 
@@ -392,7 +409,7 @@ the row's hierarchy (documented on `ListRow.jsx`), not a variant of it.
 **Why the clock-in-rail designs need a CSS override.** With the clock in the
 rail, the rail's width is set by the longest clock text (`Decision in 2
 days`), so it is fixed at 72px rather than content-sized. Without that the
-title column is 172px in Needs Decision and 127px in Disputes in Review — the
+title column is 172px in Needs Attention and 127px in Team is checking — the
 same list wrapping its titles in one section and not the next. 72px fits the
 longest single-line clock; anything longer wraps inside the rail instead of
 pushing it wider.
@@ -450,7 +467,7 @@ stored, so the banner cannot promise a state the list it opens does not have.
 
 | State | When | Mark (20px) | Surface | Headline | CTA |
 |---|---|---|---|---|---|
-| **Actionable** | ≥1 loss waiting on the Pilot | `AlarmClockIcon`, shaking | `--tone-risk-*` (warm) | `₹624 at stake from 6 losses`<br>**`3 days left`** | `Review ›` |
+| **Actionable** | ≥1 loss waiting on the Pilot | `AlarmClockIcon`, shaking | `--tone-risk-*` (warm) | `₹624 from 6 losses may be deducted`<br>**`3 days left`** | `Review ›` |
 | **Review** | nothing waiting, ≥1 decision pending | `PackageXIcon` | `--tone-progress-*` (cool) | **`2 losses`**` are under review` | `Track ›` |
 | **Resolved** | nothing waiting, nothing pending | — | — | — | **hidden entirely** |
 
@@ -459,7 +476,7 @@ the first line and the clock on its own beneath it, so the clock is a
 statement rather than a clause competing with the money. Review needs one
 line, because nothing is running out.
 
-Resolved hides rather than showing "₹0 at stake" — a thing to read and dismiss
+Resolved hides rather than showing "₹0 … may be deducted" — a thing to read and dismiss
 every day on the screen a Pilot opens to see what they earned. The list stays
 reachable from the Losses tab and the Current Cycle card in every arrangement.
 Two gates answer different questions: `lossesStructure.earningsEntry` (does
@@ -733,7 +750,7 @@ card, a 64px icon, headline, byline, and a ✕ top-right. It auto-closes after
 | Flow | Raised by | Headline | Byline |
 |---|---|---|---|
 | `accept` | `submitSheet` (accept sheet) | Accept recorded | We will tell you before your payout. |
-| `dispute` | `submitSheet` (dispute sheet) | Dispute sent | Nothing is deducted while we check. |
+| `dispute` | `submitSheet` (dispute sheet) | Raised Dispute | Your dispute is sent to the team. Nothing is deducted while we check. |
 | `returnedClaim` | `confirmReturnedClaim` (Lost in Field) | Check requested | We will check the hub scan. |
 | `addSide` | `submitSide` (wrong pickup) | Your side is saved | No money is deducted for this. |
 
@@ -770,7 +787,7 @@ whatever screen the flow landed on.
 team, the deduction timer, or the hub scan. The Pilot's own moves are the
 app's own CTAs (accept, dispute, claim a return, add your side) and live
 next to the flows that raise them in `useLossesApp.js`; without this file a
-walkthrough could never reach the Past Losses bucket, because nothing a Pilot
+walkthrough could never reach the History bucket, because nothing a Pilot
 can tap closes a case.
 
 The panel turns each row into a button under **Case lifecycle**, shown only
@@ -789,7 +806,7 @@ says the parcel is already back. It exists because claiming a return is a
 real move: the Pilot has done everything they can and the hub scan decides,
 exactly like accept/dispute hand the case to the review team. Recording it as
 a flag on an otherwise-unchanged case (as it was originally) left the loss in
-"Needs Decision", still counting down, with the page still telling the Pilot to
+"Needs Attention", still counting down, with the page still telling the Pilot to
 give the parcel to their hub captain.
 
 **Each row carries a `patch`, and it is not decoration.** Every terminal

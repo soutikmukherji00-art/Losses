@@ -1,7 +1,7 @@
 import './SummaryCardRow.css'
 
-/** Unified-layout mode's 4-card totals strip (Needs Decision /
- * Disputes in Review / Wrong Pickups / Past Losses) — tap a card to filter
+/** Unified-layout mode's 4-card totals strip (Needs Attention /
+ * Team is checking / Wrong Pickups / History) — tap a card to filter
  * the list. */
 export default function SummaryCardRow({ cards }) {
   return (

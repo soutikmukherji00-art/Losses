@@ -1,6 +1,7 @@
 import BottomSheet from '../common/BottomSheet.jsx'
 import Button from '../common/Button.jsx'
 import ReasonSheetBody from './ReasonSheetBody.jsx'
+import DisputeRecord from './DisputeRecord.jsx'
 import './ReasonSheetOverlay.css'
 
 /**
@@ -43,6 +44,10 @@ export default function ReasonSheetOverlay({ vm }) {
       </div>
 
       <div className="reason-overlay__bar">
+        {/* The Pilot's cool-off standing, directly above the button that
+            spends a try — the ActionBar's note slot, in the sheet. Dispute
+            only, and nothing at all on a clean record. */}
+        {vm.isDispute && !vm.pseudoDispute && <DisputeRecord record={vm.disputeRecord} />}
         <Button fullWidth disabled={!vm.canSubmit} onClick={vm.submitSheet}>
           {vm.submitLabel}
         </Button>

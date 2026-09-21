@@ -2,6 +2,7 @@ import SegmentedControl from './controls/SegmentedControl.jsx'
 import Select from './controls/Select.jsx'
 import Toggle from './controls/Toggle.jsx'
 import LayersControl from './controls/LayersControl.jsx'
+import MultiSelect from './controls/MultiSelect.jsx'
 import ActionButtons from './controls/ActionButtons.jsx'
 import './controls/controls.css'
 import './ControlPanel.css'
@@ -10,6 +11,7 @@ const CONTROL_TYPES = {
   segmented: SegmentedControl,
   select: Select,
   toggle: Toggle,
+  multiselect: MultiSelect,
   layers: LayersControl,
   actions: ActionButtons,
 }

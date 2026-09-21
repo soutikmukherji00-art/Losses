@@ -20,7 +20,7 @@ import { BUCKET_NAME } from './lossBuckets.js'
  * Red is reserved for system errors — never for a loss (KRD F24: wrong
  * pickups carry "no red, no minus signs").
  */
-const TONE = {
+export const TONE = {
   RISK: 'risk',                       // money at stake, action still open
   PROGRESS: 'progress',               // in flight, nothing cut yet
   RESOLVED_GOOD: 'resolved_good',     // no money lost
@@ -46,7 +46,7 @@ const ACTION = {
  *                             own amount column already carries the figure).
  *                             Returned is green, Deducted grey.
  *   3. "Not deducted"       — money was at risk and was kept, or never was.
- *   4. "Decision in <n> days" — waiting on the team.
+ *   4. "Reply in <n> days"   — waiting on the team.
  *
  * The amount stays out of shapes 2-4 on purpose: it used to appear twice in
  * the same row, once in the amount column and once inside the badge.
@@ -101,7 +101,7 @@ const ACTION = {
  *
  * Each of those used to be independently optional, and the gaps were not
  * theoretical: an accepted case showed no clock at all while its own list row
- * promised "Decision in 3 days"; a waived ₹118 case showed ₹0 and lost the
+ * promised "Reply in 3 days"; a waived ₹118 case showed ₹0 and lost the
  * ₹118 entirely; cool-off rendered byte-identical to a live needs-action
  * case; and NO state, in any lifecycle, said what the Pilot could do — that
  * lived three sections below, past the photos.
@@ -146,11 +146,27 @@ const CASE_STATES = {
     chip: (c) => `${days(c.daysToDeduction)} left`,
     statement: () => 'Not deducted yet.',
     // The Pilot's own sentence, on the one page where the money is still
-    // saveable. It names the dispute rather than both choices because accept
-    // is the path silence already takes; the ActionBar names both.
+    // saveable. It names ONE move, not both: accept is the path silence
+    // already takes, so a loss that can be disputed is told about the dispute
+    // and a loss that cannot is told about the accept. The ActionBar carries
+    // whichever controls actually exist.
+    //
+    // BOTH BRANCHES QUOTE THE BUTTON, word for word, and say where to tap. A
+    // Pilot who has understood "raise a dispute" still has to find it, and
+    // the control is at the far foot of the page — naming it in the hero's
+    // own words is what joins the sentence to the thing it is asking for.
+    // That only works while the two agree, so the quoted words and the
+    // ActionBar's labels (CaseDetailScreen's `actionButtons`) have to be
+    // changed together.
+    //
+    // The second branch is unreachable on both fixtures today: every reason
+    // that can be ATTRIBUTED offers dispute (config/lossReasons.js). It is
+    // the line an accept-only loss type would land on the day one arrives,
+    // and it is kept in the same voice as its sibling so that day does not
+    // ship the app's older one.
     guidance: (c) => (c.reason.actions.includes('dispute')
-      ? 'Raise a dispute if you think this is an incorrect deduction.'
-      : 'Accept and tell us why it happened.'),
+      ? 'Tap ‘Dispute’ if you think this amount is wrongly deducted'
+      : 'Tap ‘Accept’ and tell us what happened'),
     settlesThisCycle: true,
     actionBlock: ACTION.OFFERS,
     tracker: null,
@@ -174,7 +190,18 @@ const CASE_STATES = {
     // Cool-off used to be invisible here: this state rendered identically to
     // ATTRIBUTED, so the one fact that actually distinguishes it — the door
     // the Pilot will reach for is shut — was nowhere in the hero.
-    guidance: (c) => `Dispute is paused till ${c.coolOffEnds}. You can still accept.`,
+    // Says what the Pilot CANNOT DO, in the words of the button they are
+    // about to reach for. "Dispute is paused" describes a state of the
+    // feature; "you can't raise dispute again" describes their position, and
+    // it is the same verb the control and the hero's own ATTRIBUTED line use.
+    // The second sentence is conditional because Only Dispute deletes the
+    // door it points at. Under that variant a cool-off case has NO move left
+    // at all, and "you can still accept" would be the app naming a button it
+    // has removed on the one screen where the Pilot is actively looking for
+    // something to press.
+    guidance: (c) => (c.onlyDispute
+      ? `You can't raise dispute again till ${c.coolOffEnds}.`
+      : `You can't raise dispute again till ${c.coolOffEnds}. You can still accept.`),
     settlesThisCycle: true,
     actionBlock: ACTION.OFFERS_DISPUTE_PAUSED,
     tracker: null,
@@ -192,9 +219,10 @@ const CASE_STATES = {
     tone: TONE.PROGRESS,
     money: (c) => ({ amount: c.amount, tone: 'primary' }),
     // One countdown grammar across the app: the same words this state's list
-    // badge uses. "Reply in 6 days" and "Decision in 6 days" were the same
-    // fact in two vocabularies, one per surface.
-    chip: (c) => `Decision in ${days(c.daysToReply)}`,
+    // badge uses. The two surfaces once said "Reply in 6 days" and "Decision
+    // in 6 days" for the identical fact; they are both "Reply in" now — the
+    // Pilot is waiting to hear back, and that is the word for it.
+    chip: (c) => `Reply in ${days(c.daysToReply)}`,
     statement: (c) => `Sent ${c.record.actedOn}. Nothing is deducted while we check.`,
     guidance: () => 'Nothing to do — we will tell you here.',
     actionBlock: ACTION.NONE,
@@ -202,7 +230,7 @@ const CASE_STATES = {
     // Said in the hero now, where it answers "what do I do?" on landing
     // instead of at the foot of a page the Pilot has no reason to reach.
     footer: () => null,
-    listChip: (c) => ({ text: `Decision in ${days(c.daysToReply)}`, kind: 'state' }),
+    listChip: (c) => ({ text: `Reply in ${days(c.daysToReply)}`, kind: 'state' }),
   },
 
   ACCEPTED: {
@@ -211,9 +239,9 @@ const CASE_STATES = {
     tone: TONE.PROGRESS,
     money: (c) => ({ amount: c.amount, tone: 'primary' }),
     // Never promises a waiver, never shows odds or Y% (KRD F12).
-    // This state had NO chip, while its own list row promised "Decision in
+    // This state had NO chip, while its own list row promised "Reply in
     // 3 days" — the list started a clock the detail page then dropped.
-    chip: (c) => `Decision in ${days(c.daysToReply)}`,
+    chip: (c) => `Reply in ${days(c.daysToReply)}`,
     // "We will tell you before your payout" was the guidance row's sentence,
     // printed here as well. The status row takes the money position instead,
     // which nothing on the card was stating.
@@ -223,7 +251,7 @@ const CASE_STATES = {
     actionBlock: ACTION.NONE,
     tracker: 'accepted',
     footer: () => null,
-    listChip: (c) => ({ text: `Decision in ${days(c.daysToReply)}`, kind: 'state' }),
+    listChip: (c) => ({ text: `Reply in ${days(c.daysToReply)}`, kind: 'state' }),
   },
 
   DEBITED: {
@@ -267,7 +295,12 @@ const CASE_STATES = {
   WAIVED: {
     id: 'WAIVED',
     terminal: true,
-    label: 'Waived',
+    // Not "Waived". A waiver is something an institution grants; not being
+    // deducted is what happened to the Pilot. This label is reviewer-facing
+    // only (the panel's "This case: …") — the Pilot never saw the word here,
+    // which is why the change costs nothing on screen and is still worth
+    // making: the state table is where the app's vocabulary is decided.
+    label: 'Not deducted',
     tone: TONE.RESOLVED_GOOD,
     money: (c) => ({ amount: '₹0', was: c.amount, tone: 'kept' }),
     mark: 'good',
@@ -409,7 +442,7 @@ const CASE_STATES = {
    * equivalent of IN_DISPUTE: out of their hands, waiting on us.
    *
    * Without it, claiming a return changed nothing a Pilot could see: the case
-   * sat in "Needs Decision" still counting down, and the page went on telling
+   * sat in "Needs Attention" still counting down, and the page went on telling
    * them to give the parcel to their hub captain.
    */
   LIF_CLAIM_SENT: {
@@ -417,13 +450,16 @@ const CASE_STATES = {
     label: BUCKET_NAME.pending,
     tone: TONE.PROGRESS,
     money: (c) => ({ amount: c.amount, tone: 'primary' }),
-    chip: (c) => `Decision in ${days(c.daysToHubCheck)}`,
+    chip: (c) => `Reply in ${days(c.daysToHubCheck)}`,
     statement: () => 'You said the parcel is back.',
-    guidance: () => 'Nothing to do — the hub scan decides.',
+    // ONE "what now" line per state (the framework in resolveCaseView.js):
+    // this used to be a guidance line AND a footer saying the two halves of
+    // the same sentence a screen apart.
+    guidance: () => 'Nothing to do — if the hub scan finds it, the money comes back as a credit in your next payment.',
     actionBlock: ACTION.NONE,
     tracker: null,
-    footer: () => 'If the hub has it, the money comes back as a credit in your next payment.',
-    listChip: (c) => ({ text: `Decision in ${days(c.daysToHubCheck)}`, kind: 'state' }),
+    footer: () => null,
+    listChip: (c) => ({ text: `Reply in ${days(c.daysToHubCheck)}`, kind: 'state' }),
   },
 
   RETURNED_CREDITED: {
@@ -437,10 +473,15 @@ const CASE_STATES = {
     // "+ ₹65" stated the credit without ever stating the debit it cancelled,
     // so the pair below was the only place the story was complete.
     chip: (c) => `Closed ${settledOn(c.record)}`,
-    // "Credited back" is what ₹0 beside a struck ₹65 already means, and the
-    // money-movement table below spells the pair out in full.
-    statement: (c) => `Returned on ${c.record.returnedOn}.`,
-    guidance: () => 'Nothing more will be deducted for this.',
+    // The MONEY's date, not the parcel's. "Returned on 8 Aug" named the day
+    // the Pilot handed the parcel over; the credit landed on the 12th, and
+    // the credit-pair rows just below have always said so — so the hero was
+    // giving one date for an event the rest of the page dated differently.
+    // It now states the same fact in the same words as the row it summarises.
+    statement: (c) => `Credited back on ${c.record.creditDate || c.record.returnedOn}.`,
+    // One line: what is left to happen (nothing) and what stays (both rows —
+    // KRD F19's bank-statement rule, which the credit pair above shows).
+    guidance: () => 'Nothing more will be deducted. The debit and its credit both stay in your history.',
     actionBlock: ACTION.NONE,
     tracker: null,
     // Bank-statement rule: the debit row stays, the credit is added — nothing
@@ -450,7 +491,7 @@ const CASE_STATES = {
     // telling under "What the team decided" also credited the team for
     // something the Pilot did.
     outcomeNarrative: () => null,
-    footer: () => 'The debit and its credit both stay in your history.',
+    footer: () => null,
     listChip: null,
   },
 
@@ -463,13 +504,22 @@ const CASE_STATES = {
     // money was ever going to be deducted, so there is no "was" to show
     // (KRD F24). It had no figure at all, while its own list row carried the
     // parcel's ₹65 — the list and the page disagreed about the money.
-    // No clock runs on an advisory, and the slot says so rather than
-    // vanishing — an empty clock reads as a missing one.
-    chip: () => 'No deadline',
+    // No clock runs on an advisory, so no clock is shown. It used to print
+    // "No deadline" in the badge slot, which dressed the absence of a clock
+    // as a clock (design call, 21 Sep).
+    chip: () => null,
     // Not "for this" — for wrong pickups at all. The ₹0 covers this case; the
     // sentence is only worth its space if it states the policy behind it.
     statement: () => 'No money is deducted for wrong pickups.',
-    guidance: () => 'Add your side if this was not your pickup.',
+    // The "Add your side" card is the invitation, in full, with the field
+    // under it; a guidance line saying the same thing was the card's heading
+    // read out one screen earlier. The one line this state owes goes to the
+    // standing consequence below — until the Pilot raises the pseudo
+    // dispute, when the line is the thank-you: the dispute changed nothing
+    // about the money (there was none), so this is where it shows.
+    guidance: (c) => (c.record.pseudoDisputed
+      ? 'Thank you for raising your dispute. Your side is on record with the team.'
+      : null),
     actionBlock: ACTION.ADD_SIDE,
     tracker: null,
     footer: () => 'Repeated wrong pickups may be reviewed by your hub.',

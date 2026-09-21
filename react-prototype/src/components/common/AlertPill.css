@@ -24,3 +24,56 @@
   font-weight: var(--body-02-weight);
   color: var(--text-primary);
 }
+
+.alert-pill__title {
+  display: block;
+}
+
+/* The second line — body left, action right, one row: the banner pattern's
+   shape (Banner.css `.banner__row`). */
+.alert-pill__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gap-lead);
+  min-width: 0;
+}
+
+.alert-pill__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.alert-pill__action {
+  flex: none;
+  display: flex;
+  margin-left: auto;
+}
+
+/* Reads as the link it is — "View Details" on the Current Cycle card — and
+   never wraps. A real <button>, since the pill around it is not one. */
+.alert-pill__cta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--fw-demi);
+  color: var(--valmo-navy);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* The glyph stays 14px; the touch area does not (48dp floor). */
+.alert-pill__cta::after {
+  content: '';
+  position: absolute;
+  inset: calc(-1 * var(--tap-bleed));
+}
+.alert-pill__cta { position: relative; }

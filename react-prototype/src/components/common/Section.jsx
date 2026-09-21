@@ -13,9 +13,14 @@ import './Section.css'
  * `title` is Heading 04 (15/700); `value` is the right-aligned figure a
  * section can carry, the way "Base pay" carries its total.
  */
-export default function Section({ title, value, action, children, flush = false, panel = false }) {
+export default function Section({
+  title, value, action, children, flush = false, panel = false, lead = false,
+}) {
+  // `lead` is the one section per page that names the page's subject (the
+  // loss detail's reason): its head steps up to Heading 03, between the
+  // page title and the other heads.
   return (
-    <section className={`sec${panel ? ' sec--panel' : ''}`}>
+    <section className={`sec${panel ? ' sec--panel' : ''}${lead ? ' sec--lead' : ''}`}>
       {(title || value) && (
         <header className="sec__head">
           <h2 className="sec__title">{title}</h2>

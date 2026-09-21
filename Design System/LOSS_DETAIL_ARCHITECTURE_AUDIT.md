@@ -43,7 +43,7 @@ KRD final page (`KRD_extracted_text.txt` L1324–1337) carries the authoritative
 |---|---|---|---|---|---|
 | 1 | ICUD image junk | "Delivery photo not clear" | SX claims (gold) | 2 images | Debitable |
 | 2 | Pickup image junk | "Pickup photo not clear" | SX claims (gold) | 2 images | Debitable |
-| 3 | Pickup-vs-QC mismatch | "Secondary QC mismatch" | SX claims (gold) | 4 images (2 pickup + 2 Sec-QC) | Debitable |
+| 3 | Pickup-vs-QC mismatch | "Captain rejected the QC" | SX claims (gold) | 4 images (2 pickup + 2 Sec-QC) | Debitable |
 | 4 | Wrong-RVP pickup | "Wrong parcel picked up" / "…wrong seller" | SX claims (gold) | none (info only) | **Never debited** |
 | 5 | Lost in Field (LiF) | "Shipment Lost" | Loss Engine (shipment-loss flow) | none (reason + tip) | **Already deducted day-0; recoverable** |
 

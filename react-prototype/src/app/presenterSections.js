@@ -43,7 +43,7 @@ export function getPresenterSections({ state, actions, vm }) {
           label: 'Loss entry point in My Earnings',
           checked: state.earningsEntry,
           onChange: actions.setEarningsEntry,
-          // The widget this governs is the "₹X at stake from N losses"
+          // The widget this governs is the "₹X from N losses may be deducted"
           // banner on My Earnings.
           //
           // Both doors can be off. That is not a broken state — the Current
@@ -192,6 +192,19 @@ export function getPresenterSections({ state, actions, vm }) {
           onChange: actions.setLineItemHeading,
         },
         {
+          type: 'multiselect',
+          label: 'Insight banners (none = auto, top 3 by money)',
+          options: vm.insightOptions,
+          values: vm.insightPicks,
+          onChange: actions.toggleInsightPick,
+          // WHICH patterns the banner carries, over the automatic top 3.
+          // The row is a fixed-length product decision, not a debugging
+          // surface — but reviewing one banner's copy, or a specific pairing,
+          // meant editing a fixture until the money ranking happened to
+          // produce it. Picking is in money order like the automatic row, so
+          // two reviews of the same selection cannot disagree.
+        },
+        {
           type: 'select',
           label: 'Insight banner',
           value: state.insightBannerMode,
@@ -227,7 +240,13 @@ export function getPresenterSections({ state, actions, vm }) {
           // Only the presets the ACTIVE dataset can actually honour — Live
           // seeds no decided cases and no Lost-in-Field, so those entries are
           // not offered rather than offered and broken (state/caseStore.js).
-          options: SCREEN_PRESETS.filter(presetResolves).map((p) => ({ id: p.id, label: p.label })),
+          // ...and only the ones the ACTIVE FLOW can honour: `needsAccept`
+          // presets are accept-flow screens, and Only Dispute has neither the
+          // sheet nor the states behind them (state/flowVariant.js).
+          options: SCREEN_PRESETS
+            .filter(presetResolves)
+            .filter((p) => !(p.needsAccept && state.flowVariant === 'dispute-only'))
+            .map((p) => ({ id: p.id, label: p.label })),
           onChange: (id) => actions.go(id),
         },
       ],

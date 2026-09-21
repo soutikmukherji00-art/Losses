@@ -20,6 +20,7 @@ import {
 import { getDisputeStanding } from '../config/disputeCoolOff.js'
 import { resolveGrace } from '../config/gracePeriod.js'
 import { applyGrace } from './grace.js'
+import { applyDisputeOnly } from './flowVariant.js'
 import { getRemedyGroup, REMEDY_GROUP_ORDER } from '../config/remedyGroups.js'
 import { seedCases, seedIdAt } from './caseStore.js'
 import { buildHistoricLedger } from './historicLedger.js'
@@ -73,6 +74,8 @@ const initialState = {
   returnedClaimOpen: false,
   // The "settling this cycle" drill-down, opened from the Current Cycle card.
   cycleSheetOpen: false,
+  // The cool-off notice's "see past disputes" drill-down.
+  disputeHistoryOpen: false,
   // Which insight's detail sheet is open, by insight id.
   insightOpen: null,
   // Whether the Historic tab's break-up sheet is up.
@@ -86,6 +89,12 @@ const initialState = {
   photoViewer: null,
   // Which insight the rolling banner is showing.
   insightIndex: 0,
+  // WHICH insights the banner carries. Empty = automatic (the top 3 by
+  // money, which is the product rule). A non-empty pick overrides it with
+  // exactly those, in money order — for reviewing one banner's copy, or a
+  // pairing, without editing a fixture until the ranking happens to produce
+  // it. See config § Insight banners.
+  insightPicks: [],
   // Which confirmation popup is up, by id from config/confirmations.js.
   // Every flow that submits something sets this; the popup clears it itself
   // after 3 seconds.
@@ -237,6 +246,13 @@ export function useLossesApp() {
   const setLineItemDesign = (id) => patch({ lineItemDesign: id })
   const setLineItemHeading = (id) => patch({ lineItemHeading: id })
   const setInsightBannerMode = (id) => patch({ insightBannerMode: id, insightIndex: 0 })
+  const toggleInsightPick = (id) => setState((st) => {
+    const picks = st.insightPicks.includes(id)
+      ? st.insightPicks.filter((x) => x !== id)
+      : [...st.insightPicks, id]
+    // The index always goes home: the row it pointed into is a different row.
+    return { ...st, insightPicks: picks, insightIndex: 0 }
+  })
 
   // The one business flag that's driven by a Layers toggle rather than its
   // own state key — see the comment on `initialState` above and
@@ -256,7 +272,7 @@ export function useLossesApp() {
       patch, go, togglePdCard, resetPrototype, setWrongDisputes, setGracePeriod,
       setLossesTab, setEarningsEntry, setHistoricPlacement,
       setFlowVariant, setLossesLayout, setLineItemDesign, setLineItemHeading,
-      setInsightBannerMode,
+      setInsightBannerMode, toggleInsightPick,
       setEntryStateOverride,
     },
   }
@@ -307,7 +323,10 @@ function computeViewModel(state, props, pool, { patch, go, togglePdCard, updateC
     joinedOn: data.pilot?.joinedOn,
     today: TODAY,
   })
-  const cases = applyGrace(pool, grace)
+  // Two lenses over the one pool, both applied before any surface reads it:
+  // the grace window, and Only Dispute's rule that the fixture may not carry
+  // a case only an accept could have produced (state/flowVariant.js).
+  const cases = applyGrace(applyDisputeOnly(pool, onlyDispute), grace)
 
   const ctx = { replyDays, coolOffEnds, onlyDispute, catalogImages, grace }
 
@@ -441,7 +460,17 @@ function computeViewModel(state, props, pool, { patch, go, togglePdCard, updateC
   // it. The historic block reads settled cases only.
   // Top 3 by money, always three — the contextual banner is a fixed-length
   // row of cards now, not a list of however many patterns qualified.
-  const insights = buildInsights(cases, { scope: 'all', rowFor: buildRow, topN: INSIGHT_BANNER_COUNT })
+  // EVERY kind of loss in the pool, ranked by money and with no threshold —
+  // the menu the panel offers, and the list any lookup resolves against.
+  const allInsights = buildInsights(cases, { scope: 'all', rowFor: buildRow, minCases: 1 })
+  // What the banner actually carries. Automatic is the product rule (top 3 by
+  // money, always three); a pick from the panel replaces it with exactly
+  // those, still in money order, because a row whose order changed with the
+  // picking would make two reviews of the same banner disagree.
+  const picks = state.insightPicks || []
+  const insights = picks.length
+    ? allInsights.filter((i) => picks.includes(i.id))
+    : buildInsights(cases, { scope: 'all', rowFor: buildRow, topN: INSIGHT_BANNER_COUNT })
   // Every kind of loss in history, threshold and all — the historic scope has
   // only one reader now and it is the break-up sheet, which has to reconcile
   // with the figure that sent the Pilot to it and so cannot drop the rare
@@ -452,7 +481,9 @@ function computeViewModel(state, props, pool, { patch, go, togglePdCard, updateC
   // all-scope insight every time — and the historic banner ("₹384 across 3
   // losses") opened a sheet reading ₹715 across 5. A sheet must show the
   // number the Pilot just tapped.
-  const insightScopes = { all: insights, historic: historicKinds }
+  // Against ALL of them, not the shown subset: a sheet has to open even for
+  // an insight the banner is not currently carrying.
+  const insightScopes = { all: allInsights, historic: historicKinds }
   const openInsight = state.insightOpen
     ? (insightScopes[state.insightOpen.scope] || insights)
       .find((i) => i.id === state.insightOpen.id) || null
@@ -462,6 +493,34 @@ function computeViewModel(state, props, pool, { patch, go, togglePdCard, updateC
   // Rows come from the app's one row builder, so a historic row IS a losses
   // list row — same shape, same status chip vocabulary.
   const historic = buildHistoricLedger(cases, { rowFor: buildRow })
+
+  // ---- cool-off transparency (DisputeHistorySheet) ----
+  // Every dispute this Pilot lost — what the cool-off notice's ingress makes
+  // visible, so "you can't dispute again" points at the disputes that
+  // actually caused it instead of asking the Pilot to take the count on
+  // faith. Read straight off the pool: a case only carries
+  // `trackerKind: 'dispute'` once a Pilot has actually disputed it
+  // (submitSheet below), and DEBITED is the one outcome a lost dispute
+  // reaches ("Dispute rejected → deducted", caseTransitions.js).
+  //
+  // The rows are the app's one row builder, so a lost dispute here IS the
+  // losses-list row for that case, under the same kind of label band the
+  // list uses — except the band names the DATE it was decided, newest first,
+  // and its right-hand side says what that decision cost. Tapping a row
+  // opens the same L1 page and closes the sheet on the way, so Back does not
+  // return into it.
+  const disputeHistoryGroups = cases
+    .filter((rec) => rec.trackerKind === 'dispute' && rec.caseState === 'DEBITED')
+    .sort((a, b) => parseShortDate(b.debitDate) - parseShortDate(a.debitDate))
+    .map((rec) => {
+      const row = buildRow(rec)
+      return {
+        id: rec.id,
+        label: rec.debitDate,
+        total: `${fmt(rec.amt)} deducted`,
+        rows: [{ ...row, open: () => { row.open(); patch({ disputeHistoryOpen: false }) } }],
+      }
+    })
 
   // Every bucket is a filter over the one pool, by the case's CURRENT state.
   // That is the whole mechanism behind "act on a loss and watch it move": the
@@ -475,7 +534,7 @@ function computeViewModel(state, props, pool, { patch, go, togglePdCard, updateC
   const needsActionAll = emptyMarked ? [] : inBucket('needsAction').sort(byUrgency)
   const pendingAll = emptyMarked ? [] : inBucket('pending').sort(byUrgency)
   const wrongRows = inBucket('wrong')
-  // Past Losses is THIS CYCLE's decisions. A decided loss from an earlier cycle
+  // History is THIS CYCLE's decisions. A decided loss from an earlier cycle
   // is history, not a thing the Pilot is still reading the list for — and it
   // already has a home: the historic ledger below keeps the full run, cycle by
   // cycle, for the Losses tab in the 'active-plus-historic' arrangement.
@@ -485,8 +544,8 @@ function computeViewModel(state, props, pool, { patch, go, togglePdCard, updateC
   // by definition (an open case belongs to whatever cycle finally settles it).
   const closedRows = inBucket('closed').filter((r) => inCurrentCycle(r._settledOn))
   // What the list actually renders, so a chip count and the section beneath it
-  // are read off the same array — the Past Losses bucket is cycled, and a chip
-  // saying "Past Losses (8)" over three rows would be the first lie.
+  // are read off the same array — the History bucket is cycled, and a chip
+  // saying "History (8)" over three rows would be the first lie.
   const listedBuckets = {
     needsAction: needsActionAll, pending: pendingAll, wrong: wrongRows, closed: closedRows,
   }
@@ -516,7 +575,7 @@ function computeViewModel(state, props, pool, { patch, go, togglePdCard, updateC
   const entryTimer = (entryTreatment.showTimer && needsActionAll.length)
     ? entryTimerText({ days: needsActionAll[0]._days })
     : null
-  // The Past Losses section's total has to state what actually left the Pilot's
+  // The History section's total has to state what actually left the Pilot's
   // pocket — now that DEBITED cases exist, "₹0 adjusted" would be a lie.
   const closedDeducted = sumOf(closedRows.filter((r) => r._state === 'DEBITED'))
   const closedTotalLabel = closedDeducted > 0 ? `${fmt(closedDeducted)} deducted` : '₹0 adjusted'
@@ -531,8 +590,8 @@ function computeViewModel(state, props, pool, { patch, go, togglePdCard, updateC
   // the money is parked until the team replies (see `settlesThisCycle` in
   // config/caseStates.js) — while staying in the active list, still at stake.
   // Kept apart by bucket rather than concatenated flat: the sheet this feeds
-  // heads its rows the way the losses list does ("Needs Decision" /
-  // "Disputes in Review"), and a flat array cannot say which head a row
+  // heads its rows the way the losses list does ("Needs Attention" /
+  // "Team is checking"), and a flat array cannot say which head a row
   // belongs under.
   const thisCycleNeedsAction = needsActionAll.filter((r) => r._settlesThisCycle)
   const thisCyclePending = pendingAll.filter((r) => r._settlesThisCycle)
@@ -553,10 +612,15 @@ function computeViewModel(state, props, pool, { patch, go, togglePdCard, updateC
   // Every section head answers the same question on its right-hand side —
   // "what is this group of losses doing to me?" — so every one of them names
   // what its figure IS, not just how big it is. Wrong Pickups says "No
-  // deductions" and Past Losses says "₹210 deducted"; these two used to print
+  // deductions" and History says "₹210 deducted"; these two used to print
   // a bare "₹363", which is the only kind of total a reader has to guess at.
-  const NEEDS_ACTION_TOTAL = (total) => `${fmt(total)} at stake`
-  const PENDING_TOTAL = (total) => `${fmt(total)} held`
+  // "may be deducted", not "at stake": the same fact, said as the thing that
+  // happens to the Pilot rather than as a figure of speech. "At stake" asks
+  // them to read a metaphor to find out that money can leave their payout.
+  const NEEDS_ACTION_TOTAL = (total) => `${fmt(total)} may be deducted`
+  // "on hold", not "held": the money is in a state, not in our possession.
+  // "₹261 held" reads as money we have taken and are keeping.
+  const PENDING_TOTAL = (total) => `${fmt(total)} on hold`
 
   const withGroup = (rows, group, groupTotal) => rows.map((r, idx) => ({
     ...r, showGroup: idx === 0, group, groupTotal,
@@ -642,8 +706,19 @@ function computeViewModel(state, props, pool, { patch, go, togglePdCard, updateC
 
   const submitSheet = () => {
     if (!canSubmit) return
+    // THE PSEUDO DISPUTE (wrong pickups). The Pilot sees the same Dispute
+    // button and the same sheet, and gets the same confirmation — but the
+    // case stays INFO_ONLY: nothing was ever going to be deducted, so there
+    // is nothing for a review to decide and the loss must not appear in
+    // "Team is checking" beside cases that are. What changes is the record:
+    // it is marked as disputed, the page thanks them, and the button goes.
+    if (caseView.stateId === 'INFO_ONLY') {
+      updateCase(record.id, { pseudoDisputed: true, actedReason: picked, actedOn: TODAY })
+      patch({ screen: 'case', caseRef: { id: record.id, stateOverride: null }, confirmation: 'pseudoDispute' })
+      return
+    }
     // The case itself moves — which is what carries the change back to the
-    // list, where it lands in "Disputes in Review" instead of "Needs Decision".
+    // list, where it lands in "Team is checking" instead of "Needs Attention".
     //
     // Every field here is load-bearing. Without `actedOn` the page it lands
     // on has no date to work from: the accepted banner read "Accepted on
@@ -659,6 +734,11 @@ function computeViewModel(state, props, pool, { patch, go, togglePdCard, updateC
       actedReason: picked,
       actedOn: TODAY,
       days: replyDays,
+      // Stamped once and never touched again by an outcome patch (see
+      // caseTransitions.js) — it is how a terminal state (resolveCaseView's
+      // tracker slot) still knows which tracker it owes a Pilot once the
+      // case has closed and its own `tracker` key has gone to `null`.
+      trackerKind: isAccept ? 'accepted' : 'dispute',
     })
     patch({
       screen: 'case',
@@ -726,8 +806,16 @@ function computeViewModel(state, props, pool, { patch, go, togglePdCard, updateC
       heading: resolveLineItemHeading(state.lineItemHeading),
     },
 
+    // The resolved grace window (config/gracePeriod.js) — the losses list
+    // reads `active`, `weeks` and `endsOn` for the banner that announces it.
+    grace,
+
     // ---- L1: the whole detail page, resolved ----
     caseView,
+    // A wrong pickup's dispute is on record only: the case never moves to
+    // review and no money is at stake (KRD F24). The sheet reads this to say
+    // so, and submitSheet reads it to stamp the record instead of moving it.
+    pseudoDispute: caseView.stateId === 'INFO_ONLY',
     // Where you came from, not always the tab: in the split arrangement the
     // tab is the historic ledger, so a case opened from the active page has
     // to go back there.
@@ -738,7 +826,7 @@ function computeViewModel(state, props, pool, { patch, go, togglePdCard, updateC
     // the sheet is OPEN is screen state; the claim itself MOVES THE CASE, the
     // same way accept and dispute do, into LIF_CLAIM_SENT: the Pilot has done
     // everything they can and the hub scan decides. Recording it as a flag on
-    // an otherwise-unchanged case left the loss sitting in "Needs Decision",
+    // an otherwise-unchanged case left the loss sitting in "Needs Attention",
     // still counting down, still being told to hand the parcel over.
     openReturnedClaim: () => patch({ returnedClaimOpen: true }),
     closeReturnedClaim: () => patch({ returnedClaimOpen: false }),
@@ -810,6 +898,11 @@ function computeViewModel(state, props, pool, { patch, go, togglePdCard, updateC
     },
     showBreakupSheet: state.breakupOpen,
     insightBannerMode: state.insightBannerMode,
+    // The panel's menu of banners, and which are picked. Built from the pool,
+    // so it offers exactly the loss types this dataset has and each one's
+    // figure — the thing that decides whether a reviewer wants to see it.
+    insightOptions: allInsights.map((i) => ({ id: i.id, label: i.label, meta: i.amountLabel })),
+    insightPicks: picks,
     // Which one the rolling banner is on, clamped so a shrinking list (a case
     // settling, a reset) can never strand the index past the end.
     insightIndex: insights.length ? state.insightIndex % insights.length : 0,
@@ -855,6 +948,14 @@ function computeViewModel(state, props, pool, { patch, go, togglePdCard, updateC
         })),
       close: () => patch({ cycleSheetOpen: false }),
     },
+
+    // ---- cool-off transparency (CoolOffNotice's ingress + DisputeHistorySheet) ----
+    disputeHistory: {
+      groups: disputeHistoryGroups,
+      open: () => patch({ disputeHistoryOpen: true }),
+    },
+    showDisputeHistorySheet: state.disputeHistoryOpen,
+    closeDisputeHistory: () => patch({ disputeHistoryOpen: false }),
 
     // ---- full-screen photo viewer (components/common/ImageViewer.jsx) ----
     // Handed to every evidence tile that HAS a photo. A tile standing in for a
@@ -927,7 +1028,7 @@ function computeViewModel(state, props, pool, { patch, go, togglePdCard, updateC
     // both take the filter-chip row.
     isUnified,
     showLossWiseSection, lossWiseGroups,
-    // Each chip carries how many losses it would show — "Needs Decision (4)" —
+    // Each chip carries how many losses it would show — "Needs Attention (4)" —
     // so a Pilot can see where their losses are before tapping anything, and a
     // chip that would open an empty list says so up front. Counts come from the
     // same bucket arrays the sections render, so a chip can never disagree with
@@ -976,7 +1077,7 @@ function computeViewModel(state, props, pool, { patch, go, togglePdCard, updateC
       // Current Cycle card cross-references.
       amount: fmt(needsActionTotal + pendingTotal),
       // Everything in play, which is what the headline counts alongside the
-      // money it belongs to — "₹624 at stake from 6 losses". Note this is NOT
+      // money it belongs to — "₹624 from 6 losses may be deducted". Note this is NOT
       // the Losses tab's badge, which counts only what is waiting on the
       // Pilot; the two answer different questions and sit far apart.
       count: needsActionAll.length + pendingAll.length,
@@ -1068,7 +1169,13 @@ function computeViewModel(state, props, pool, { patch, go, togglePdCard, updateC
     onNote: (e) => patch(isAccept ? { acceptNote: e.target.value } : { disputeNote: e.target.value }),
     // The "Next time" coaching line comes from the reason registry, not the row.
     acceptTip: record.tip || caseReason.tip,
-    submitLabel: isAccept ? 'Confirm accept' : 'Send dispute',
+    // The commit button names the MOVE, not the plumbing. "Send dispute"
+    // described what the app does with the form; "Raise Dispute" is what the
+    // Pilot is doing, and it is the same word the loss page's own button and
+    // the cool-off copy already use — three surfaces, one name for one act.
+    // Accept needs no object: the sheet is headed with the loss and the
+    // consequence, so "Confirm" is the only thing left to say.
+    submitLabel: isAccept ? 'Confirm' : 'Raise Dispute',
     canSubmit,
     submitSheet,
     closeSheet: () => patch({ screen: 'case', caseRef: { id: record.id, stateOverride: null } }),

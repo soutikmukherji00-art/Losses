@@ -1,30 +1,34 @@
-import Section from '../common/Section.jsx'
 import './DisputeRecord.css'
 
 /**
- * The Pilot's dispute standing, above the reason chips in the dispute sheet.
+ * The Pilot's standing on the cool-off counter (config/disputeCoolOff.js),
+ * as ONE note above the Raise Dispute button — the place a Pilot is about
+ * to spend a try, and the only place the count is a fact they can act on.
  *
- * It is here — before the chips, not after them — because it is context for
- * the decision, not a consequence of it. By the time a Pilot has picked a
- * reason and reached "What happens next", they have already decided.
+ * A hairline meter, then a sentence: three thin segments filled to the
+ * count, and the fraction as the sentence's first word. The segments are
+ * grey until the last step, where they and the fraction take the warning
+ * ink — the one count that earns emphasis. Nothing renders on a clean
+ * record: a warning about a threat that is not there yet turns a neutral
+ * form into a caution (design call, 21 Sep).
  *
- * A fraction and a line. It was a tinted panel with a row of pips and two
- * stacked sentences, which gave a standing the weight of an alert at every
- * count — including the counts where nothing is wrong. "2/3" carries the
- * whole fact, needs no colour to be read, and is legible to a Pilot who
- * cannot read the byline under it.
- *
- * What the fraction counts is WRONG disputes, never disputes. See the warning
- * in config/disputeCoolOff.js — there is no limit on disputing, and every
- * string here has to keep saying so.
+ * It was a section of its own at the top of the sheet — "Your dispute
+ * record" over a display-size 2/3 — which made the Pilot's record the
+ * subject of a sheet whose subject is this loss.
  */
 export default function DisputeRecord({ record }) {
+  if (!record?.show) return null
+
   return (
-    <Section title="Your dispute record">
-      <div className="dispute-record" data-at-limit={record.atLimit || undefined}>
-        <div className="dispute-record__figure">{record.fraction}</div>
-        <div className="dispute-record__byline">{record.byline}</div>
+    <div className="dispute-record" data-last={record.atLimit || undefined} role="status">
+      <div className="dispute-record__meter" aria-hidden="true">
+        {Array.from({ length: record.limit }, (_, i) => (
+          <span key={i} className="dispute-record__seg" data-on={i < record.wrong || undefined} />
+        ))}
       </div>
-    </Section>
+      <div className="dispute-record__line">
+        <b className="dispute-record__fraction">{record.fraction}</b> {record.byline}
+      </div>
+    </div>
   )
 }

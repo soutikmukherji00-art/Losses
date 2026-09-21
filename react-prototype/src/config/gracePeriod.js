@@ -12,13 +12,15 @@ import { TODAY } from '../state/helpers.js'
  * After it closes, the normal rule resumes: a loss left alone is deducted,
  * and so is a dispute that is not upheld.
  *
- * WHAT THIS IS NOT: something the Pilot is told in advance. The window is
- * never announced — not on the losses list, not on My Earnings, not on an
- * open loss. Telling a new Pilot their first four weeks are free hands them a
- * reason to ignore every loss in those four weeks, which is exactly the four
- * weeks the window exists to let them learn in. They see it once, on a loss
- * that has settled, as money returned with a sentence saying why. See
- * state/grace.js for where that is enforced.
+ * WHERE IT IS ANNOUNCED: once, on the losses list, while the window is open
+ * (components/losses/GraceBanner — design call, 21 Sep; it takes the
+ * insight banner's slot). The banner states the cover AND its edge in the
+ * same breath, because the earlier reading of this file — never announce
+ * it, since "your first four weeks are free" hands a new Pilot a reason to
+ * ignore every loss in them — is still the risk; the second line is the
+ * answer to it. An open loss still says nothing about the window; a settled
+ * one says it once, as money returned with a sentence saying why (see
+ * state/grace.js).
  *
  * ⚠️ `weeks` IS A PLACEHOLDER, not a decision — the same standing as X and T
  * in disputeCoolOff.js. Four weeks is what the brief named; this file exists

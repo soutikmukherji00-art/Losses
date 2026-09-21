@@ -1224,3 +1224,245 @@ real photograph URLs.
   **Live + layer on only** (29 across its 10 presets) and never on Mock or on Live with the layer
   off; zero broken images, zero blank screens, zero console errors on all four passes. Mock renders
   byte-identically to before.
+
+- [x] **(21 Sep) The presenter panel collapses.** It is a tool, not part of the thing being shown:
+      it earns its 272px while an arrangement is being set up and costs them for the rest of the
+      session — shown to a Pilot, photographed for a deck, or simply looked at, a column of
+      switches beside the phone is the loudest object on a screen whose subject is the phone.
+
+      **One tab on the seam**, vertically centred and half over the border — the place a hand
+      already goes on a docked panel, and the only spot belonging to neither side, so it cannot be
+      mistaken for a control of either. Chevron only at rest (28px: enough to hit, little enough to
+      forget), the words on hover, which is the one moment anybody is asking what it is. The arrow
+      points where the panel will GO — right to push it away, left to pull it back — rather than at
+      what it currently is. Shut, the tab stops being an edge treatment and becomes an object
+      (white, darker ink, shadow on all sides): it is then the only way back, and discoverability
+      is worth more than restraint on the one control that is load-bearing.
+
+      `⌘\` / `Ctrl+\` toggles it, the editor convention for exactly this — a demo is driven
+      one-handed with a phone in the other. The choice persists in `localStorage`, like the dataset
+      switch, because the reason for wanting the panel rarely lasts less than a session.
+
+      **It starts shut** (21 Sep): the prototype opens on the thing it is a prototype of. Anyone
+      who needs the switches knows the panel is there and is one click from it; everyone else — a
+      Pilot being shown a screen, a link opened from Slack, a screenshot taken for a deck — was
+      being handed a column of controls they had no use for, beside the phone that was the point.
+      The cost is asymmetric: a reviewer pays one click a session, a viewer paid every time. Only
+      an explicit stored `'true'` opens it, so a reviewer who opened it once still finds it open.
+
+      The panel stays **mounted** when collapsed, clipped to zero width rather than unmounted: the
+      layer registry lives off it and its scroll position survives, so reopening shows the panel you
+      left. `inert` keeps it out of the tab order meanwhile — clipped controls that could still be
+      tabbed into would be a hidden panel changeable by accident. The contents are held at full
+      width inside the clip, so collapsing slides the panel off the edge instead of reflowing every
+      control through 272 intermediate layouts.
+
+      All of it in `presenter/PresenterShell.jsx` + its CSS, chevron drawn inline: that folder is
+      meant to be lifted wholesale into the next prototype, so it owes itself no dependency on this
+      app's icon set. `prefers-reduced-motion` turns the animation off.
+
+- Verified: 272 → 0 and back by tab and by keyboard; `aria-expanded` and `inert` track the state;
+  shut, reload, still shut; reopened, the controls still drive the stage. No horizontal page scroll
+  at 1024px or 1440px. Full preset sweep, both datasets × catalog layer off/on: zero blanks, zero
+  broken images, zero console errors.
+
+- [x] **(21 Sep) The L2 commit buttons name the move, not the plumbing.** "Send dispute" →
+      **Raise Dispute**, "Confirm accept" → **Confirm**. The old pair described what the app does
+      with the form; "raise a dispute" is what the Pilot is doing, and it is already the verb the
+      loss page's own hero guidance uses ("Raise a dispute if you think this is an incorrect
+      deduction") — so three surfaces now use one name for one act. Accept needs no object: the
+      sheet is headed with the loss and carries the consequence pill above the button, so
+      "Confirm" is the only thing left to say. One line, `useLossesApp.js`'s `submitLabel`.
+
+- [x] **(21 Sep) The L1 hero's guidance line quotes the button.** "Raise a dispute if you think
+      this is an incorrect deduction." → **"Tap ‘Raise Dispute’ if you think this amount is wrongly
+      deducted"**. A Pilot who has understood *raise a dispute* still has to find it, and the
+      control is at the far foot of the page; naming it in the hero's own words is what joins the
+      sentence to the thing it asks for. That only holds while the two agree, so the quoted words
+      and the control's label now have to change together — noted in `caseStates.js` beside the
+      string.
+
+      Its sibling — the branch an accept-only loss type would land on — went with it:
+      "Accept and tell us why it happened." → **"Tap ‘Accept’ and tell us what happened"**. Nothing
+      reaches it on either fixture (every reason that can be ATTRIBUTED offers dispute), which is
+      exactly why it was worth changing now: dead copy is how the app's older voice ships on the
+      day a new loss type makes it live. Verified by temporarily making `ICUD_IMG_JUNK`
+      accept-only, screenshotting the branch, and restoring the file byte-for-byte.
+
+- **Open:** the words quoted are the BOTTOM SHEET's commit label. The button on the L1 page itself
+  still says "Dispute" (one word, deliberately — see `actionButtons` in `CaseDetailScreen.jsx`), so
+  the hero currently names a control that appears one tap later. Either the bar button becomes
+  "Raise Dispute" or the hero quotes "Dispute"; flagged for a call, not guessed at.
+
+- [x] **(21 Sep) "At stake" → "may be deducted", on the two surfaces that actually said it.**
+      Twenty-one hits for the phrase, two of them rendered: the Needs Decision section head
+      (`NEEDS_ACTION_TOTAL`) and the My Earnings entry banner's headline. The other nineteen are
+      comments using "at stake" as the NAME OF A MONEY POSITION — the `RISK` tone is defined as
+      "money at stake", the money-grammar table's first column is "at stake", the historic ledger
+      explains why an info-only loss never was. Those are the concept, not the copy, and renaming
+      them would have been a search-and-replace pretending to be an edit. The comments that
+      *quoted* the old headline were updated; the ones that reason about the position were not.
+
+      **The banner could not take the direct swap.** "₹624 may be deducted from 6 losses" reads as
+      the money coming out of the losses — "deducted from" names the thing money leaves, and that
+      is his payout, not his loss list. The verb moved to the end: **"₹624 from 6 losses may be
+      deducted"**, which keeps the app's existing "from N losses" phrasing and leaves both figures
+      against the nouns they belong to. The head took the swap as it was: **"₹363 may be
+      deducted"**.
+
+- Verified on both surfaces; full preset sweep, both datasets × catalog layer, zero errors.
+- **Note:** the banner headline is 5 characters longer and now wraps to two lines above the
+  countdown, so the widget is a line taller than it was. It reads correctly; if the height matters
+  more than the count does, the alternative is "₹624 may be deducted" alone on the headline.
+
+- [x] **(21 Sep) Section names, status chips and two money totals renamed.** Six changes off one
+      table, all of them moving from what the system calls a thing to what the Pilot would:
+
+      | was | now | where |
+      |---|---|---|
+      | Needs Decision | **Needs Attention** | section head · filter chip · summary card · cycle sheet |
+      | Disputes in Review | **Team is checking** | same four |
+      | Past Losses | **History** | same four |
+      | Decision in N days | **Reply in N days** | hero chip + list badge, on IN_DISPUTE / ACCEPTED / LIF_CLAIM_SENT |
+      | Waived | **Not deducted** | the state's `label` |
+      | ₹261 held | **₹261 on hold** | the pending section's total |
+
+      The first three were one edit: `config/lossBuckets.js` is the single source all four surfaces
+      read, which is the whole reason that file exists. "Team is checking" also fixes something the
+      old name got wrong — the bucket holds accepted cases as well as disputes, and "Disputes in
+      Review" quietly did not cover them.
+
+      "Reply in" reverses an earlier unification that had picked "Decision in" as the one
+      vocabulary; the fact is unchanged and so is the rule that both surfaces say it the same way.
+      "on hold" over "held": the money is in a state, not in our possession — "₹261 held" reads as
+      money we have taken and are keeping.
+
+      Comments and `CONFIG_REFERENCE.md` were swept to match, which needed a second pass: the blunt
+      replace also rewrote the two lines in `lossBuckets.js` that deliberately NAME the superseded
+      names ("\"Needs Attention\" over the older \"Needs Attention\""), and a stale third name in
+      `LossesBody.jsx`. Both repaired.
+
+- Verified: old strings return 0 screens across every preset on both datasets; new strings render
+  on the surfaces expected. Full sweep × catalog layer, zero errors. The built JS hash was
+  unchanged by the comment pass, which is the proof it touched no rendered string.
+
+- [x] **(21 Sep) Six more copy changes, one batch.**
+
+      | was | now | where |
+      |---|---|---|
+      | Secondary QC mismatch | **Captain rejected the QC** | `feName` — L1 title, list rows, Loss-Wise head |
+      | QC mismatches | **Captain QC Mismatch** | `insightNoun` — the insight banner's subject |
+      | "… cost you ₹X" | **"… can cost you ₹X"** | insight banner, **info-only types only** |
+      | Dispute sent | **Raised Dispute** | dispute confirmation popup |
+      | (byline) | **"Your dispute is sent to the team."** prepended | same popup |
+      | "Dispute/Disputing is paused till {date}" | **"You can't raise dispute again till {date}"** | hero guidance, action-bar note, cool-off notice title |
+
+      Both reason strings now name a PERSON and an ACT: "Secondary QC mismatch" is what operations
+      calls the check, "Captain rejected the QC" is what happened to the Pilot, and the hub captain
+      is someone he knows.
+
+      **The conditional verb is data-driven, not a string swap.** `remedyGroups` already knew which
+      types move money (`showsTotal`, which is why the Wrong Pickups head omits its ₹ total); that
+      same fact now also picks the tense, as `costsMoney`, so the head and the sentence cannot end
+      up disagreeing about whether money moved. A wrong pickup deducts nothing, so "wrong pickups
+      cost you ₹1129" was a bill the Pilot never got and would go hunting for in a payment; "can
+      cost you" keeps the figure — the parcels' real value, and the reason the habit is worth
+      fixing — and states it as the exposure it is.
+
+      The cool-off notice lost a sentence in the rename: its body used to end "You can dispute
+      again after {date}", which is the title's own date and fact in a second grammar one line
+      apart. What is left is the half the title cannot say — why the door is shut, and that
+      accepting still works.
+
+- [x] **(21 Sep) Losses list section order: Wrong Pickups now comes before History.** The order is
+      the list's argument. The two sections above are open, Wrong Pickups is a standing advisory
+      the Pilot can still act on next time, and History is the only part of the page that is
+      finished — so the settled section goes last. It used to sit between them, which closed the
+      list on an advisory after having already told the Pilot it was done. The filter chips and the
+      Unified layout's summary cards were already in this order; only the sectioned body disagreed.
+
+- Verified on screen: all six strings render where expected, the section heads read Needs Attention
+  → Team is checking → Wrong Pickups → History, and the wrong-pickup insight reads "can cost you
+  ₹1129" on Live while the other three keep "cost you". Full preset sweep, both datasets × catalog
+  layer: zero blanks, zero broken images, zero console errors. Specs updated (CONFIG_REFERENCE,
+  INSIGHTS_SPEC, LOSS_DETAIL_ARCHITECTURE_AUDIT).
+
+- [x] **(21 Sep) "Returned on 8 Aug" → "Credited back on 12 Aug".** Not just a rename: the hero
+      was dating the PARCEL (`returnedOn`) while the credit-pair rows two blocks below dated the
+      MONEY (`creditDate`, the 12th). One page, one event, two dates. The hero now reads the credit
+      date and says it in the same words as the row it summarises.
+
+- [x] **(21 Sep) In-dispute tracker speaks the dispute's own vocabulary.** "Decision expected" →
+      **Reply expected**, "Decision before your payout" → **Reply before your payout** (matching
+      the chips renamed earlier the same day), and the title "Your dispute" → **Raised Dispute** —
+      the button the Pilot pressed and the headline of the popup that confirmed it, so one act is
+      named one way in all three places.
+
+- [x] **(21 Sep) Only Dispute is now true of the DATA, not just the controls.** The variant removed
+      the Accept button, the accept sheet and the accept route — and stopped there, so the fixture
+      went on carrying cases only an accept could have produced. "Team is checking" held a loss
+      reading *"Accepted on 14 Aug"* in a build where the Pilot has never been offered an Accept
+      button. The most-scrutinised state in the variant was evidence the variant was not real.
+
+      `state/flowVariant.js` — same shape as the grace lens: read the pool through it once before
+      any surface sees it, never edit the pool, so switching back restores every case exactly.
+      Three states are accept-only and each has one honest dispute equivalent:
+
+      | seeded | under Only Dispute | why |
+      |---|---|---|
+      | `ACCEPTED` | `IN_DISPUTE`, reason swapped to "Not my parcel" | same loss, same day, through the only door there is. The accept reason had to go with it — "I was in a hurry" is an admission, and carrying it into a dispute puts a confession inside a denial |
+      | `NOT_DEDUCTED` | `WAIVED` (`waiveReason: agent_right`) | both mean the Pilot kept the money; `NOT_DEDUCTED` is reachable only from `ACCEPTED` |
+      | `DEBITED` · pathLabel "you accepted it" | pathLabel "your dispute was not upheld" | that label is printed verbatim in the hero, so it was the accept flow speaking on a page the accept flow cannot have produced |
+
+      Silence-path `DEBITED` is untouched — a window closing with no reply is the one outcome both
+      flows share. No case moves bucket (ACCEPTED and IN_DISPUTE are both `pending`; NOT_DEDUCTED
+      and WAIVED are both `closed`), so every count and total is identical under both flows.
+
+      Two copy lines went with it, both of which named a door the variant removes: the cool-off
+      hero's "You can still accept." and the cool-off notice's "Accepting still works." Under Only
+      Dispute a cool-off case has no move left at all, and those were the app pointing at a button
+      it had deleted on the one screen where the Pilot is actively hunting for something to press.
+
+      And three presets: "Loss · accepted", "Loss · not deducted" and "Sheet · accept" carry
+      `needsAccept` and are no longer offered under the variant — the panel stops offering a jump
+      to a page that no longer matches its own label. 18 presets → 15 on Mock, 10 → 9 on Live.
+
+- [x] **(21 Sep) Insight banners are pickable from the panel.** New `multiselect` control type
+      (`presenter/controls/MultiSelect.jsx` + one `CONTROL_TYPES` line — the folder's stated cost
+      of a new control kind, paid exactly once). Checkboxes rather than a column of `Toggle`s: a
+      toggle says "this is on or off, independently", and these are members of one list being
+      filtered.
+
+      The menu is built from the pool, so it offers exactly the loss types the active dataset has,
+      each with its figure — the thing that decides whether a reviewer wants to see it. **None
+      picked = automatic**, which is the product rule (top 3 by money, always three); a pick shows
+      exactly those, still in money order, because a row whose order moved with the picking would
+      make two reviews of the same selection disagree. Lookups resolve against the full list, not
+      the shown subset, so a sheet still opens for an insight the banner is not carrying.
+
+- [x] **(21 Sep) One colour for the label band.** The full-width grey strip heading a group of rows
+      — "Past Payments", "May 2025", "Needs Attention" and siblings — was two greys: `SectionDivider`
+      reached for `--border-subtle` (a BORDER token used as a fill, right only by accident) and
+      `SectionHeader` carried its own `#FAFAFC`, so the identical object read differently one tab
+      apart. Both now name `--surface-group-head`, which is the DS's **Grey Coral/Light T2 #E6EBF2**
+      (Figma ShOKxbXbnD9mOzWPmVdxd8 · 275:10288) via the existing `--valmo-grey-light-02`.
+      `SectionHeader`'s bottom hairline went with it — band and rule became the same colour, so it
+      was drawing nothing; the band's own edge against the white row below is the separation, which
+      is how the reference draws it. Every band in the app goes through one of those two
+      components, so there is nothing left to miss.
+
+      **And one geometry** (21 Sep): the band is **28px** everywhere — `--pad-band-y` (4px) around
+      a Heading-05 line, which is the reference node's own 360×28. It was two shapes as well as two
+      colours. `SectionHeader` ran 14px above and 6px below a 20px line — 40px, asymmetric on the
+      reasoning that a heading binds downward to the rows it labels. Good rule for a heading
+      sitting on the page; this is not one. It is a filled strip, and a filled strip's own edges do
+      the binding, so the asymmetry bought nothing and cost 12px on every group. `SectionDivider`
+      already ran 4/4 but around an 18px line, one type step short — it takes Heading 05 now too.
+      `--pad-head-top` / `--pad-head-bottom` are gone; they had exactly one caller.
+
+- Verified: Accept + Dispute vs Only Dispute walked side by side — the pending case reads
+  "Accepted on 14 Aug. Not deducted yet." vs "Sent 14 Aug. Nothing is deducted while we check.",
+  the closed one "The team decided in your favour." vs "You were right.", cool-off drops its accept
+  sentence, and the accept presets disappear. Multiselect: auto → one banner → two → cleared back
+  to auto, all correct. Bands match across Losses, My Earnings and Payments. Full preset sweep,
+  both datasets × catalog layer: zero blanks, zero broken images, zero console errors.

@@ -42,7 +42,7 @@ export const SCREEN_PRESETS = [
     expect: { caseState: 'ATTRIBUTED' } },
   { id: 'case-in-dispute', label: 'Loss · in dispute', screen: 'case',
     caseRef: { list: 'marked', index: 0 }, expect: { caseState: 'IN_DISPUTE' } },
-  { id: 'case-accepted', label: 'Loss · accepted', screen: 'case',
+  { id: 'case-accepted', label: 'Loss · accepted', screen: 'case', needsAccept: true,
     caseRef: { list: 'marked', index: 1 }, expect: { caseState: 'ACCEPTED' } },
   { id: 'case-debited', label: 'Loss · debited', screen: 'case',
     caseRef: { list: 'closed', index: 2 }, expect: { caseState: 'DEBITED' } },
@@ -50,7 +50,7 @@ export const SCREEN_PRESETS = [
     caseRef: { list: 'closed', index: 0 }, expect: { caseState: 'WAIVED' } },
   { id: 'case-waived-sla', label: 'Loss · waived (we missed the SLA)', screen: 'case',
     caseRef: { list: 'closed', index: 4 }, expect: { caseState: 'WAIVED' } },
-  { id: 'case-not-deducted', label: 'Loss · not deducted', screen: 'case',
+  { id: 'case-not-deducted', label: 'Loss · not deducted', screen: 'case', needsAccept: true,
     caseRef: { list: 'closed', index: 1 }, expect: { caseState: 'NOT_DEDUCTED' } },
 
   // ---- L1, the two reasons with their own money model ----
@@ -62,7 +62,11 @@ export const SCREEN_PRESETS = [
     caseRef: { list: 'wrong', index: 0 }, expect: { caseState: 'INFO_ONLY' } },
 
   // ---- L2 sub-flows ----
-  { id: 'sheet-accept', label: 'Sheet · accept', screen: 'accept',
+  // Both of these are accept-flow screens: under Only Dispute the sheet is
+  // unreachable and the state is one the lens has rewritten (state/
+  // flowVariant.js), so the panel stops offering them rather than offering a
+  // jump to a page that no longer matches its own label.
+  { id: 'sheet-accept', label: 'Sheet · accept', screen: 'accept', needsAccept: true,
     caseRef: { list: 'marked', index: 2 }, expect: { caseState: 'ATTRIBUTED' } },
   { id: 'sheet-dispute', label: 'Sheet · dispute', screen: 'dispute',
     caseRef: { list: 'marked', index: 2 }, expect: { caseState: 'ATTRIBUTED' } },

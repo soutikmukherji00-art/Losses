@@ -3,8 +3,11 @@
   align-items: baseline;
   justify-content: space-between;
   gap: var(--gap-lead);
-  padding: var(--pad-head-top) var(--pad-screen) var(--pad-head-bottom);
-  border-bottom: 1px solid var(--border-subtle);
+  padding: var(--pad-band-y) var(--pad-screen);
+  /* No bottom rule. The band and the hairline were the same colour the
+     moment the band took the DS value, so the border drew nothing; the
+     band's own edge against the white row below is the separation, which
+     is how the reference draws it. */
   background: var(--surface-group-head);
 }
 
@@ -25,6 +28,14 @@
   font-size: var(--heading-05-size);
   line-height: var(--heading-05-lh);
   font-weight: var(--heading-05-weight);
+  color: var(--text-heading);
+}
+
+/* A qualifier beside the label — "(last 3 months)" — in the body's Book
+   weight and the secondary ink, so it reads as the label's aside rather
+   than as more label. Same pairing as `.my-earnings__section-title span`. */
+.section-header__qualifier {
+  font-weight: var(--fw-book);
   color: var(--text-secondary);
 }
 

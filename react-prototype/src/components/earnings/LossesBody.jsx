@@ -6,6 +6,7 @@ import ListRow from '../common/ListRow.jsx'
 import SectionHeader from '../common/SectionHeader.jsx'
 import Layer from '../common/Layer.jsx'
 import InsightBanner from '../losses/InsightBanner.jsx'
+import GraceBanner from '../losses/GraceBanner.jsx'
 import CatalogImagesLayer from '../common/CatalogImagesLayer.jsx'
 import { COOL_OFF_NOTICE_LAYER, CONTEXTUAL_INSIGHTS_LAYER } from '../../config/layerIds.js'
 import { INFO_ONLY_NOTE, INFO_ONLY_TOTAL } from '../../config/lossReasons.js'
@@ -16,8 +17,8 @@ import './LossesBody.css'
  * The Losses tab's scrollable content. Three layouts live side by side here,
  * each gated by its own `vm.show*Section` flag:
  *
- *  · Sectioned — grouped by lifecycle bucket (Needs Decision / Dispute
- *    Decision Pending / Wrong Pickups / Past Losses — config/lossBuckets.js)
+ *  · Sectioned — grouped by lifecycle bucket (Needs Attention / Team is
+ *    checking / Wrong Pickups / History — config/lossBuckets.js)
  *  · Unified   — one flat, date-ordered feed
  *  · Loss Wise — grouped by LOSS TYPE, so a Pilot sees how many of each kind
  *    of problem they have (config/remedyGroups.js)
@@ -30,7 +31,11 @@ export default function LossesBody({ vm }) {
     <>
       {/* Above the filter chips: the pattern is context for the whole list,
           so it reads before the Pilot starts narrowing it. */}
-      {vm.showLossMetrics && vm.insights.length > 0 && (
+      {/* While the grace window is open the cover takes the banner slot and
+          the insights step aside: it is the fact that decides how every loss
+          below reads, and two banners here is two rows of chrome. */}
+      {vm.showLossMetrics && vm.grace.active && <GraceBanner grace={vm.grace} />}
+      {vm.showLossMetrics && !vm.grace.active && vm.insights.length > 0 && (
         <Layer id={CONTEXTUAL_INSIGHTS_LAYER} label="Contextual insights (Losses list)">
           <InsightBanner
             insights={vm.insights}
@@ -52,7 +57,11 @@ export default function LossesBody({ vm }) {
           so there's one toggle, in one place, for one fact, instead of a
           separate app-wide flag that could disagree with this banner. */}
       <Layer id={COOL_OFF_NOTICE_LAYER} label="Cool-off notice (Losses list)" defaultVisible={false}>
-        <CoolOffNotice coolOffEnds={vm.coolOffEnds} />
+        <CoolOffNotice
+          coolOffEnds={vm.coolOffEnds}
+          onlyDispute={vm.onlyDispute}
+          disputeHistory={vm.disputeHistory}
+        />
       </Layer>
 
       {/* Nothing of this one shows HERE — it is the app-wide catalog photo
@@ -79,13 +88,12 @@ export default function LossesBody({ vm }) {
         </div>
       ))}
 
-      {vm.showClosedSection && (
-        <div>
-          <SectionHeader label={BUCKET_NAME.closed} total={vm.closedTotal} />
-          {vm.closedRows.map((r, i) => <ListRow key={i} row={r} onClick={r.open} />)}
-        </div>
-      )}
-
+      {/* Wrong Pickups sits ABOVE History, and the order is the list's whole
+          argument: the two sections above are open, this one is a standing
+          advisory the Pilot can still act on next time, and History is the
+          only part of the page that is finished. Settled losses used to come
+          between them, so the list closed on an advisory after having
+          already told the Pilot it was done. */}
       {vm.showWrongSection && (
         <div>
           {/* The same head every other section gets, answering the same
@@ -94,6 +102,19 @@ export default function LossesBody({ vm }) {
               first screenful. */}
           <SectionHeader label={BUCKET_NAME.wrong} total={INFO_ONLY_TOTAL} info={INFO_ONLY_NOTE} />
           {vm.wrongRows.map((r, i) => <ListRow key={i} row={r} onClick={r.open} />)}
+        </div>
+      )}
+
+      {vm.showClosedSection && (
+        <div>
+          {/* The window, as a lighter qualifier beside the name — the same
+              pairing My Earnings uses for "Daily Earnings History (last 30
+              days)". */}
+          <SectionHeader
+            label={<>{BUCKET_NAME.closed} <span className="section-header__qualifier">(last 3 months)</span></>}
+            total={vm.closedTotal}
+          />
+          {vm.closedRows.map((r, i) => <ListRow key={i} row={r} onClick={r.open} />)}
         </div>
       )}
 

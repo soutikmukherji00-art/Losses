@@ -40,7 +40,8 @@ state/insights.js       →  buildInsights(cases, { scope })  →  Insight[]
 | `label` | the loss type's own name — "Photo not clear" |
 | `count` / `amount` | how many, and what they cost |
 | `rows` | the cases behind it, as standard `ListRow` rows |
-| `noun` | the type as a sentence subject — "QC mismatches" (see `insightNoun`) |
+| `noun` | the type as a sentence subject — "Captain QC Mismatch" (see `insightNoun`) |
+| `costsMoney` | false on an info-only type (wrong pickups). The banner then reads "**can** cost you ₹X" — the Pilot was never charged, so the figure is exposure, not a bill |
 | `habits` / `steps` | from the reason's `prevention` block |
 
 **Why grouped by `remedyGroups`:** the merge already decided that a pickup
@@ -78,7 +79,7 @@ stays silent on wrong pickups (1 case):
 | group | cases | ₹ |
 |---|---|---|
 | Photo not clear | 5 | 517 |
-| Secondary QC mismatch | 4 | 570 |
+| Captain rejected the QC | 4 | 570 |
 | Shipment Lost | 3 | 280 |
 | Wrong parcel picked up | 1 | — below threshold |
 
@@ -93,7 +94,7 @@ tab any more — see § 3b.
 
 ```
 ┌──────────────────────────────────────────────────┐
-│ 💡  QC mismatches cost you ₹715                  │
+│ 💡  Captain QC Mismatch cost you ₹715            │
 │     Next time: open the list · match items  More │
 └──────────────────────────────────────────────────┘
               · · ▬     ← dots, outside the tint
@@ -234,7 +235,7 @@ lives in `HistoricBreakupSheet`:
 │ 🕐  Since July · 9 losses                         │     ║ What the ₹306 went on          ✕   ║
 │──────────────────────────────────────────────────│     ║ 9 losses since July                ║
 │ Deducted from your earnings                      │     ║────────────────────────────────────║
-│ ₹306  ₹̶9̶7̶0̶                                       │     ║ Secondary QC mismatch  ₹210 ₹̶3̶8̶4̶ > ║
+│ ₹306  ₹̶9̶7̶0̶                                       │     ║ Captain rejected the QC ₹210 ₹̶3̶8̶4̶> ║
 │ ₹664 was waived, never deducted, or returned.    │     ║ 3 losses · 69%                     ║
 │ ·················································│  →  ║ Photo not clear         ₹96 ₹̶3̶4̶6̶ > ║
 │ From 4 kinds of loss          View break-up      │     ║ 3 losses · 31%                     ║

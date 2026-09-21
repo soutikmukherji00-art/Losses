@@ -20,7 +20,7 @@ import './LossesEntryPoint.css'
  * EACH STATE SAYS ITS OWN SENTENCE, because the Pilot's position differs and
  * a shared template would flatten that:
  *
- *   Actionable — "₹624 at stake from 6 losses" / "3 days left" · Review ›
+ *   Actionable — "₹624 from 6 losses may be deducted" / "3 days left" · Review ›
  *       Money and count on the first line, the clock on its own beneath it in
  *       the at-risk accent. The clock is the only coloured thing in the
  *       widget, so it is what the eye lands on; the line above explains it —
@@ -62,21 +62,26 @@ export default function LossesEntryPoint({ entryPoint }) {
 
       <span className="banner__text">
         {timer ? (
-          <>
-            {/* The headline emphasises in the primary ink only — the colour on
-                this state belongs to the countdown below it, and a banner gets
-                one coloured thing. */}
-            <span className="banner__headline">
-              <span className="banner__strong">{amount}</span> at stake from{' '}
-              <span className="banner__strong">
-                {count} {count === 1 ? 'loss' : 'losses'}
-              </span>
+          /* The headline emphasises in the primary ink only — the colour on
+             this state belongs to the countdown below it, and a banner gets
+             one coloured thing. */
+          <span className="banner__headline">
+            {/* WORD ORDER IS NOT FREE HERE. "₹624 may be deducted from 6
+                losses" is the direct swap and it is wrong: "deducted from"
+                names where money is taken OUT of, so it reads as the ₹624
+                coming out of the losses rather than out of his payout. The
+                verb goes to the end, which keeps the app's existing "from N
+                losses" phrasing and leaves both figures sitting against the
+                nouns they belong to. */}
+            <span className="banner__strong">{amount}</span> from{' '}
+            <span className="banner__strong">
+              {count} {count === 1 ? 'loss' : 'losses'}
             </span>
-            <span className="banner__sub banner__accent losses-entry__timer">{timer}</span>
-          </>
+            {' '}may be deducted
+          </span>
         ) : (
           <span className="banner__headline">
-            {/* No second line, so the headline's own emphasis carries the
+            {/* No body line, so the headline's own emphasis carries the
                 accent. The count goes quiet rather than printing a zero: the
                 data path cannot reach Review with nothing pending — that is
                 Resolved, and Resolved hides — but the panel can force the
@@ -87,11 +92,16 @@ export default function LossesEntryPoint({ entryPoint }) {
             {pendingCount === 1 ? ' is' : ' are'} under review
           </span>
         )}
-      </span>
 
-      <span className="banner__action">
-        <span className="banner__cta">{cta}</span>
-        <ChevronRightIcon size={18} stroke="var(--valmo-navy)" />
+        {/* Second line: the body (the countdown, where there is one) and the
+            way in, sharing the row — the banner pattern's shape. */}
+        <span className="banner__row">
+          {timer && <span className="banner__sub banner__accent losses-entry__timer">{timer}</span>}
+          <span className="banner__action">
+            <span className="banner__cta">{cta}</span>
+            <ChevronRightIcon size={18} stroke="var(--valmo-navy)" />
+          </span>
+        </span>
       </span>
     </button>
   )

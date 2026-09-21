@@ -80,6 +80,7 @@ export function buildInsights(cases, { scope = 'all', rowFor, minCases = INSIGHT
     if (!groups.has(group.id)) {
       groups.set(group.id, {
         id: group.id, label: group.label, noun: group.insightNoun,
+        costsMoney: group.costsMoney !== false,
         prevention: group.prevention, reason, cases: [],
       })
     }
@@ -121,6 +122,13 @@ export function buildInsights(cases, { scope = 'all', rowFor, minCases = INSIGHT
         // own `label` heads a list group and will not sit inside a sentence
         // ("Photo not clear have cost you ₹517").
         noun: sentenceCase(g.noun || g.label),
+        // Whether this kind of loss takes money at all. The banner reads it
+        // to choose between "cost you" and "can cost you" — see InsightBanner.
+        costsMoney: g.costsMoney,
+        // The banner's first line — the habit as one short sentence. A merged
+        // group's own `prevention` may not carry one yet; its first step is
+        // the nearest honest sentence, and the banner clips it if it runs.
+        headline: prevention.headline || prevention.steps?.[0] || '',
         habits: prevention.habits,
         steps: prevention.steps,
         rows: rowFor ? g.cases.map(rowFor) : [],

@@ -41,24 +41,25 @@ export function getDisputeStanding(wrongInARow, { wrongLimit, pauseDays } = DISP
   const wrong = Math.max(0, Math.min(wrongInARow ?? 0, wrongLimit))
   const left = wrongLimit - wrong
 
-  const consequence = wrong === 0
-    ? null
-    : left === 1
-      ? `One more and disputing pauses for ${pauseDays} days.`
-      : `${left} more and disputing pauses for ${pauseDays} days.`
+  // The sentence that follows the fraction, so "2/3 disputes found wrong —
+  // one more and …" reads as one line. The last step names the step ("one
+  // more"); every earlier one names the limit, which is the fact a Pilot
+  // with room left actually needs.
+  const byline = left === 1
+    ? `disputes found wrong — one more and disputing pauses for ${pauseDays} days.`
+    : `disputes found wrong. At ${wrongLimit}, disputing pauses for ${pauseDays} days.`
 
   return {
     wrong,
     limit: wrongLimit,
     left,
     fraction: `${wrong}/${wrongLimit}`,
-    // One label, always the same words, so the fraction never has to be
-    // re-learned; the consequence is appended to it rather than stacked under
-    // it, which would make a two-line block out of a one-line fact.
-    byline: ['Recent disputes found wrong.', consequence].filter(Boolean).join(' '),
-    // The last step is the only one that earns emphasis. Carried by the
-    // figure's own ink now — a tinted panel made a standing look like an
-    // alert at every count.
+    byline,
+    // A clean record shows nothing: a warning about a threat that is not
+    // there yet turns a neutral form into a caution.
+    show: wrong > 0,
+    // The last step is the only one that earns emphasis — the filled
+    // segments and the fraction take the warning ink there, and only there.
     atLimit: left <= 1,
   }
 }

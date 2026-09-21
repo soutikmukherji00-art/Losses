@@ -10,7 +10,7 @@ import SectionHeader from '../common/SectionHeader.jsx'
  * the Pilot has not acted on (silence deducts them) and the ones already
  * accepted or disputed, whose decision lands either way before payout. Those
  * two kinds are the two groups here, headed exactly as the losses list heads
- * them — "Needs Decision" and "Disputes in Review", label left, its own
+ * them — "Needs Attention" and "Team is checking", label left, its own
  * total right — because this sheet is a filtered view of that list, and a
  * Pilot who has learnt the list's buckets should not have to re-learn them.
  *

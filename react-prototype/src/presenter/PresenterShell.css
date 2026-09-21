@@ -1,8 +1,23 @@
 .presenter-shell {
+  /* The panel's live width — the one value the layout, the handle's position
+     and the transition all read, so the three cannot disagree about where the
+     seam is. Collapsed, it is simply zero. */
+  --presenter-panel-w: var(--presenter-panel-width, 272px);
+
   min-height: 100vh;
   display: flex;
   align-items: stretch;
   background: var(--presenter-stage-bg, #EEF1F6);
+}
+
+.presenter-shell[data-panel-open="false"] {
+  --presenter-panel-w: 0px;
+}
+
+/* At zero width the border is all that is left of the panel, and a 1px rule
+   down the edge of a stage with nothing beside it reads as an artefact. */
+.presenter-shell[data-panel-open="false"] .presenter-shell__panel {
+  border-left-width: 0;
 }
 
 .presenter-shell__stage {
@@ -17,11 +32,119 @@
 
 .presenter-shell__panel {
   flex: none;
-  width: var(--presenter-panel-width, 272px);
+  width: var(--presenter-panel-w);
   position: sticky;
   top: 0;
   height: 100vh;
+  /* Clipped, not reflowed — see `__panel-inner`. */
+  overflow-x: hidden;
   overflow-y: auto;
   border-left: 1px solid var(--presenter-panel-border, #E2E5EB);
   background: var(--presenter-panel-bg, #FAFAFC);
+  transition: width 220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* The panel narrows; its CONTENTS do not. Held at full width and clipped by
+   the parent, so collapsing slides the panel off the edge instead of
+   reflowing every control through 272 intermediate layouts — which reads as
+   the panel breaking, and on a long list of controls is the expensive half
+   of the animation. */
+.presenter-shell__panel-inner {
+  width: var(--presenter-panel-width, 272px);
+}
+
+/* Nobody needs to watch this move. */
+@media (prefers-reduced-motion: reduce) {
+  .presenter-shell__panel { transition: none; }
+}
+
+/* ---- the handle ----------------------------------------------------------
+   Fixed to the viewport rather than to either column: it sits ON the seam,
+   which belongs to neither, and it must not scroll away with the panel's own
+   content — a way back that can be scrolled off screen is not a way back.
+
+   It rides the same `--presenter-panel-w` the panel does, so the two move
+   together by construction. */
+.presenter-shell__handle {
+  position: fixed;
+  top: 50%;
+  right: var(--presenter-panel-w);
+  z-index: 10;
+  transform: translateY(-50%);
+  transition: right 220ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--presenter-panel-border, #E2E5EB);
+  border-radius: 8px 0 0 8px;
+  border-right: none;
+  background: var(--presenter-panel-bg, #FAFAFC);
+  box-shadow: -2px 0 8px rgba(24, 28, 40, 0.06);
+  color: #6B7280;
+  font: inherit;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.presenter-shell__handle:hover {
+  color: #1F2937;
+  background: #FFFFFF;
+}
+
+.presenter-shell__handle:focus-visible {
+  outline: 2px solid #4B5BD6;
+  outline-offset: 2px;
+}
+
+/* Shut, the handle is floating over the stage rather than sitting on a seam,
+   and it is the ONLY way back — so it stops being a tab on an edge and
+   becomes an object: white, darker ink, a shadow that carries on all sides.
+   Discoverability is worth more than restraint on the one control that is
+   load-bearing. */
+.presenter-shell[data-panel-open="false"] .presenter-shell__handle {
+  background: #FFFFFF;
+  color: #1F2937;
+  box-shadow: 0 2px 10px rgba(24, 28, 40, 0.10);
+}
+
+/* The chevron alone is the resting state — 28px of tab on the seam, which is
+   enough to hit and little enough to forget. The words arrive on hover, the
+   one moment someone is asking what it is. */
+.presenter-shell__chevron {
+  flex: none;
+  width: 28px;
+  transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* IT POINTS WHERE THE PANEL WILL GO, not at what it is now: right to push it
+   away, left to pull it back. */
+.presenter-shell[data-panel-open="false"] .presenter-shell__chevron {
+  transform: scaleX(-1);
+}
+
+.presenter-shell__handle-label {
+  max-width: 0;
+  opacity: 0;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: max-width 200ms ease, opacity 140ms ease, padding 200ms ease;
+  padding: 0;
+}
+
+.presenter-shell__handle:hover .presenter-shell__handle-label,
+.presenter-shell__handle:focus-visible .presenter-shell__handle-label {
+  max-width: 120px;
+  opacity: 1;
+  padding: 0 2px 0 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .presenter-shell__handle,
+  .presenter-shell__chevron,
+  .presenter-shell__handle-label { transition: none; }
 }

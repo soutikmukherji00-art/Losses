@@ -2,7 +2,7 @@ import Section from '../common/Section.jsx'
 import AudioChip from '../common/AudioChip.jsx'
 import './StatusTracker.css'
 
-/** Vertical timeline used on the "Disputes in Review" detail screen —
+/** Vertical timeline used on the "Team is checking" detail screen —
  * step dots + connecting rail, done/pending states. */
 export default function StatusTracker({ title, steps }) {
   return (

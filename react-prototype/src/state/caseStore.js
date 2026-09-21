@@ -13,7 +13,7 @@ import data from '../data/activeDataset.js'
  * That distinction is what makes the prototype walkable. Acting on a case
  * used to write the new state onto the *pointer* to it — so accepting a loss
  * looked right on the detail page, and then the list still showed it under
- * "Needs Decision", because the list was reading the untouched fixture. Now the
+ * "Needs Attention", because the list was reading the untouched fixture. Now the
  * record itself changes, and the bucket follows from the record.
  *
  * Nothing here persists: the pool is seeded into React state at mount, so a

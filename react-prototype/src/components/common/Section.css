@@ -31,12 +31,26 @@
   flex: 1;
   min-width: 0;
   margin: 0;
-  /* Heading 05, grey — the DS's section-subheading object. Bold near-black
-     made every section head outweigh the content it introduced. */
+  /* Heading 05 in the PRIMARY ink — the same object My Earnings puts above
+     the Current Cycle card. It was Heading 05 in grey, which left a head and
+     the grey body under it one shade apart; a pass through Heading 04 (Bold,
+     18px line) was tried and made every head the loudest thing in its block.
+     The DS's own device (Invoice Details, 1636:20763) is a dark Demi head
+     over grey Book rows, so the contrast is carried by the BODY going grey
+     (.case-detail__prose), not by the head getting heavier. */
   font-size: var(--heading-05-size);
   line-height: var(--heading-05-lh);
   font-weight: var(--heading-05-weight);
-  color: var(--text-secondary);
+  color: var(--text-heading);
+}
+
+/* THE LEAD HEAD — Heading 03 (15/20 Bold), one step under the 17/24 page
+   title and one over the 13/20 Demi heads below it. Three sizes, one ladder:
+   the page, its subject, its parts. It never pairs with `value`. */
+.sec--lead .sec__title {
+  font-size: var(--heading-03-size);
+  line-height: var(--heading-03-lh);
+  font-weight: var(--heading-03-weight);
 }
 
 /* The value keeps the near-black: it is the answer the head is asking for,
@@ -130,7 +144,7 @@
   font-size: var(--heading-05-size);
   line-height: var(--heading-05-lh);
   font-weight: var(--heading-05-weight);
-  color: var(--text-secondary);
+  color: var(--text-heading);
 }
 
 .sec__group-note {

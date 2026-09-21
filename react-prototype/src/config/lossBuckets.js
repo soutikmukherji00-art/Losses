@@ -16,24 +16,25 @@
  * The names say what the PILOT has to do, or what has already happened —
  * never what our system calls the state:
  *
- *   needsAction — a decision is theirs to make, and the clock is running.
- *   pending     — they made it, they disputed, and the decision is ours.
- *                 "Disputes in Review" says whose turn it is; the older
- *                 "Decision pending" left that open, which is the one thing
- *                 a Pilot waiting on us needs to be sure of. It also names
- *                 the thing in the group — disputes — rather than the state
- *                 those things are in, which is what the other three names
- *                 do too.
- *   closed      — settled, one way or the other. "Past Losses" is a plain
- *                 description of a record; the older "Decisions" named the
- *                 event that closed the case rather than the thing the
- *                 group is, and read as a place to go and decide something.
+ *   needsAction — something is theirs to do, and the clock is running.
+ *                 "Needs Attention" over the older "Needs Decision": a
+ *                 decision is what WE want from them, attention is what they
+ *                 have to give, and one of those is a word a Pilot uses.
+ *   pending     — they acted, and it is with us now. "Team is checking"
+ *                 says whose turn it is in the plainest available words —
+ *                 a sentence about people, where "Disputes in Review" was a
+ *                 noun phrase about a process. It also survives a group that
+ *                 holds accepted cases as well as disputes, which the older
+ *                 name quietly did not.
+ *   closed      — settled, one way or the other. "History" is the shortest
+ *                 true description of the group and the only one of these
+ *                 names that never has to be read twice.
  *   wrong       — informational, deducts nothing (see INFO_ONLY_NOTE).
  */
 export const BUCKET_NAME = {
-  needsAction: 'Needs Decision',
-  pending: 'Disputes in Review',
-  closed: 'Past Losses',
+  needsAction: 'Needs Attention',
+  pending: 'Team is checking',
+  closed: 'History',
   wrong: 'Wrong Pickups',
 }
 

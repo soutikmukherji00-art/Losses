@@ -14,7 +14,7 @@
   font-size: var(--heading-05-size);
   line-height: var(--heading-05-lh);
   font-weight: var(--heading-05-weight);
-  color: var(--text-primary);
+  color: var(--text-heading);
   /* The proximity pair — separation above, binding below (tokens.css). */
   padding: var(--gap-heading-above) var(--pad-screen) var(--gap-heading-below);
 }

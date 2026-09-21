@@ -132,6 +132,7 @@
       "date": "26 Jul",
       "amt": 118,
       "waiveReason": "agent_right",
+      "trackerKind": "dispute",
       "outcome": "You disputed this loss. The team checked your photo on 29 Jul and found you were right. Nothing was deducted."
     },
     {
@@ -140,6 +141,7 @@
       "caseState": "NOT_DEDUCTED",
       "date": "6 Aug",
       "amt": 90,
+      "trackerKind": "accepted",
       "outcome": "You accepted this loss and added your reason. After review the team decided not to deduct the amount."
     },
     {
@@ -171,6 +173,7 @@
       "date": "22 Jul",
       "amt": 132,
       "waiveReason": "sla_breach",
+      "trackerKind": "dispute",
       "outcome": "You disputed this loss. Our team did not finish the review inside 7 days, so the case was waived automatically and nothing was deducted."
     },
     {
@@ -181,6 +184,7 @@
       "amt": 96,
       "debitDate": "29 Jul",
       "pathLabel": "you accepted it",
+      "trackerKind": "accepted",
       "outcome": "You accepted this loss. After review the team kept the deduction."
     },
     {
@@ -202,7 +206,35 @@
       "date": "18 Jul",
       "amt": 84,
       "waiveReason": "agent_right",
+      "trackerKind": "dispute",
       "outcome": "You disputed this loss. The team checked your photo on 21 Jul and found you were right. Nothing was deducted."
+    },
+    {
+      "_note": "The two disputes behind pilot.wrongDisputesInARow (2) — real, dated cases the cool-off notice's history sheet points at, not just a standing counter.",
+      "awb": "881230441220",
+      "reasonCode": "ICUD_IMG_JUNK",
+      "caseState": "DEBITED",
+      "date": "27 Jul",
+      "amt": 72,
+      "debitDate": "3 Aug",
+      "pathLabel": "your dispute was not upheld",
+      "trackerKind": "dispute",
+      "actedReason": "Item was confusing",
+      "actedOn": "27 Jul",
+      "outcome": "You disputed this loss. The team checked your photos and did not find them convincing enough, so the amount was deducted."
+    },
+    {
+      "awb": "881233117845",
+      "reasonCode": "PICKUP_IMG_JUNK",
+      "caseState": "DEBITED",
+      "date": "2 Aug",
+      "amt": 58,
+      "debitDate": "9 Aug",
+      "pathLabel": "your dispute was not upheld",
+      "trackerKind": "dispute",
+      "actedReason": "Did not know the rule",
+      "actedOn": "2 Aug",
+      "outcome": "You disputed this loss. The team checked your photos and did not find them convincing enough, so the amount was deducted."
     }
   ],
   "pilot": {

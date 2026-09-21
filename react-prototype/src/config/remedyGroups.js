@@ -42,6 +42,9 @@ const MERGED_GROUPS = [
     // label-only crop. Everything below holds for both, so a Pilot reading
     // the merged insight is never told something the sheet does not say.
     prevention: {
+      // The banner's one-line heading for the merged group — true of both
+      // photo types, ≤ ~33 characters (see lossReasons.js `headline`).
+      headline: 'Keep every photo bright and sharp',
       habits: ['light the parcel', 'hold phone still', 'check before you send'],
       steps: [
         'Take a bright, clear photo of the whole packet, with the label in the same shot.',
@@ -72,6 +75,12 @@ export function getRemedyGroup(reason) {
     // heading would invent a cost — the sectioned layout's Wrong Pickups
     // head omits it for the same reason.
     showsTotal: reason.money !== MONEY.INFO_ONLY,
+    // ...and the same fact decides the TENSE of the insight sentence about
+    // it. A wrong pickup deducts nothing, so "wrong pickups cost you ₹65"
+    // is a bill the Pilot never got; what is true is that the parcels were
+    // worth ₹65 and a repeat could. One flag, both readings — the heading
+    // and the sentence cannot end up disagreeing about whether money moved.
+    costsMoney: reason.money !== MONEY.INFO_ONLY,
   }
 }
 

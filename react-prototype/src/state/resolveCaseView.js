@@ -1,5 +1,5 @@
 import { getReason } from '../config/lossReasons.js'
-import { getCaseState, ACTION_BLOCKS } from '../config/caseStates.js'
+import { getCaseState, ACTION_BLOCKS, TONE } from '../config/caseStates.js'
 import { addDays, fmt, parseShortDate, TODAY } from './helpers.js'
 import { productImage, STOCK_PHOTOS } from './productImages.js'
 
@@ -74,6 +74,10 @@ export function resolveCaseView({ record, stateId, ctx = {} }) {
 
   const moneyBlock = buildMoneyBlock(reason, state, c)
 
+  // Slot 7 (Education) — built once, so "What happened" can point a jump
+  // link at it without asking the same question about the reason twice.
+  const education = buildPrevention(reason, state)
+
   return {
     reasonCode: reason.code,
     stateId: state.id,
@@ -104,11 +108,18 @@ export function resolveCaseView({ record, stateId, ctx = {} }) {
       // it — the stake and the result in one reading.
       figureWas: money.was || null,
       chip: state.chip ? state.chip(c) : null,
+      // The pill treatment is reserved for the two clocks worth grabbing a
+      // Pilot's eye for — an open countdown (RISK) and a reply-SLA wait
+      // (PROGRESS). A closed case's chip ("Closed 12 Aug") is a fact, not a
+      // summons, so StatusHero renders it as plain text instead of a badge.
+      chipAttention: state.tone === TONE.RISK || state.tone === TONE.PROGRESS,
       text: state.statement(c),
-      // What the Pilot can do about it. The controls stay in the sticky
-      // ActionBar at the foot of the page; this is the line that tells them
-      // there is something down there — or that there isn't.
-      guidance: state.guidance ? state.guidance(c) : null,
+      // THE "WHAT NOW" LINE — one per state, on the card, under the facts.
+      // A state's `guidance` (what to do) and its `footer` (what follows)
+      // were two slots saying halves of one sentence a screen apart; they
+      // are one line now, and it lives here with the सुनें control, because
+      // it is the sentence on this page worth hearing.
+      guidance: (state.guidance && state.guidance(c)) || state.footer(c) || null,
     },
 
     // 3 — money & remedy. Sits here, above the proof and the explanation:
@@ -119,34 +130,61 @@ export function resolveCaseView({ record, stateId, ctx = {} }) {
     // 4 — evidence (reason-driven; [] is a legitimate, designed state)
     evidence: buildEvidence(reason, record, ctx.catalogImages ?? false),
 
-    // 5 — explanation. A row may override the registry default when the
-    // narrative is case-specific (LiF carries dates, for instance); the
-    // registry is the default, per KRD "mappings are config".
+    // 4 — explanation ("What happened"), now ahead of the money and evidence
+    // slots (design call, 21 Sep): the reason a Pilot opens this page at all
+    // is to find out what happened, and reading the figure and the photos
+    // before being told what they're looking at made both of those slots do
+    // guesswork the copy could have done first. A row may override the
+    // registry default when the narrative is case-specific (LiF carries
+    // dates, for instance); the registry is the default, per KRD "mappings
+    // are config".
+    // No `head`: the section it fills is headed by the reason's own name
+    // (`identity.title`) — the reason IS what happened, and a second heading
+    // saying so under it was the same fact twice.
     explanation: {
-      head: 'What happened',
       value: record.explain || reason.explain,
       audio: true,
+      // A short way down to slot 8 without reading the money and evidence
+      // slots first — present only where there is somewhere to jump to.
+      jumpToEducation: !!education,
     },
-    // One generic narrative slot for the two things a case can additionally
-    // say: what the team decided (resolved states) or what the Pilot recorded
-    // at the time (info-only cases — KRD F24 "shows the Pilot's recorded
-    // responses"). Not per-screen special-casing; whichever field exists wins.
-    secondary: buildSecondary(state, record, c),
+    // The two things a case can additionally say, each its own section now
+    // (they used to share one sub-group under "What happened"):
+    //   answers   — what the Pilot recorded at the time (info-only cases, KRD
+    //               F24 "shows the Pilot's recorded responses"). Sits after
+    //               the evidence and before Education: it is the Pilot's own
+    //               testimony, read alongside the photos.
+    //   narrative — what the team decided / what happened to the money
+    //               (resolved states). Sits after the timeline: it is the
+    //               verdict, and it reads as the last step of that log.
+    answers: buildAnswers(record),
+    narrative: buildNarrative(state, record, c),
 
-    // 6 — progress tracker
-    tracker: state.tracker ? buildTracker(state.tracker, c) : null,
+    // 6 — progress tracker. A terminal state carries none of its own (a case
+    // can close by silence, which never had a tracker to begin with), so the
+    // ONE case where a closed page still owes one is read off the record: if
+    // the Pilot ever accepted or disputed (`record.trackerKind`, set once at
+    // submission and never overwritten by an outcome patch), the same three
+    // steps that were on the page while the case was open are rebuilt here
+    // with the last one resolved — the log a dispute leaves behind must
+    // survive the move into History, not disappear the moment it closes.
+    tracker: state.tracker
+      ? buildTracker(state.tracker, c)
+      : (state.terminal && record.trackerKind
+        ? buildTracker(record.trackerKind, c, { resolved: true, verdict: state.label })
+        : null),
 
     // 7 — action block
     action: buildAction(reason, state, c),
 
-    // Prevention. Renders as slot 5's last sub-group — the only forward-
-    // looking thing on the page. Its content is the reason's own `prevention`
-    // block — the same deck the contextual insight banner reads, so a Pilot
-    // cannot be told two different things about one habit.
-    prevention: buildPrevention(reason, state),
-
-    // 9 — consequence footer
-    footer: state.footer(c),
+    // 8 — Education. Its own slot now, after the evidence rather than a
+    // sub-group of "What happened" before it — the flow reads what happened,
+    // what it cost, the proof, and only then how to avoid it, which is also
+    // the order the "What happened" jump link promises. Content is the
+    // reason's own `prevention` block — the same deck the contextual insight
+    // banner reads, so a Pilot cannot be told two different things about one
+    // habit.
+    education,
 
     // extras the surrounding chrome needs
     outcomeLabel: state.label,
@@ -192,12 +230,14 @@ const NARRATIVE_HEADS = {
   you: 'What you did',
 }
 
-function buildSecondary(state, record, c) {
-  if (record.outcome) {
-    const kind = state.outcomeNarrative ? state.outcomeNarrative(c) : 'team'
-    if (!kind) return null
-    return { head: NARRATIVE_HEADS[kind], value: record.outcome, audio: true, muted: true }
-  }
+function buildNarrative(state, record, c) {
+  if (!record.outcome) return null
+  const kind = state.outcomeNarrative ? state.outcomeNarrative(c) : 'team'
+  if (!kind) return null
+  return { head: NARRATIVE_HEADS[kind], value: record.outcome, audio: true }
+}
+
+function buildAnswers(record) {
   // KRD F24's "shows the Pilot's recorded responses", in the shape the real
   // extract actually has them: the wrong-RVP feed records a pickup as a short
   // questionnaire — category, colour, design, damage, quantity — and stores
@@ -326,7 +366,7 @@ function buildEvidence(reason, record, showCatalog) {
   return showCatalog ? [...groups, catalogGroup(record)] : groups
 }
 
-function buildTracker(kind, c) {
+function buildTracker(kind, c, opts = {}) {
   const { record, replyDays } = c
   const isDispute = kind === 'dispute'
 
@@ -336,34 +376,50 @@ function buildTracker(kind, c) {
         meta: record.actedOn,
         done: true,
       },
-      {
+      // Only where a reason was actually recorded. A case that reached its
+      // verdict before this build existed has none, and printing “—” as the
+      // Pilot's quoted words said something false about what they did.
+      record.actedReason && {
         label: 'Your reason',
-        meta: '“' + (record.actedReason || '—') + '”',
+        meta: '“' + record.actedReason + '”',
         done: true,
       },
-      isDispute
+      // Once the case has settled, the third step is the verdict rather than
+      // the wait for one — the same tracker, its last dot finally lit. This
+      // is what keeps a resolved dispute's log ON the page once it moves to
+      // History instead of the whole block vanishing with `tracker: null`.
+      opts.resolved
         ? {
-            label: 'Decision expected',
-            meta: `By ${addDays(record.actedOn, replyDays)} · If right: ₹0 · If wrong: the full ${fmt(record.amt)}`,
-            done: false,
+            label: 'Resolved',
+            meta: opts.verdict,
+            done: true,
           }
-        : {
-            // KRD F7 + §6d copy correction: an accepted case gets NO dated
-            // reply promise — only "before your payout".
-            label: 'Decision before your payout',
-            meta: 'Review can still stop the deduction. We will tell you the result first.',
-            done: false,
-          },
+        : isDispute
+          ? {
+              label: 'Reply expected',
+              meta: `By ${addDays(record.actedOn, replyDays)} · If right: ₹0 · If wrong: the full ${fmt(record.amt)}`,
+              done: false,
+            }
+          : {
+              // KRD F7 + §6d copy correction: an accepted case gets NO dated
+              // reply promise — only "before your payout".
+              label: 'Reply before your payout',
+              meta: 'Review can still stop the deduction. We will tell you the result first.',
+              done: false,
+            },
   ]
 
   // The rail belongs BETWEEN dots, so the last step has none; a segment is lit
   // only when the step it leads to is also done.
   return {
-    title: isDispute ? 'Your dispute' : 'Your accepted case',
-    steps: steps.map((step, i) => ({
+    // "Raised Dispute" is the button the Pilot pressed to get here and the
+    // headline of the popup that confirmed it — the tracker is the third
+    // telling of one act, so it uses the same words as the other two.
+    title: isDispute ? 'Raised Dispute' : 'Your accepted case',
+    steps: steps.filter(Boolean).map((step, i, all) => ({
       ...step,
-      isLast: i === steps.length - 1,
-      nextDone: i < steps.length - 1 && steps[i + 1].done,
+      isLast: i === all.length - 1,
+      nextDone: i < all.length - 1 && all[i + 1].done,
     })),
   }
 }
@@ -432,7 +488,12 @@ function buildAction(reason, state, c) {
   }
 
   if (mode === ACTION_BLOCKS.ADD_SIDE && allowed('add_side')) {
-    return { mode: 'add_side' }
+    return {
+      mode: 'add_side',
+      // The pseudo dispute's button — once. After it is raised the record
+      // carries the fact and the page says thank you instead.
+      canDispute: allowed('dispute') && !c.record.pseudoDisputed,
+    }
   }
 
   if (mode === ACTION_BLOCKS.RECOVERY && reason.remedy?.kind === 'hub_return') {

@@ -13,6 +13,7 @@ import ConfirmationPopup from './components/common/ConfirmationPopup.jsx'
 import CycleLossesSheet from './components/earnings/CycleLossesSheet.jsx'
 import InsightSheet from './components/losses/InsightSheet.jsx'
 import HistoricBreakupSheet from './components/losses/HistoricBreakupSheet.jsx'
+import DisputeHistorySheet from './components/detail/DisputeHistorySheet.jsx'
 import ImageViewer from './components/common/ImageViewer.jsx'
 import { ListRowDesignProvider } from './components/common/ListRowDesign.jsx'
 
@@ -52,6 +53,9 @@ export default function App() {
             {vm.showCycleLossesSheet && <CycleLossesSheet sheet={vm.cycleLossesSheet} />}
             {vm.showBreakupSheet && <HistoricBreakupSheet breakup={vm.historicBreakup} />}
             {vm.insightSheet && <InsightSheet insight={vm.insightSheet} />}
+            {vm.showDisputeHistorySheet && (
+              <DisputeHistorySheet disputeHistory={vm.disputeHistory} onClose={vm.closeDisputeHistory} />
+            )}
             {/* An evidence photo at full size, over whatever raised it. Above
                 the sheets and below the confirmation popup — see
                 ImageViewer.css. */}

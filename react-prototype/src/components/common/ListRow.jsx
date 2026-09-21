@@ -4,8 +4,8 @@ import { useListRowDesign } from './ListRowDesign.jsx'
 import './ListRow.css'
 
 /**
- * The one row shape reused by Needs Decision, Disputes in Review, Wrong
- * Pickups, Past Losses and the unified list — and by the historic ledger, which is how a
+ * The one row shape reused by Needs Attention, Team is checking, Wrong
+ * Pickups, History and the unified list — and by the historic ledger, which is how a
  * settled loss reads identically wherever a Pilot meets it.
  *
  * WHAT VARIES is the line-item design (config/lineItemDesigns.js): whether

@@ -64,6 +64,11 @@
 
   /* ---------- Semantic aliases — prefer these in components ---------- */
   --text-primary: var(--valmo-dark-grey-01);
+  /* Every section head in the app — the L1 page's block titles, the label
+     bands over list groups, My Earnings' section titles — reads in Grey
+     Coral / Dark T2 (#272829). One token so "the heading ink" is a fact
+     rather than five places that happen to agree (design call, 21 Sep). */
+  --text-heading: var(--valmo-dark-grey-01);
   --text-secondary: var(--valmo-grey-mid-02);
   /* The brand grey ramp's --valmo-grey-mid-01 (#8E96A3) is a fine BORDER and
      icon value, but as type it lands at 2.98:1 on white — under half the
@@ -231,8 +236,17 @@
   --viewer-ink-muted: rgba(255, 255, 255, 0.72);
   --viewer-control-fill: rgba(255, 255, 255, 0.14);
 
-  /* The faint grey behind a list group heading. */
-  --surface-group-head: #FAFAFC;
+  /* THE LABEL BAND — the full-width grey strip that heads a group of rows:
+     "Past Payments" on Payments, "May 2025" on My Earnings, "Needs
+     Attention" and its siblings on the losses list. One object, so one
+     colour: Grey Coral/Light T2 off the DS (Figma ShOKxbXbnD9mOzWPmVdxd8 ·
+     275:10288), which is the same #E6EBF2 the hairline token resolves to.
+     
+     It was two. `SectionDivider` reached for `--border-subtle` — a BORDER
+     token used as a fill, right by accident — and `SectionHeader` had its
+     own #FAFAFC, so the identical band read as two different greys one tab
+     apart. Both now name this. */
+  --surface-group-head: var(--valmo-grey-light-02);
 
   /* WARN — the fourth tone, and the app's yellow. It was `--surface-cycle` /
      `--border-cycle`: one card's private colour, named after the card rather
@@ -366,15 +380,29 @@
 
   --pad-badge: var(--space-2) var(--space-8);  /* status chip, count badge */
   --pad-panel: var(--space-12);   /* inset of a tinted panel, field, or card */
+  /* THE BANNER's inset — 12 above and below, 8 at the sides (design call,
+     21 Sep). Tighter sideways than a panel because a banner is one line of
+     text between a mark and a CTA, and every pixel of side inset is a pixel
+     the sentence cannot have before it wraps or clips. */
+  --pad-banner: var(--space-12) var(--space-8);
   --pad-row: var(--space-12);     /* vertical inset of a list or tap row */
   --pad-tile: var(--space-14);    /* Figma: past-payment tile, 14px vertical */
   --pad-screen: var(--screen-gutter);  /* horizontal page inset */
   --pad-sheet: var(--space-16);   /* bottom-sheet and popup inset */
 
-  /* Heading blocks get more room above than below, so the heading
-     binds to what it labels rather than floating between groups. */
-  --pad-head-top: var(--space-14);
-  --pad-head-bottom: var(--space-6);
+  /* THE LABEL BAND's vertical inset — 4px above and below a Heading-05 line,
+     which is the DS band's 28px (Figma ShOKxbXbnD9mOzWPmVdxd8 · 275:10288)
+     and the only height it comes in.
+
+     It was two geometries as well as two colours. `SectionHeader` ran 14px
+     above and 6px below a 20px line — 40px, and asymmetric on the reasoning
+     that a heading should bind downward to the rows it labels. That is a
+     good rule for a heading sitting on the page; this is not one. It is a
+     filled strip, and a filled strip's own edges do the binding, so the
+     asymmetry bought nothing and cost 12px on every group. `SectionDivider`
+     ran 4/4 around an 18px line — the right shape, one type step short.
+     Both are this now, so the band is the same object wherever it lands. */
+  --pad-band-y: var(--space-4);
 
   /* Expands a small control's tap target to the 48dp floor without
      moving its visible mark. */

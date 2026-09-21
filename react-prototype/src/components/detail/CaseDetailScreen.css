@@ -14,12 +14,47 @@
   animation: feup 220ms ease-out;
 }
 
-/* Body prose inside a section: 13/500, the design language's default. */
+/* Body prose inside a section: Body 02 in the SECONDARY ink — the grey the
+   DS gives every row under a section head (Invoice Details, 1636:20763:
+   "250 Deliveries @ ₹13" is #5A5E66 under a dark "Base pay"). The head is
+   dark Demi, the body is grey; that pairing is the whole hierarchy, and it
+   is the one the Payments tab already reads with. */
 .case-detail__prose {
   font-size: var(--body-02-size);
   line-height: var(--body-02-lh);
   font-weight: var(--body-02-weight);
-  color: var(--text-primary);
+  color: var(--text-secondary);
+}
+
+/* The AWB — the lead head's byline, tucked under it (the head's own gap
+   below is taken back so the two read as one pair). Body 01 (13/500) in the
+   secondary ink: a step above body prose, because which parcel this is has
+   to be findable in one glance, without competing with the reason above it
+   or the sentence below. */
+.case-detail__awb {
+  margin: calc(-1 * var(--gap-heading-below)) 0 var(--gap-stack);
+  font-size: var(--body-01-size);
+  line-height: var(--body-01-lh);
+  font-weight: var(--body-01-weight);
+  color: var(--text-secondary);
+}
+
+/* The first section's link down to Education. The DS text link — Button 03
+   in navy, underlined — the same object as "View Details" on the Current
+   Cycle card (7064:37457). A button, not an <a>: it scrolls, it does not
+   navigate. */
+.case-detail__jump {
+  display: block;
+  margin-top: var(--gap-stack);
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: var(--button-03-size);
+  line-height: var(--button-03-lh);
+  font-weight: var(--fw-demi);
+  color: var(--valmo-navy);
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 /* Slot 8's prevention steps. Numbered, because they are a sequence a Pilot
@@ -44,7 +79,7 @@
   font-size: var(--body-02-size);
   line-height: var(--body-02-lh);
   font-weight: var(--body-02-weight);
-  color: var(--text-primary);
+  color: var(--text-secondary);
 }
 
 .case-detail__steps li::before {
@@ -53,12 +88,3 @@
   color: var(--valmo-navy);
 }
 
-/* The closure line sits on the app ground, not in a section — it is a note
-   about the page, not part of it. */
-.case-detail__foot {
-  font-size: var(--body-03-size);
-  line-height: var(--body-03-lh);
-  color: var(--text-tertiary);
-  text-align: center;
-  padding: var(--pad-row) var(--pad-screen) 0;
-}

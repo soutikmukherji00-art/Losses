@@ -35,25 +35,32 @@
 }
 
 /* reason chip — accept/dispute reason picker */
-/* Same inner inset and stroke as the filter chip, so both chip families put
-   their first letter in the same place. This one sat at 16px of padding
-   behind a 1.5px border — its label landed 4px further in than a filter
-   chip's on the screen directly before it. Height stays larger: this is a
-   form answer, not a filter, and it keeps the full 48dp target. */
+/* THE SAME OBJECT AS THE FILTER CHIP (design call, 21 Sep). It was a 48px
+   pill in Demi — half again the height of the chips on the screen directly
+   before it, so the form's answers read as buttons while the list's filters
+   read as chips, for two rows of the same kind of control. The DS has one
+   chip: 32 tall, radius 24, Book, and the selected state in Indigo Sapphire
+   (204:22057 / 204:25340). The 48dp target still holds — it grows under the
+   pill, as it does on the filter row. */
 .chip--reason {
-  min-height: var(--tap-target-min);
+  position: relative;
+  flex: none;
+  min-height: var(--control-height-sm);
+  min-width: var(--tap-target-min);
   padding: 0 var(--pad-control-x);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-pill);
-  background: var(--valmo-white);
-  font-size: var(--body-02-size);
-  line-height: var(--body-02-lh);
-  font-weight: var(--fw-demi);
-  color: var(--text-primary);
+  border-radius: var(--radius-chip);
+  border: 1px solid var(--chip-filter-border);
+  background: var(--chip-filter-bg);
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--fw-book);
+  color: var(--chip-filter-ink);
 }
 .chip--reason[data-active="true"] {
-  border-color: var(--valmo-dark-grey-01);
-  background: var(--surface-sunken);
+  background: var(--chip-filter-active-bg);
+  border-color: var(--chip-filter-active-border);
+  color: var(--chip-filter-active-ink);
+  font-weight: var(--fw-bold);
 }
 
 /* utility chip — "How payments work" / "Rate card" */
@@ -111,7 +118,8 @@
 .chip--status[data-kind="info"]      { color: var(--chip-info-ink); }
 .chip--status[data-kind="neutral"]   { color: var(--chip-neutral-ink); }
 
-.chip--filter::after {
+.chip--filter::after,
+.chip--reason::after {
   content: '';
   position: absolute;
   inset: 50% 0 0 0;

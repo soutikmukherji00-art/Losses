@@ -51,12 +51,58 @@
   border-color: var(--valmo-red-border);
 }
 
+/* The timing, under the pill: Body 03 in the tertiary ink — the same rank the
+   money card gives a closed case's date. */
 .reason-sheet__after {
-  margin-top: var(--gap-group);
+  margin-top: var(--gap-stack);
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--body-03-weight);
+  color: var(--text-tertiary);
+}
+
+/* Demi emphasis inside the pill — the reference's "18 Jun". */
+.alert-pill__body b {
+  font-weight: var(--fw-demi);
+}
+
+/* "What happens next" — body prose in the secondary ink, the facts in Demi
+   primary, the same pairing the loss page's sections use. */
+.reason-sheet__next {
   font-size: var(--body-02-size);
   line-height: var(--body-02-lh);
   font-weight: var(--body-02-weight);
-  color: var(--text-row-label);
+  color: var(--text-secondary);
+}
+.reason-sheet__next b,
+.reason-sheet__outcomes b {
+  font-weight: var(--fw-demi);
+  color: var(--text-primary);
+}
+
+/* The two outcomes — plain bullets in the same body voice. The marker sits
+   in its own column so a wrapped line stays under its own text. */
+.reason-sheet__outcomes {
+  margin: var(--gap-stack) 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-subline);
+}
+
+.reason-sheet__outcomes li {
+  display: grid;
+  grid-template-columns: var(--space-16) 1fr;
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+  font-weight: var(--body-02-weight);
+  color: var(--text-secondary);
+}
+
+.reason-sheet__outcomes li::before {
+  content: '•';
+  color: var(--text-tertiary);
 }
 
 .reason-sheet__tip {

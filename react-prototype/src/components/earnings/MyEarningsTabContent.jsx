@@ -18,7 +18,7 @@ export default function MyEarningsTabContent({ vm }) {
           (config/lossesStructure.js), the banner's own state decides whether
           there is anything for it to say (config/lossesEntryStates.js — with
           nothing waiting and nothing pending it hides rather than reading
-          "₹0 at stake from 0 Losses"). */}
+          "₹0 from 0 losses may be deducted"). */}
       {vm.lossesStructure.earningsEntry && vm.lossesEntryPoint.visible && (
         <div className="banner-slot">
           <LossesEntryPoint entryPoint={vm.lossesEntryPoint} />

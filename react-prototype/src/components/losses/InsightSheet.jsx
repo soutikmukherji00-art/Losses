@@ -32,7 +32,7 @@ export default function InsightSheet({ insight }) {
         </ol>
       </Section>
 
-      <Section title="These losses" flush>
+      <Section title="Your losses" flush>
         {insight.rows.map((row) => (
           <ListRow key={row.id} row={row} onClick={row.open} />
         ))}

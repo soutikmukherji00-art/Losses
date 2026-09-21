@@ -12,7 +12,7 @@
  *                no clock, no countdown. This is the banner as it was.
  *   RESOLVED   — nothing waiting and nothing pending. There is no money at
  *                stake, so the widget is HIDDEN rather than shown empty: a
- *                banner reading "₹0 at stake from 0 Losses" is a thing to
+ *                banner reading "₹0 from 0 losses may be deducted" is a thing to
  *                read and dismiss every single day, on the screen a Pilot
  *                opens to see what they earned. The losses list is still
  *                reachable from the Losses tab and from the Current Cycle
@@ -63,7 +63,7 @@ export const ENTRY_STATE_TREATMENT = {
     tone: 'risk',
     cta: 'Review',
     // The count is back in the headline, where it belongs to the money it
-    // qualifies ("₹624 at stake from 6 losses"). It rode on the CTA for one
+    // qualifies ("₹624 from 6 losses may be deducted"). It rode on the CTA for one
     // build, while the headline was a single line with no room for it.
     ctaShowsCount: false,
   },
@@ -102,7 +102,7 @@ export function resolveEntryState({ actionableCount, pendingCount }) {
 
 /**
  * THE TIMER — Actionable only, and it lives INSIDE the headline rather than
- * beside it: "₹624 at stake, **3 days left**". It is the only red thing in
+ * beside it: "₹624 … may be deducted", then **3 days left**. It is the only red thing in
  * the widget and the only bold one, so a Pilot's eye lands on the clock
  * first and the sentence explains it.
  *

@@ -14,6 +14,15 @@
   border: 1.5px solid var(--border-default);
   border-radius: var(--radius-md);
 }
+
+/* The submit, right-aligned under its field — the card's own commit, not the
+   page's. Outlined, since an optional note is never "the move". */
+.add-side__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--gap-stack);
+}
+
 .add-side__field textarea {
   width: 100%;
   min-height: 48px;

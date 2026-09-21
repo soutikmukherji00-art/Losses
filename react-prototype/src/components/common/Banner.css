@@ -92,7 +92,7 @@
   gap: var(--gap-lead);
   width: 100%;
   min-height: var(--tap-target-min);
-  padding: var(--pad-panel);
+  padding: var(--pad-banner);
   border: 1px solid;
   border-radius: var(--radius-md);
   text-align: left;
@@ -189,11 +189,33 @@
   color: var(--banner-accent);
 }
 
+/* THE SECOND LINE — body left, action right, on ONE row (design call, 21
+   Sep: [icon] [heading / body + CTA] is the banner's shape across the
+   product). The action used to be a third column centred on the whole
+   block, which put the CTA level with neither line; on the body's row it
+   reads as the answer to that line. The body takes the width the action
+   leaves, so a measured line (the insight's habits) measures against the
+   room it actually has. */
+.banner__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gap-lead);
+  min-width: 0;
+}
+
+.banner__row .banner__sub {
+  flex: 1;
+  min-width: 0;
+}
+
 .banner__action {
   flex: none;
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  /* Pushed right when the row has no body to share with. */
+  margin-left: auto;
 }
 
 /* Reads as the link it is — the treatment "View Details" uses on the Current

@@ -104,7 +104,17 @@
   height: 100%;
 }
 
-/* One line, always. The habits take what is left after the action has its
+/* ONE LINE, ALWAYS — both lines. The registry caps the heading's length
+   (lossReasons.js `prevention.headline`); this is the backstop, so a longer
+   loss-type name arriving later clips at the edge rather than growing the
+   banner a third line on top of the list it sits over. */
+.insight__headline {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The byline row: the claim takes what is left after the action has its
    width, so the way in can never be the thing that gets pushed off. */
 .insight__byline {
   display: flex;
@@ -112,11 +122,7 @@
   gap: var(--gap-stack);
 }
 
-/* The measured span. `nowrap` is what makes scrollWidth mean "how wide this
-   wants to be", which is how the component decides whether a second habit
-   fits; the ellipsis is the backstop for a first habit long enough to
-   overflow on its own. */
-.insight__habits {
+.insight__claim {
   flex: 0 1 auto;
   min-width: 0;
   white-space: nowrap;
@@ -124,7 +130,8 @@
   text-overflow: ellipsis;
 }
 
-/* The advice itself wears `.banner__strong` — the pattern's uncoloured
-   emphasis, Demi in the primary ink — so it outweighs the words framing it.
-   It had its own rule here at 500, a weight the pattern no longer uses; the
-   shared class is now the single place that ladder is stated. */
+/* The amount is the card's one coloured thing (`.banner__accent`: Demi in
+   the tone's accent). Tabular figures so ₹1,004 and ₹715 sit the same. */
+.insight__amount {
+  font-variant-numeric: tabular-nums;
+}

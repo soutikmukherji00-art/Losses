@@ -32,26 +32,51 @@ import './CaseDetailScreen.css'
 export default function CaseDetailScreen({ vm }) {
   const v = vm.caseView
 
+  const scrollToEducation = () => {
+    document.getElementById('case-detail-education')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
   return (
     <div className="case-detail">
-      {/* 1 · identity */}
-      <ScreenHeader
-        title={v.identity.title}
-        sub={v.identity.sub}
-        onBack={vm.goBackFromCase}
-        divider={false}
-      />
+      {/* 1 · header — generic on purpose (design call, 21 Sep). The loss's
+          own name used to live here; it now heads the first section of the
+          body instead, so a pushed page always opens on the same bar
+          whatever kind of loss it is about to explain. */}
+      <ScreenHeader title="Loss Detail" onBack={vm.goBackFromCase} />
 
       <div className="case-detail__scroll fe-scroll">
-        {/* 2 · status — tone is set by money position, never by severity */}
+        {/* 2 · THE LOSS — the reason IS the section head (a "What happened"
+            label over it was the question the head already answers), a step
+            up from the other heads because it is the page's anchor, the thing
+            the list row promised. The AWB is its byline; the prose is the
+            sentence behind the name. It leads the page, ahead of the money,
+            because the figure only means something once a Pilot knows what
+            it is for.
+
+            The jump link takes a Pilot who already knows the story straight
+            to Education without scrolling past the money and the proof. */}
+        <Section lead title={v.identity.title} action={<AudioChip size="sm" />}>
+          <div className="case-detail__awb">{v.identity.sub}</div>
+          <div className="case-detail__prose">{v.explanation.value}</div>
+
+          {v.explanation.jumpToEducation && (
+            <button type="button" className="case-detail__jump" onClick={scrollToEducation}>
+              How to avoid this
+            </button>
+          )}
+        </Section>
+
+        {/* 3 · money — figure, byline, clock, and the one "what now" line
+            with its सुनें. Neutral card in every state; tone lives on the
+            figure and its byline, and on the badge while a clock runs. */}
         <Section panel>
           <StatusHero {...v.banner} />
         </Section>
 
-        {/* 3 · money & remedy — payment pointer / recovery / credit pair */}
+        {/* 4 · money & remedy — payment pointer / recovery / credit pair */}
         {v.moneyBlock && <MoneyRemedyBlock money={v.moneyBlock} />}
 
-        {/* 4 · evidence — reason-driven; an empty set is a designed state.
+        {/* 6 · evidence — reason-driven; an empty set is a designed state.
             The catalog row is the last group in that set when its layer is on
             (resolveCaseView's buildEvidence). The <Layer> is mounted
             unconditionally and renders nothing: it is here to put the toggle
@@ -60,45 +85,49 @@ export default function CaseDetailScreen({ vm }) {
         <CatalogImagesLayer />
         {v.evidence.length > 0 && <PhotoEvidenceGroup groups={v.evidence} onOpen={vm.openPhoto} />}
 
-        {/* 5 · explanation — the case narrative, and what to do differently.
-            Prevention is a sub-group here rather than a section of its own:
-            given its own heading and its own white block it read as a second
-            topic, when it is the same topic's last sentence — this is what
-            happened, and this is how it doesn't happen again. */}
-        <Section title={v.explanation.head} action={<AudioChip size="sm" />}>
-          <div className="case-detail__prose">{v.explanation.value}</div>
+        {/* 6b · the Pilot's own answers — the pickup questionnaire behind a
+            wrong pickup, its own section between the proof and the lesson.
+            Rows, not a paragraph: a Pilot looking for what he said about the
+            colour has to be able to land on that line. Same label/value row
+            the Payment Details screen uses, so it is not a new object. */}
+        {v.answers && (
+          <Section title={v.answers.head} action={<AudioChip size="sm" />}>
+            {v.answers.rows
+              ? v.answers.rows.map((r) => (
+                  <SectionRow key={r.label} label={r.label} value={r.value} />
+                ))
+              : <div className="case-detail__prose">{v.answers.value}</div>}
+          </Section>
+        )}
 
-          {/* The narrative sub-group says either one thing in prose (what the
-              team decided, what happened to the money) or a list of recorded
-              answers — the pickup questionnaire behind a wrong pickup. Rows,
-              not a paragraph: a Pilot looking for what he said about the
-              colour has to be able to land on that line. Same label/value row
-              the Payment Details screen uses, so it is not a new object. */}
-          {v.secondary && (
-            <div className="sec__group">
-              <div className="sec__group-title"><span>{v.secondary.head}</span></div>
-              {v.secondary.rows
-                ? v.secondary.rows.map((r) => (
-                    <SectionRow key={r.label} label={r.label} value={r.value} />
-                  ))
-                : <div className="case-detail__prose">{v.secondary.value}</div>}
-            </div>
-          )}
-
-          {v.prevention && (
-            <div className="sec__group">
-              <div className="sec__group-title"><span>{v.prevention.head}</span></div>
+        {/* 7 · education — its own slot now, target of "What happened"'s
+            jump link. It used to be a sub-group of that section; giving it
+            its own heading and audio control puts it on equal footing with
+            every other block the Pilot is asked to read, not just the one
+            money and evidence sit between. */}
+        {v.education && (
+          <div id="case-detail-education">
+            <Section title={v.education.head} action={<AudioChip size="sm" />}>
               <ol className="case-detail__steps">
-                {v.prevention.steps.map((step) => <li key={step}>{step}</li>)}
+                {v.education.steps.map((step) => <li key={step}>{step}</li>)}
               </ol>
-            </div>
-          )}
-        </Section>
+            </Section>
+          </div>
+        )}
 
-        {/* 6 · progress */}
+        {/* 8 · progress */}
         {v.tracker && <StatusTracker title={v.tracker.title} steps={v.tracker.steps} />}
 
-        {/* 7 · action — the EXPLANATION half, for the modes that still need
+        {/* 8b · the verdict — what the team decided, or what happened to the
+            money. After the timeline, as its own section: it is the last
+            step of that log said in full, not a footnote to "What happened". */}
+        {v.narrative && (
+          <Section title={v.narrative.head} action={<AudioChip size="sm" />}>
+            <div className="case-detail__prose">{v.narrative.value}</div>
+          </Section>
+        )}
+
+        {/* 9 · action — the EXPLANATION half, for the modes that still need
             one. The controls are in the sticky ActionBar below, outside the
             scroll.
 
@@ -115,8 +144,6 @@ export default function CaseDetailScreen({ vm }) {
         {v.action?.mode === 'add_side' && <AddYourSideCard vm={vm} />}
         {v.action?.mode === 'recovery' && <RecoveryActionCard action={v.action} />}
 
-        {/* 9 · consequence / closure */}
-        {v.footer && <div className="case-detail__foot">{v.footer}</div>}
       </div>
 
       <ActionBar buttons={actionButtons(v.action, vm)} note={actionNote(v.action)} />
@@ -173,13 +200,14 @@ function actionButtons(action, vm) {
     return [{ label: action.primaryLabel, variant: 'primary', onClick: vm.openReturnedClaim }]
   }
 
+  // 'add_side' puts its submit inside its own card (AddYourSideCard), next
+  // to the field it submits. A sticky bar holding a greyed "Submit" for an
+  // optional note on a case with no money at stake made an advisory page
+  // look like it was waiting on the Pilot (design call, 21 Sep). What the
+  // bar does carry is the pseudo dispute (WRONG_RVP's `actions`), in the
+  // same outlined rank as every other Dispute button.
   if (action.mode === 'add_side') {
-    return [{
-      label: vm.sideLabel,
-      variant: 'primary',
-      disabled: !vm.sideText.trim() || vm.sideSent,
-      onClick: vm.submitSide,
-    }]
+    return [action.canDispute && { label: 'Dispute', variant: 'secondary', onClick: vm.openDispute }]
   }
 
   return []
@@ -188,18 +216,19 @@ function actionButtons(action, vm) {
 /**
  * The line above the bar, for a control that is present but unpressable.
  *
- * Cool-off is the only such case. When the pause ends before this loss
- * settles, the date is a promise the Pilot can act on. When it outlasts the
- * case, "you can dispute again on 28 Aug" is true and useless — the money
- * goes on the 20th — so the note says that instead of leaving the Pilot to
- * compare two dates himself.
+ * Cool-off is the only such case, and the money card's guidance already
+ * states the pause and its date. This note exists for the one fact that
+ * line cannot carry: when the pause outlasts the case, "you can dispute
+ * again on 28 Aug" is true and useless — the money goes on the 20th — so the
+ * bar says so, beside the greyed button, instead of leaving the Pilot to
+ * compare two dates himself. When the pause ends in time, the card has
+ * already said everything and the bar says nothing twice.
  */
 function actionNote(action) {
   if (!action || action.mode !== 'offers' || !action.disputePaused) return null
+  if (!action.coolOffOutlastsCase) return null
 
-  return action.coolOffOutlastsCase
-    ? `Disputing is paused till ${action.coolOffEnds} — past ${action.deductionOn}, when this loss is settled.`
-    : `Disputing is paused till ${action.coolOffEnds}.`
+  return `The pause runs past ${action.deductionOn}, when this loss is settled.`
 }
 
 export { SectionRow }

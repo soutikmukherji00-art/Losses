@@ -9,7 +9,10 @@
  * The copy rules these lines are written against, because they are easy to
  * break by accident:
  *  · ~3 seconds of reading. Bylines stay at 6-8 words; anything longer isn't
- *    finished before the popup closes.
+ *    finished before the popup closes. The dispute byline now runs to 14 and
+ *    is the exception, not a new licence: it carries two facts because both
+ *    were asked for. If a third flow wants two facts, raise CONFIRMATION_MS
+ *    rather than letting every popup outgrow its own dwell time.
  *  · Accept may never promise a waiver, odds, or a dated reply (KRD F12/F7).
  *    "We will tell you before your payout" is the only timing it can honestly
  *    give — no "the team may cancel it", no "reply in 7 days".
@@ -25,8 +28,18 @@ const CONFIRMATIONS = {
     byline: 'We will tell you before your payout.',
   },
   dispute: {
-    headline: 'Dispute sent',
-    byline: 'Nothing is deducted while we check.',
+    headline: 'Raised Dispute',
+    // Two facts, in the order the Pilot wants them: it left, and nothing
+    // moves while it is away. This is the one byline over the 6-8 word rule
+    // above — see the note on CONFIRMATION_MS.
+    byline: 'Your dispute is sent to the team. Nothing is deducted while we check.',
+  },
+  // Wrong pickup's PSEUDO dispute — on record, not under review. It must not
+  // borrow `dispute` above: "while we check" promises a check nobody runs,
+  // on the one loss type where nothing was ever going to be deducted.
+  pseudoDispute: {
+    headline: 'Raised Dispute',
+    byline: 'Thank you. Your side is on record with the team.',
   },
   // Lost in Field — a claim that the parcel is already back at the hub. It
   // promises the check, never the credit: the hub scan decides that.

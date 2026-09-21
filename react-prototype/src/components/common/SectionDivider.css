@@ -1,10 +1,13 @@
+/* Same band as SectionHeader — same fill, same inset, same type step. The
+   two components differ in what they carry (this one a label, that one a
+   label and a total), never in what they are. */
 .section-divider {
-  background: var(--border-subtle);
-  padding: var(--space-4) var(--pad-screen);
+  background: var(--surface-group-head);
+  padding: var(--pad-band-y) var(--pad-screen);
 }
 .section-divider span {
-  font-size: var(--body-02-size);
-  line-height: var(--body-02-lh);
-  font-weight: var(--fw-demi);
-  color: var(--text-secondary);
+  font-size: var(--heading-05-size);
+  line-height: var(--heading-05-lh);
+  font-weight: var(--heading-05-weight);
+  color: var(--text-heading);
 }

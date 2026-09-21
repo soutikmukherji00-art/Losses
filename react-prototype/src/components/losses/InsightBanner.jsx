@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { LightbulbIcon, ChevronRightIcon } from '../common/icons.jsx'
 import '../common/Banner.css'
 import './InsightBanner.css'
@@ -12,9 +12,6 @@ import './InsightBanner.css'
  * meant to act on, and it was going past before it had been taken in.
  */
 const ROLL_MS = 7000
-
-/** The most habits the remedy line will ever name; the rest are behind "More". */
-const MAX_HABITS = 2
 
 /** How far a mouse travels before the gesture is a drag rather than a tap. */
 const DRAG_SLOP = 6
@@ -36,15 +33,17 @@ const SETTLE_MS = 120
  * it has in common with the loss entry point on My Earnings. Both are banners
  * in the same sense, so both are built from components/common/Banner.css and
  * the rules of the pattern live there. This file keeps only what is its own:
- * the habit line that measures itself, and the carousel.
+ * the carousel.
  *
  * Two lines, ~65px, about the height of one list row. That is the whole design
  * constraint: the block sits on top of the Needs-action list a Pilot opened the
  * screen for, so anything it takes is a loss they have to scroll to reach.
  *
- * Claim on top, remedy beneath. The loss count is deliberately absent from both
- * — it is the fact a Pilot acts on least, the claim reads in one line without
- * it, and the sheet states it the moment they tap through.
+ * LESSON ON TOP, BILL BENEATH (design call, 21 Sep): the heading is the habit
+ * as one sentence, the byline is "<loss type> cost you <amount>" with the
+ * amount as the card's one coloured thing. The loss count is deliberately
+ * absent from both — it is the fact a Pilot acts on least, and the sheet
+ * states it the moment they tap through.
  *
  *
  * `mode` is a sectional variant: 'rolling' — the default — lays every pattern
@@ -93,11 +92,7 @@ export default function InsightBanner({ insights, mode, index, onShowIndex, onOp
 
 /** One insight, in the banner pattern's own shape. */
 function InsightCard({ insight, onOpen }) {
-  const habits = useHabitsThatFit(insight?.id)
-
   if (!insight) return null
-
-  const shown = insight.habits.slice(0, habits.count)
 
   return (
     <button type="button" className="banner insight__body" data-tone="progress" onClick={() => onOpen(insight.id)}>
@@ -106,40 +101,42 @@ function InsightCard({ insight, onOpen }) {
       </span>
 
       <span className="banner__text">
-        {/* The claim, and the whole of it is accented except the verb: the
-            claim IS "this thing cost you this much", and "cost you" is only
-            the grammar joining the two. This banner has no countdown, so
-            the headline is the line that carries the colour and the advice
-            beneath it stays neutral. */}
-        <span className="banner__headline">
-          <span className="banner__accent">{insight.noun}</span> cost you{' '}
-          <b>{insight.amountLabel}</b>
+        {/* THE LESSON LEADS (design call, 21 Sep). The heading is the habit,
+            as one short imperative sentence in the primary ink — the banner
+            teaches first. It never wraps: the reason registry caps it at one
+            line (lossReasons.js `prevention.headline`) and the stylesheet
+            clips as the backstop, because a two-line heading here costs the
+            Pilot a list row they came for. */}
+        <span className="banner__headline insight__headline">
+          <span className="banner__strong">{insight.headline}</span>
         </span>
 
         <span className="banner__sub insight__byline">
-          <span className="insight__habits" ref={habits.ref}>
-            {/* The habits carry the weight, not the words introducing them:
-                this line exists to be acted on, and "Next time" is only the
-                grammar that frames it. */}
-            <span className="insight__label">Next time:</span>{' '}
-            {shown.map((habit, i) => (
-              <span key={habit}>
-                {i > 0 && <span className="insight__sep"> · </span>}
-                <span className="banner__strong">{habit}</span>
-              </span>
-            ))}
+          {/* THE BILL IS THE BYLINE — "Captain QC cost you ₹715" — and the
+              amount is the one coloured thing on the card: Demi in the tone's
+              accent, so it is noticed without being the heading.
+
+              CONDITIONAL ON A LOSS TYPE THAT DEDUCTS NOTHING. A wrong pickup
+              is informational — the Pilot was never charged for one — so
+              "wrong pickups cost you ₹65" is a bill he never got. "Can cost
+              you" keeps the figure, which is the parcels' real value and the
+              reason the habit is worth fixing, and states it as exposure. */}
+          <span className="insight__claim">
+            {insight.noun}
+            {insight.costsMoney === false ? ' can cost you ' : ' cost you '}
+            <span className="banner__accent insight__amount">{insight.amountLabel}</span>
+          </span>
+
+          {/* The way in, on the body's own row — the banner pattern's shape:
+              [icon] [heading / body + CTA]. A word and a chevron, and
+              deliberately not a nested button: the whole banner is already
+              the tap target that opens the sheet where the rest of the method
+              lives. The claim gives way to it, never the other way round. */}
+          <span className="banner__action">
+            <span className="banner__cta">See how</span>
+            <ChevronRightIcon size={18} stroke="var(--valmo-navy)" />
           </span>
         </span>
-      </span>
-
-      {/* The way in, in the pattern's own shape: a word and a chevron,
-          right-aligned. Deliberately not a nested button — the whole banner
-          is already the tap target that opens the sheet where the rest of
-          the method lives. It sits outside the measured habit span, so it
-          can never be the thing that gets dropped. */}
-      <span className="banner__action">
-        <span className="banner__cta">More</span>
-        <ChevronRightIcon size={18} stroke="var(--valmo-navy)" />
       </span>
     </button>
   )
@@ -298,42 +295,3 @@ function nearestIndex(el) {
   return best
 }
 
-/**
- * How many habits actually fit on the remedy line — the second one shows only
- * when there is room for it.
- *
- * Both fit on every loss type in today's registry, with ~30px to spare on the
- * widest at full width. The rolling track spends some of that on the peek, so
- * the measurement is now load-bearing rather than a formality: a pair too wide
- * for the narrower card drops to one rather than truncating, and "More" —
- * outside the measured span — survives either way.
- *
- * Renders optimistically at MAX_HABITS and steps down once if the span
- * overflows, so the common case settles in the first paint and the loop
- * always terminates.
- */
-function useHabitsThatFit(insightId) {
-  const ref = useRef(null)
-  const [count, setCount] = useState(MAX_HABITS)
-  const [measuredAt, remeasure] = useState(0)
-
-  // The first paint happens in the fallback face, which is wider than the
-  // brand face, so a measurement taken there can drop a habit that fits. The
-  // count is reset and taken again once the fonts are ready; without this,
-  // which habits a Pilot sees would depend on how fast the font loaded.
-  useEffect(() => {
-    let alive = true
-    document.fonts?.ready.then(() => { if (alive) remeasure((n) => n + 1) })
-    return () => { alive = false }
-  }, [])
-
-  useLayoutEffect(() => { setCount(MAX_HABITS) }, [insightId, measuredAt])
-
-  useLayoutEffect(() => {
-    const el = ref.current
-    if (!el || count <= 1) return
-    if (el.scrollWidth > el.clientWidth + 1) setCount(count - 1)
-  }, [count, insightId, measuredAt])
-
-  return { count, ref }
-}

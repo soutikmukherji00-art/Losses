@@ -7,7 +7,7 @@ import { TODAY } from '../state/helpers.js'
  * return, add your side — and those live in `useLossesApp.js` next to the
  * flows that raise them. This file covers the other half of the lifecycle:
  * the verdicts handed down by the review team, the timer, or the hub scan.
- * Without them a walkthrough can never reach the Past Losses bucket, because
+ * Without them a walkthrough can never reach the History bucket, because
  * nothing a Pilot can tap closes a case.
  *
  * The presenter panel turns each row into a button (§ Case lifecycle), so a

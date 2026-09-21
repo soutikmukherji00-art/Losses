@@ -4,8 +4,8 @@ import './SectionHeader.css'
 
 /**
  * Group header row above a list section — label left, running total right.
- * Used for "Needs Decision", "Disputes in Review", "Wrong Pickups" and
- * "Past Losses" (config/lossBuckets.js), the Loss Wise groups and the
+ * Used for "Needs Attention", "Team is checking", "Wrong Pickups" and
+ * "History" (config/lossBuckets.js), the Loss Wise groups and the
  * historic ledger's cycle groups.
  *
  * ONE container for every section head. "Wrong Pickups" used to carry its own

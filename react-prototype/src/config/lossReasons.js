@@ -104,6 +104,11 @@ export const LOSS_REASONS = {
     // group, it does not fit inside one.
     insightNoun: 'unclear delivery photos',
     prevention: {
+      // `headline` is the insight banner's first line — the habit as ONE
+      // short imperative sentence (design call, 21 Sep: the banner teaches
+      // first and bills second). It must fit one line at 13px inside a
+      // 244px card, so ≤ ~33 characters; the banner clips rather than wraps.
+      headline: 'Keep the delivery photo well lit',
       habits: ['light the parcel', 'hold phone still', 'show door number'],
       // The sheet's Tip, a sentence to a step.
       steps: [
@@ -136,6 +141,7 @@ export const LOSS_REASONS = {
     // group, it does not fit inside one.
     insightNoun: 'unclear pickup photos',
     prevention: {
+      headline: 'Take a bright, clear pickup photo',
       habits: ['light the parcel', 'hold phone still', 'show full label'],
       // The sheet's Tip, a sentence to a step.
       steps: [
@@ -148,7 +154,10 @@ export const LOSS_REASONS = {
 
   PICKUP_QC_MISMATCH: {
     code: 'PICKUP_QC_MISMATCH',
-    feName: 'Secondary QC mismatch',
+    // Named for WHO DID IT and WHAT THEY DID. "Secondary QC mismatch" is the
+    // operations term for the check; "Captain rejected the QC" is the event
+    // the Pilot lived through, and the hub captain is a person he knows.
+    feName: 'Captain rejected the QC',
     // Master table row 5.
     masterReason: 'Pickup vs QC mismatch',
     debitableEntity: 'Lm FE',
@@ -164,10 +173,12 @@ export const LOSS_REASONS = {
     tip: 'Give the hub captain the exact package you picked up from the customer.',
     actions: ['accept', 'dispute'],
     remedy: null,
-    // Plural noun phrase for insight sentences — the feName heads a list
-    // group, it does not fit inside one.
-    insightNoun: 'QC mismatches',
+    // The subject of an insight sentence — "… cost you ₹715". A separate
+    // field from `feName` because the name heads a list group and does not
+    // fit inside a sentence.
+    insightNoun: 'QC mismatch',
     prevention: {
+      headline: 'Give the captain the exact parcel',
       habits: ['open pickup list', 'match parcel', 'one seller at a time'],
       // The sheet's Tip. One sentence, so one step.
       steps: [
@@ -202,12 +213,17 @@ export const LOSS_REASONS = {
     ],
     explain: 'Pickup questions incorrectly answered.',
     tip: 'Fill out the form carefully.',
-    actions: ['add_side'],
+    // 'dispute' here is the PSEUDO dispute: the button and the sheet, without
+    // the review — the case never leaves INFO_ONLY, the record is marked and
+    // the page thanks the Pilot (useLossesApp submitSheet). No money is ever
+    // at stake on this reason, so there is nothing for a review to decide.
+    actions: ['add_side', 'dispute'],
     remedy: null,
     // Plural noun phrase for insight sentences — the feName heads a list
     // group, it does not fit inside one.
     insightNoun: 'wrong pickups',
     prevention: {
+      headline: 'Check the seller before pickup',
       habits: ['check seller name', 'match parcel', 'ask hub captain'],
       // The sheet's Tip. One sentence, so one step.
       steps: [
@@ -239,6 +255,7 @@ export const LOSS_REASONS = {
     // group, it does not fit inside one.
     insightNoun: 'lost shipments',
     prevention: {
+      headline: 'Scan every parcel at handover',
       habits: ['count at handover', 'bag by route', 'bring back same day'],
       // The sheet's Tip, a sentence to a step. The second is reassurance
       // rather than an instruction, and it is the business's own wording on
@@ -267,6 +284,7 @@ const FALLBACK_REASON = {
   tip: 'Contact your hub captain if you need help with this case.',
   insightNoun: 'these losses',
   prevention: {
+    headline: 'Ask your hub captain about this',
     habits: ['ask hub captain'],
     steps: ['Your hub captain can tell you what this loss was about.'],
   },

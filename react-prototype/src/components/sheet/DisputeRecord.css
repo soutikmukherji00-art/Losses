@@ -1,23 +1,47 @@
-/* No panel, no tint, no border. The section's own white ground and the type
-   scale do the work — a standing is a fact, not an alert. */
-.dispute-record__figure {
-  font-size: var(--display-01-size);
-  line-height: var(--display-01-lh);
-  font-weight: var(--display-01-weight);
-  color: var(--text-strong);
+/* Sits in the sheet's foot, directly above the commit button — the same
+   slot the ActionBar gives a note on the loss page. */
+.dispute-record {
+  padding: 0 var(--pad-sheet) var(--space-12);
+}
+
+/* THE METER — three hairline segments across the full width, filled to the
+   count. Grey until the last step. 3px, not 4: at the full width a 4px bar
+   started to read as a progress bar, and this is a tally, not progress. */
+.dispute-record__meter {
+  display: flex;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.dispute-record__seg {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border-subtle);
+}
+
+.dispute-record__seg[data-on] {
+  background: var(--valmo-grey-mid-01);
+}
+
+.dispute-record__line {
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  font-weight: var(--body-03-weight);
+  color: var(--text-secondary);
+}
+
+.dispute-record__fraction {
+  font-weight: var(--fw-demi);
+  color: var(--text-primary);
   font-variant-numeric: tabular-nums;
 }
 
-/* The one place emphasis is earned: the last count before the pause. Ink
-   only — the same amber the app uses for a live consequence. */
-.dispute-record[data-at-limit] .dispute-record__figure {
-  color: var(--text-warning-ink);
+/* The last step, and only the last step, in the warning ink. */
+.dispute-record[data-last] .dispute-record__seg[data-on] {
+  background: var(--valmo-orange-main);
 }
 
-.dispute-record__byline {
-  margin-top: var(--gap-tight);
-  font-size: var(--body-03-size);
-  line-height: var(--body-03-lh);
-  font-weight: var(--fw-book);
-  color: var(--text-secondary);
+.dispute-record[data-last] .dispute-record__fraction {
+  color: var(--text-warning-ink);
 }

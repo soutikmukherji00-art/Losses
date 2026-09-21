@@ -1,0 +1,10 @@
+/* A banner that is not a control: the shared shape without the hand. */
+.grace-banner {
+  cursor: default;
+}
+
+/* Same step below as the insight banner it stands in for — see
+   InsightBanner.css `.insight` for the arithmetic. */
+.banner-slot:has(.grace-banner) {
+  padding-bottom: calc(var(--gap-heading-above) - var(--space-12));
+}

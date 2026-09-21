@@ -3,39 +3,19 @@ import { CheckCircleIcon } from '../common/icons.jsx'
 import './StatusHero.css'
 
 /**
- * Slot 2 — the one block a Pilot is guaranteed to read, and on a phone often
- * the only one they read before deciding whether to scroll.
+ * The money card — the one block a Pilot is guaranteed to read. Four
+ * answers in a fixed order: how much (the figure, and what it was going to
+ * be), the clock (a badge while one runs, a dated byline once it has
+ * stopped), where the money stands (the statement), and what to do about it
+ * (the guidance, divided off by a rule, with the one सुनें on the page that
+ * reads a sentence a Pilot actually needs to hear). Every state fills all
+ * four; the hero contract in config/caseStates.js enforces it.
  *
- * It answers four questions in a fixed order, and the order is the design:
- * the money first (it is what the Pilot came for and what the list row
- * promised), then the clock beside it, then where that money stands, then
- * what to do about it. Nothing here is optional — every state fills all four,
- * which is enforced upstream by the hero contract in config/caseStates.js.
- *
- * TWO POLES, TWO NATURES. Row 1 is money left, clock right, and the top-right
- * corner belongs to the clock alone. The सुनें control used to sit there too —
- * two white pills of the same size and shape, one of them read-only
- * information and the other a control, separated by nothing but a 1px border.
- * It now sits below the rule, ON the guidance line, which is the sentence on
- * this card actually worth hearing: the figure and the clock do not need
- * reading aloud, and the instruction does. Sharing the row rather than taking
- * one of its own is what keeps the card short — the control costs the
- * sentence some width, which is cheaper than costing the card a whole row.
- *
- * (It is therefore the one audio control on the page that is NOT top-right of
- * its block. That inconsistency is deliberate and was weighed — see the design
- * call; the alternative was two indistinguishable pills in one corner.)
- *
- * The payment line is NOT here. It used to ride in as a third line under the
- * status — a filing reference sitting between "where your money stands" and
- * "what you can do about it", in the one block that has to be readable at a
- * glance. It lives with the other money facts in slot 3 now.
- *
- * Tone still comes from money position, never severity — the one thing on the
- * page that says where the money stands without being read.
+ * The surface is neutral in every state; tone lives on the figure and its
+ * byline, and on the badge while a clock runs.
  */
 export default function StatusHero({
-  tone, mark, figure, figureWas, chip, text, guidance, audio = true,
+  tone, mark, figure, figureWas, chip, chipAttention, text, guidance,
 }) {
   const toneClass = tone ? ` status-hero--${tone.replace(/_/g, '-')}` : ''
 
@@ -46,10 +26,8 @@ export default function StatusHero({
     <div className={`status-hero${toneClass}`} role="status">
       <div className="status-hero__lead">
         <span className="status-hero__figure">{figure}</span>
-        {/* What it was going to be. The earnings card's own device, so a
-            struck figure means the same thing wherever it appears. */}
         {figureWas && <s className="status-hero__was">{figureWas}</s>}
-        {chip && <span className="status-hero__chip">{chip}</span>}
+        {chip && chipAttention && <span className="status-hero__chip">{chip}</span>}
       </div>
 
       <div className="status-hero__line">
@@ -61,12 +39,14 @@ export default function StatusHero({
         <span className="status-hero__text">{text}</span>
       </div>
 
-      {(guidance || audio) && (
+      {chip && !chipAttention && <div className="status-hero__date">{chip}</div>}
+
+      {guidance && (
         <>
           <div className="status-hero__rule" />
           <div className="status-hero__foot">
-            {guidance && <div className="status-hero__guidance">{guidance}</div>}
-            {audio && <AudioChip />}
+            <div className="status-hero__guidance">{guidance}</div>
+            <AudioChip />
           </div>
         </>
       )}

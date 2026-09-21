@@ -185,3 +185,67 @@
 .control-actions__btn[data-tone="danger"]:hover {
   background: #FDF3F2;
 }
+
+/* ---- multiselect: a set of options, any number on ---------------------- */
+.control-multi {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.control-multi__opt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 6px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  color: #6B7280;
+  cursor: pointer;
+}
+
+.control-multi__opt:hover { background: #F1F3F7; }
+.control-multi__opt:focus-visible { outline: 2px solid #4B5BD6; outline-offset: -2px; }
+.control-multi__opt[data-on="true"] { color: #1F2937; }
+
+.control-multi__box {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border: 1px solid #C7CBD4;
+  border-radius: 4px;
+  background: #FFFFFF;
+  color: transparent;
+}
+
+.control-multi__opt[data-on="true"] .control-multi__box {
+  border-color: #2F3B8C;
+  background: #2F3B8C;
+  color: #FFFFFF;
+}
+
+.control-multi__label {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The figure that says why an option is worth picking — kept quiet, and
+   never allowed to push the name out of the row. */
+.control-multi__meta {
+  flex: none;
+  font-size: 11px;
+  line-height: 15px;
+  color: #9096A2;
+}
