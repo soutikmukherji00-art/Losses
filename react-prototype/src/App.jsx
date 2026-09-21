@@ -15,6 +15,7 @@ import InsightSheet from './components/losses/InsightSheet.jsx'
 import HistoricBreakupSheet from './components/losses/HistoricBreakupSheet.jsx'
 import DisputeHistorySheet from './components/detail/DisputeHistorySheet.jsx'
 import ImageViewer from './components/common/ImageViewer.jsx'
+import CoachMark from './components/common/CoachMark.jsx'
 import { ListRowDesignProvider } from './components/common/ListRowDesign.jsx'
 
 /**
@@ -60,6 +61,10 @@ export default function App() {
                 the sheets and below the confirmation popup — see
                 ImageViewer.css. */}
             {vm.photoViewer && <ImageViewer photo={vm.photoViewer} />}
+            {/* The first-run tour, over whichever screen its step points at
+                — see config/ftuxTour.js. `key` so each step measures its own
+                target from a clean mount rather than a stale rect. */}
+            {vm.ftux?.step && <CoachMark key={vm.ftux.step.id} ftux={vm.ftux} />}
             {/* Raised by whichever flow just submitted, over whatever screen it
                 landed on — see config/confirmations.js. `key` so a second
                 confirmation gets its own 3-second timer rather than inheriting

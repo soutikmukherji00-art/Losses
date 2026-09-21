@@ -55,7 +55,7 @@ export default function CaseDetailScreen({ vm }) {
 
             The jump link takes a Pilot who already knows the story straight
             to Education without scrolling past the money and the proof. */}
-        <Section lead title={v.identity.title} action={<AudioChip size="sm" />}>
+        <Section lead title={v.identity.title} action={<AudioChip size="sm" />} ftux="what-happened">
           <div className="case-detail__awb">{v.identity.sub}</div>
           <div className="case-detail__prose">{v.explanation.value}</div>
 
@@ -69,7 +69,7 @@ export default function CaseDetailScreen({ vm }) {
         {/* 3 · money — figure, byline, clock, and the one "what now" line
             with its सुनें. Neutral card in every state; tone lives on the
             figure and its byline, and on the badge while a clock runs. */}
-        <Section panel>
+        <Section panel ftux="money">
           <StatusHero {...v.banner} />
         </Section>
 
@@ -146,7 +146,7 @@ export default function CaseDetailScreen({ vm }) {
 
       </div>
 
-      <ActionBar buttons={actionButtons(v.action, vm)} note={actionNote(v.action)} />
+      <ActionBar buttons={actionButtons(v.action, vm)} note={actionNote(v.action)} ftux="action-bar" />
 
       {vm.showReturnedClaim && <ReturnedClaimSheet view={v} vm={vm} />}
     </div>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import data from '../data/activeDataset.js'
 import { fmt, inCurrentCycle, parseShortDate, settledOn, TODAY } from './helpers'
 import { resolveCaseView } from './resolveCaseView.js'
@@ -18,6 +18,7 @@ import {
   ENTRY_STATE_TREATMENT, entryTimerText, resolveEntryState,
 } from '../config/lossesEntryStates.js'
 import { getDisputeStanding } from '../config/disputeCoolOff.js'
+import { FTUX_SCREEN, FTUX_STEPS, resolveFtuxStep } from '../config/ftuxTour.js'
 import { resolveGrace } from '../config/gracePeriod.js'
 import { applyGrace } from './grace.js'
 import { applyDisputeOnly } from './flowVariant.js'
@@ -95,6 +96,9 @@ const initialState = {
   // pairing, without editing a fixture until the ranking happens to produce
   // it. See config § Insight banners.
   insightPicks: [],
+  // Which step of the first-run tour is showing, or null for no tour.
+  // See config/ftuxTour.js.
+  ftuxStep: null,
   // Which confirmation popup is up, by id from config/confirmations.js.
   // Every flow that submits something sets this; the popup clears it itself
   // after 3 seconds.
@@ -214,6 +218,37 @@ export function useLossesApp() {
     setState(initialState)
   }
 
+  /**
+   * THE TOUR FOLLOWS THE PILOT. A step whose `advance` is 'tap' is finished
+   * by the Pilot pressing the real control, and that control navigates on
+   * its own — so the tour moves on when the screen becomes the next step's
+   * screen, rather than by driving the navigation itself. Anything else
+   * would be a second opinion about where the app is.
+   */
+  useEffect(() => {
+    setState((s) => {
+      if (s.ftuxStep == null) return s
+      const cur = FTUX_STEPS[s.ftuxStep]
+      const next = FTUX_STEPS[s.ftuxStep + 1]
+      if (!cur || cur.advance !== 'tap' || !next) return s
+      return FTUX_SCREEN[s.screen] === next.screen ? { ...s, ftuxStep: s.ftuxStep + 1 } : s
+    })
+  }, [state.screen])
+
+  /**
+   * The presenter's "Start FTUX". It puts the app where the tour's first
+   * step describes: My Earnings, with the losses entry point present —
+   * that widget is the step's target, and the tour cannot introduce a
+   * surface the current arrangement has switched off.
+   */
+  const startFtux = () => setState((s) => ({
+    ...s,
+    ftuxStep: 0,
+    screen: 'myearnings',
+    earningsEntry: true,
+    confirmation: null,
+  }))
+
   /** Presenter navigation: every jump target is a preset (surface or case). */
   const go = (presetId) => {
     const preset = getPreset(presetId)
@@ -269,7 +304,7 @@ export function useLossesApp() {
     state,
     vm,
     actions: {
-      patch, go, togglePdCard, resetPrototype, setWrongDisputes, setGracePeriod,
+      patch, go, togglePdCard, resetPrototype, startFtux, setWrongDisputes, setGracePeriod,
       setLossesTab, setEarningsEntry, setHistoricPlacement,
       setFlowVariant, setLossesLayout, setLineItemDesign, setLineItemHeading,
       setInsightBannerMode, toggleInsightPick,
@@ -965,6 +1000,27 @@ function computeViewModel(state, props, pool, { patch, go, togglePdCard, updateC
     photoViewer: state.photoViewer && {
       ...state.photoViewer,
       close: () => patch({ photoViewer: null }),
+    },
+
+    // ---- first-run tour (config/ftuxTour.js) ----
+    // The step's copy is resolved against the action this page is actually
+    // offering, so the last one can never name a button that is not there:
+    // a Lost-in-Field loss is "needs attention" too, and its control says
+    // "I already returned it".
+    ftux: state.ftuxStep == null ? null : {
+      step: resolveFtuxStep(state.ftuxStep, {
+        replyDays,
+        actionMode: caseView.action?.mode || null,
+        ctaLabel: caseView.action?.mode === 'recovery'
+          ? caseView.action.primaryLabel
+          : 'Dispute',
+      }),
+      index: state.ftuxStep,
+      total: FTUX_STEPS.length,
+      next: () => patch({
+        ftuxStep: state.ftuxStep + 1 < FTUX_STEPS.length ? state.ftuxStep + 1 : null,
+      }),
+      skip: () => patch({ ftuxStep: null }),
     },
 
     // ---- confirmation popup (config/confirmations.js) ----

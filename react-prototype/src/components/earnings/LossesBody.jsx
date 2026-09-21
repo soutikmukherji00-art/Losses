@@ -70,7 +70,9 @@ export default function LossesBody({ vm }) {
 
       {vm.showEmptyMarked && <EmptyState />}
 
-      {vm.showNeedsActionSection && <RowGroup rows={vm.needsActionRows} />}
+      {/* `ftuxFirst` marks the first needs-action row as the first-run
+          tour's second target — the loss the Pilot is asked to open. */}
+      {vm.showNeedsActionSection && <RowGroup rows={vm.needsActionRows} ftuxFirst />}
       {vm.showPendingSection && <RowGroup rows={vm.pendingRows} />}
 
       {vm.showUnifiedSection && (
@@ -123,13 +125,13 @@ export default function LossesBody({ vm }) {
   )
 }
 
-function RowGroup({ rows }) {
+function RowGroup({ rows, ftuxFirst = false }) {
   return (
     <div>
       {rows.map((r, i) => (
         <div key={i}>
           {r.showGroup && <SectionHeader label={r.group} total={r.groupTotal} />}
-          <ListRow row={r} onClick={r.open} />
+          <ListRow row={r} onClick={r.open} ftux={ftuxFirst && i === 0 ? 'loss-row' : undefined} />
         </div>
       ))}
     </div>

@@ -53,7 +53,7 @@ export default function LossesEntryPoint({ entryPoint }) {
   const Icon = ICONS[icon] || PackageXIcon
 
   return (
-    <button className="banner losses-entry" data-tone={tone} onClick={open}>
+    <button className="banner losses-entry" data-tone={tone} data-ftux="losses-entry" onClick={open}>
       {/* `data-animate` rather than a second class: one mark that may or may
           not be moving, not two kinds of mark. */}
       <span className="banner__icon losses-entry__icon" data-animate={animateIcon || undefined}>

@@ -1,0 +1,124 @@
+/* Clipped to the device, and transparent to the thumb by default — only the
+   blockers and the bubble take taps. */
+.coach {
+  position: absolute;
+  inset: 0;
+  z-index: 45;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* THE HOLE. An empty rectangle over the target whose shadow paints the rest
+   of the screen; the target itself is untouched underneath, at full opacity
+   and still tappable, because this element takes no pointer events. */
+.coach__hole {
+  position: absolute;
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 0 9999px var(--scrim);
+  transition: top 160ms ease-out, left 160ms ease-out, width 160ms ease-out, height 160ms ease-out;
+}
+
+.coach__block {
+  position: absolute;
+  pointer-events: auto;
+}
+
+.coach__bubble {
+  position: absolute;
+  left: var(--pad-screen);
+  right: var(--pad-screen);
+  padding: var(--pad-panel);
+  border-radius: var(--radius-md);
+  background: var(--valmo-white);
+  box-shadow: 0 8px 24px rgba(9, 45, 94, 0.24);
+  pointer-events: auto;
+  animation: coach-in 180ms ease-out;
+}
+
+/* The caret is the bubble's own corner turned 45°, so it is the same white
+   and carries no edge of its own. */
+.coach__caret {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--valmo-white);
+  transform: rotate(45deg);
+}
+.coach__bubble[data-place="below"] .coach__caret { top: -6px; }
+.coach__bubble[data-place="above"] .coach__caret { bottom: -6px; }
+
+.coach__title {
+  font-size: var(--heading-03-size);
+  line-height: var(--heading-03-lh);
+  font-weight: var(--heading-03-weight);
+  color: var(--text-heading);
+}
+
+.coach__body {
+  margin-top: var(--gap-tight);
+  font-size: var(--body-02-size);
+  line-height: var(--body-02-lh);
+  font-weight: var(--body-02-weight);
+  color: var(--text-secondary);
+}
+
+.coach__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-lead);
+  margin-top: var(--space-12);
+}
+
+/* The bare fraction the app already uses for a standing (DisputeRecord). */
+.coach__count {
+  font-size: var(--body-03-size);
+  line-height: var(--body-03-lh);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.coach__buttons {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-stack);
+}
+
+/* One object, two ranks — same height, same inset, same type, so the pair
+   reads as a pair. The app's own button ladder: outlined secondary, solid
+   navy primary, primary on the right. */
+.coach__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--control-height-sm);
+  padding: 0 var(--space-16);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: var(--button-01-size);
+  line-height: var(--button-01-lh);
+  font-weight: var(--button-01-weight);
+  cursor: pointer;
+}
+
+.coach__btn--skip {
+  border: 1px solid var(--valmo-navy);
+  background: var(--valmo-white);
+  color: var(--valmo-navy);
+}
+
+.coach__btn--next {
+  border: 1px solid var(--valmo-navy);
+  background: var(--valmo-navy);
+  color: var(--text-on-navy);
+}
+
+@keyframes coach-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coach__bubble { animation: none; }
+  .coach__hole { transition: none; }
+}

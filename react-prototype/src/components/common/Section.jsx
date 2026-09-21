@@ -14,13 +14,13 @@ import './Section.css'
  * section can carry, the way "Base pay" carries its total.
  */
 export default function Section({
-  title, value, action, children, flush = false, panel = false, lead = false,
+  title, value, action, children, flush = false, panel = false, lead = false, ftux,
 }) {
   // `lead` is the one section per page that names the page's subject (the
   // loss detail's reason): its head steps up to Heading 03, between the
   // page title and the other heads.
   return (
-    <section className={`sec${panel ? ' sec--panel' : ''}${lead ? ' sec--lead' : ''}`}>
+    <section className={`sec${panel ? ' sec--panel' : ''}${lead ? ' sec--lead' : ''}`} data-ftux={ftux}>
       {(title || value) && (
         <header className="sec__head">
           <h2 className="sec__title">{title}</h2>

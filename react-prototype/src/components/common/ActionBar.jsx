@@ -26,15 +26,18 @@ import './ActionBar.css'
  * The button itself is the shared `Button` primitive — this component owns
  * only the bar: the sticky chrome, and how the buttons divide its width.
  */
-export default function ActionBar({ buttons = [], note = null }) {
+export default function ActionBar({ buttons = [], note = null, ftux }) {
   const shown = buttons.filter(Boolean)
   const notes = [].concat(note || []).filter(Boolean)
   // A note with no buttons is a legitimate bar: the states with nothing to
   // press are exactly the ones where "nothing is deducted" is news.
   if (!shown.length && !notes.length) return null
 
+  // `ftux` rides on the bar rather than on a wrapper so that a state with
+  // no bar at all has no tour target either — the tour then skips the step
+  // instead of pointing at an empty strip.
   return (
-    <div className="action-bar">
+    <div className="action-bar" data-ftux={ftux}>
       {notes.map((text) => (
         <div className="action-bar__note" key={text}>
           <InfoIcon />

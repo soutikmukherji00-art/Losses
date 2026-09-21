@@ -25,6 +25,19 @@ import { DATA_SOURCE, DATA_SOURCES, setDataSource } from '../data/activeDataset.
 export function getPresenterSections({ state, actions, vm }) {
   return [
     {
+      title: 'First-run tour',
+      controls: [
+        {
+          type: 'actions',
+          actions: [
+            // Puts the app where step 1 describes and starts the tour —
+            // see config/ftuxTour.js for when it fires for a real Pilot.
+            { id: 'ftux', label: 'Start FTUX', run: actions.startFtux },
+          ],
+        },
+      ],
+    },
+    {
       title: 'Global variants',
       controls: [
         // The losses area's shape, as three independent axes rather than a

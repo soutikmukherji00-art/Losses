@@ -56,7 +56,7 @@ import './ListRow.css'
  * wherever there is a thumb the thumb still sets the height, so the list
  * keeps its rhythm.
  */
-export default function ListRow({ row, onClick }) {
+export default function ListRow({ row, onClick, ftux }) {
   const design = useListRowDesign()
 
   // Which of the two body lines leads (config/lineItemDesigns.js). Only the
@@ -78,7 +78,7 @@ export default function ListRow({ row, onClick }) {
   // the stylesheet: the rail's width is a consequence of the CLOCK being in
   // it, and two of the four designs put it there.
   return (
-    <div className="list-row" data-design={design.id} data-clock={design.clock} onClick={onClick}>
+    <div className="list-row" data-design={design.id} data-clock={design.clock} data-ftux={ftux} onClick={onClick}>
       {/* `row.thumb` is null on a dataset that may not invent one and a row
           that carries no photograph of its own (state/productImages.js). An
           <img> with no source is a broken-image glyph, so the row simply
