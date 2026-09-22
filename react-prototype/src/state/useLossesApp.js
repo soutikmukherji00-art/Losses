@@ -800,9 +800,13 @@ function computeViewModel(state, props, pool, { patch, go, togglePdCard, updateC
     basePay: data.basePay,
     staticCards: PD_CARDS_RAW,
     expanded: state.pdExpanded || PD_EXPANDED_DEFAULT,
-    openLine: (key, isModal) => (isModal
-      ? patch({ pdModal: 'lostShipments' })
-      : togglePdCard(key)),
+    // Every loss-derived line opens the cases behind it, addressed by the
+    // line's own slug — `pdModal` used to be the single literal
+    // 'lostShipments', which is why only that one line was ever tappable.
+    openLine: (key, isModal) => (isModal ? patch({ pdModal: key }) : togglePdCard(key)),
+    // The app's one row builder, so a loss in the payment breakdown reads as
+    // the same row it does in the losses list.
+    rowFor: buildRow,
     // A line in the breakdown opens the case behind it, which is the other
     // half of the loss page's promise about where its money went.
     openCase: (id) => patch({
@@ -875,18 +879,12 @@ function computeViewModel(state, props, pool, { patch, go, togglePdCard, updateC
     },
     showReturnedClaim: state.returnedClaimOpen && s === 'case',
     hubCheckDays,
-    // "Add your side" (info-only cases). Per-case for the same reason: one
-    // Pilot's note about one wrong pickup is not a note about every case.
-    sideText: record.sideText || '',
-    sideSent: !!record.sideSent,
-    sideLabel: record.sideSent ? 'Saved ✓' : 'Submit',
-    secondaryCtaLabel: record.sideSent ? 'Your side is saved' : 'Add your side (optional)',
-    onSide: (e) => updateCase(record.id, { sideText: e.target.value, sideSent: false }),
-    submitSide: () => {
-      if (!(record.sideText || '').trim()) return
-      updateCase(record.id, { sideSent: true })
-      patch({ confirmation: 'addSide' })
-    },
+    // "Add your side" is gone (design call, 22 Sep). A wrong pickup had a
+    // textarea and a Submit of its own on the L1 page, one scroll above a
+    // Dispute button whose sheet asks the same question with the same
+    // free-text field — two inputs for one sentence, only one of which
+    // reached the team. The sheet is the survivor, so the page's own field,
+    // its per-case draft state and its confirmation went with the card.
 
     // ---- case lifecycle (presenter § Case lifecycle) ----
     caseOutcomes,
@@ -1184,11 +1182,13 @@ function computeViewModel(state, props, pool, { patch, go, togglePdCard, updateC
     paymentAmount: payment.paymentTotal,
     basePay: payment.basePay,
     pdCards: payment.cards,
-    showLostShipmentsModal: state.pdModal === 'lostShipments',
-    closeLostShipmentsModal: () => patch({ pdModal: null }),
-    lostShipmentsSubtitle: payment.lostShipments.subtitle,
-    lostShipmentItems: payment.lostShipments.items,
-    lostShipmentsTotal: payment.lostShipments.total,
+    // The drill-down for whichever breakdown line was tapped, or null. One
+    // sheet serves every loss-derived line, because every one of them is the
+    // same question ("which losses is this figure?") asked of a different
+    // subset of the same pool.
+    paymentLineSheet: payment.lineSheets[state.pdModal]
+      ? { ...payment.lineSheets[state.pdModal], close: () => patch({ pdModal: null }) }
+      : null,
 
     // ---- awareness overlay ----
     showAwareness: (rawScreen === 'awareness' || (props.awarenessOverlay ?? false)) && s === 'home' && !state.awSeen,

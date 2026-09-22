@@ -45,7 +45,12 @@ const sum = (rows, pick) => rows.reduce((t, r) => t + pick(r), 0)
 /** "- ₹48" / "+ ₹20" — a signed figure, so a line states its own direction. */
 const signed = (n) => (n < 0 ? `- ${fmt(Math.abs(n))}` : `+ ${fmt(n)}`)
 
-export function buildPaymentBreakdown(cases, { basePay, staticCards, expanded, openLine, openCase }) {
+/** A drill-down's key — the line's own label, slugged, so the sheet a tap
+ *  opens is addressed by the line it came from and nothing has to keep a
+ *  second list of ids in sync. */
+const slug = (label) => label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+
+export function buildPaymentBreakdown(cases, { basePay, staticCards, expanded, openLine, openCase, rowFor }) {
   const moved = cases
     .map((rec) => ({ rec, line: getReason(rec.reasonCode).paymentLine }))
     .filter((x) => x.line)
@@ -53,18 +58,40 @@ export function buildPaymentBreakdown(cases, { basePay, staticCards, expanded, o
   const debits = moved.filter((x) => DEBIT_STATES.includes(x.rec.caseState))
   const credits = moved.filter((x) => CREDIT_STATES.includes(x.rec.caseState))
 
-  // The Deductions → "Lost Shipments" line, and the cases behind it. This is
-  // the set the drill-down lists, so the line and its detail cannot disagree.
-  const lostShipments = debits
-    .filter((x) => x.line.label === 'Lost Shipments')
-    .map(({ rec }) => ({
-      id: rec.id,
-      awb: rec.awb,
-      date: rec.debitDate || rec.date,
-      amt: rec.amt,
-      open: () => openCase(rec.id),
-    }))
-    .sort((a, b) => b.amt - a.amt)
+  /**
+   * EVERY LINE BUILT FROM CASES OPENS THOSE CASES — one rule, not a list of
+   * exceptions (design call, 22 Sep).
+   *
+   * "Lost Shipments" was the only tappable line here, hardcoded by label, so
+   * "Shipment Loss for Junk/Mismatch" — which is built from exactly the same
+   * pool, by exactly the same code, and is the line three of the five loss
+   * types actually land on — was a dead end. A Pilot reading a deduction they
+   * do not recognise had a way through on one line and not the other, for no
+   * reason they could see.
+   *
+   * So the drill-down is a property of being loss-derived. The static rows
+   * (TDS, Facilitation Fee) stay flat, because there are no cases behind them
+   * to open.
+   *
+   * The rows are the app's ONE row builder, so a loss here IS its losses-list
+   * row — same reason, same AWB, same amount treatment, same chevron — and
+   * tapping it opens the same L1 page. It used to be a bespoke AWB/date/amount
+   * row that existed nowhere else in the app.
+   */
+  const sheets = {}
+  const sheetFor = (label, rows) => {
+    const key = slug(label)
+    sheets[key] = {
+      key,
+      title: label,
+      countLabel: `${rows.length} ${rows.length === 1 ? 'shipment' : 'shipments'}`,
+      total: fmt(sum(rows, (x) => x.rec.amt)),
+      rows: [...rows]
+        .sort((a, b) => b.rec.amt - a.rec.amt)
+        .map(({ rec }) => ({ ...rowFor(rec), open: () => openCase(rec.id) })),
+    }
+    return key
+  }
 
   /** Loss-derived rows for one card, one row per distinct payment line. */
   const lossItemsFor = (section) => {
@@ -79,13 +106,16 @@ export function buildPaymentBreakdown(cases, { basePay, staticCards, expanded, o
       items.push({
         label,
         amt: -sum(rows, (x) => x.rec.amt),
-        // Only the line with a drill-down behind it is tappable.
-        clickable: label === 'Lost Shipments',
+        sheetKey: sheetFor(label, rows),
       })
     })
 
     if (section === RETURN_CREDIT_LINE.section && credits.length) {
-      items.push({ label: RETURN_CREDIT_LINE.label, amt: sum(credits, (x) => x.rec.amt) })
+      items.push({
+        label: RETURN_CREDIT_LINE.label,
+        amt: sum(credits, (x) => x.rec.amt),
+        sheetKey: sheetFor(RETURN_CREDIT_LINE.label, credits),
+      })
     }
 
     return items
@@ -108,9 +138,9 @@ export function buildPaymentBreakdown(cases, { basePay, staticCards, expanded, o
       items: items.map((it) => ({
         label: it.label,
         amt: signed(it.amt),
-        cursor: it.clickable ? 'pointer' : 'default',
-        underline: !!it.clickable,
-        onClick: it.clickable ? () => openLine('lostShipments', true) : () => {},
+        cursor: it.sheetKey ? 'pointer' : 'default',
+        underline: !!it.sheetKey,
+        onClick: it.sheetKey ? () => openLine(it.sheetKey, true) : () => {},
       })),
     }
   })
@@ -127,10 +157,8 @@ export function buildPaymentBreakdown(cases, { basePay, staticCards, expanded, o
     },
     cards,
     paymentTotal: fmt(paymentTotal),
-    lostShipments: {
-      items: lostShipments.map((x) => ({ ...x, amtLabel: fmt(x.amt) })),
-      total: fmt(sum(lostShipments, (x) => x.amt)),
-      subtitle: `${lostShipments.length} ${lostShipments.length === 1 ? 'shipment' : 'shipments'} deducted from this payment`,
-    },
+    // Keyed by line slug — one entry per loss-derived line on the breakdown,
+    // which is the same set of lines that render tappable above.
+    lineSheets: sheets,
   }
 }

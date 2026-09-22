@@ -12,20 +12,29 @@ import { productImage, STOCK_PHOTOS } from './productImages.js'
  * they already know. Each (reason, state) pair only decides whether a slot
  * fills and with what:
  *
- *   1 identity     · reason        — FE name + AWB
- *   2 banner       · state         — tone + money statement
+ *   1 identity     · reason        — FE name + AWB, and the explanation under it
+ *   2 banner       · state         — tone + money statement + the "what now" line
  *   3 money        · reason+state  — credit pair (LiF returned); absent otherwise
- *   4 evidence     · reason        — photo groups; [] is a designed state
- *   5 explanation  · reason        — what happened (+ narrative + prevention)
- *   6 tracker      · state         — 3-step progress, awaiting states only
+ *   4 tracker      · state         — the dispute/accept timeline
+ *   4b narrative   · state         — the verdict, read as that log's last step
+ *   5 evidence     · reason        — photo groups; [] is a designed state
+ *   5b answers     · record        — the Pilot's own recorded responses
+ *   6 education    · reason        — how not to repeat it
  *   7 action       · reason∩state  — offers / paused / add-side / recovery / none
- *   9 footer       · state         — consequence or closure statement
  *
- * Prevention is the page's only forward-looking block, and it is a sub-group
- * of slot 5 rather than a slot of its own: what happened and how it doesn't
- * happen again are one topic, and a separate white block with its own heading
- * announced them as two. Slot 8 is therefore gone; the numbering keeps its
- * gap so the surviving slots don't renumber under readers of this file.
+ * THE TIMELINE SITS ABOVE THE PROOF (design call, 22 Sep). It used to be the
+ * second-to-last block, under the photos, the answers and the lesson — which
+ * meant the one thing a Pilot opens a disputed case to find out, where it has
+ * got to, was three sections of reference material down the page. Evidence
+ * and education are what a case is ABOUT; the tracker is where it IS, and on
+ * a case with a process running, where it is comes first.
+ *
+ * Education is the page's only forward-looking block, which is why it is
+ * last: every other slot is about the loss in front of the Pilot, and this
+ * one is about the next one. It was a sub-group of the explanation once, on
+ * the reasoning that what happened and how it doesn't happen again are one
+ * topic; it is its own slot now, with its own heading and its own सुनें, so
+ * it reads as something to act on rather than a tail on a paragraph.
  *
  * Money sits at 3 (design call, 10 Sep): after the Pilot reads what happened
  * to their money, where that money now sits is the next thing they need —
@@ -74,7 +83,7 @@ export function resolveCaseView({ record, stateId, ctx = {} }) {
 
   const moneyBlock = buildMoneyBlock(reason, state, c)
 
-  // Slot 7 (Education) — built once, so "What happened" can point a jump
+  // Slot 6 (Education) — built once, so "What happened" can point a jump
   // link at it without asking the same question about the reason twice.
   const education = buildPrevention(reason, state)
 
@@ -127,10 +136,10 @@ export function resolveCaseView({ record, stateId, ctx = {} }) {
     // is the next thing the Pilot needs (design call, 10 Sep).
     moneyBlock,
 
-    // 4 — evidence (reason-driven; [] is a legitimate, designed state)
+    // 5 — evidence (reason-driven; [] is a legitimate, designed state)
     evidence: buildEvidence(reason, record, ctx.catalogImages ?? false),
 
-    // 4 — explanation ("What happened"), now ahead of the money and evidence
+    // 1b — explanation ("What happened"), now ahead of the money and evidence
     // slots (design call, 21 Sep): the reason a Pilot opens this page at all
     // is to find out what happened, and reading the figure and the photos
     // before being told what they're looking at made both of those slots do
@@ -144,7 +153,7 @@ export function resolveCaseView({ record, stateId, ctx = {} }) {
     explanation: {
       value: record.explain || reason.explain,
       audio: true,
-      // A short way down to slot 8 without reading the money and evidence
+      // A short way down to slot 6 without reading the money and evidence
       // slots first — present only where there is somewhere to jump to.
       jumpToEducation: !!education,
     },
@@ -160,7 +169,7 @@ export function resolveCaseView({ record, stateId, ctx = {} }) {
     answers: buildAnswers(record),
     narrative: buildNarrative(state, record, c),
 
-    // 6 — progress tracker. A terminal state carries none of its own (a case
+    // 4 — progress tracker. A terminal state carries none of its own (a case
     // can close by silence, which never had a tracker to begin with), so the
     // ONE case where a closed page still owes one is read off the record: if
     // the Pilot ever accepted or disputed (`record.trackerKind`, set once at
@@ -177,7 +186,7 @@ export function resolveCaseView({ record, stateId, ctx = {} }) {
     // 7 — action block
     action: buildAction(reason, state, c),
 
-    // 8 — Education. Its own slot now, after the evidence rather than a
+    // 6 — Education. Its own slot now, after the evidence rather than a
     // sub-group of "What happened" before it — the flow reads what happened,
     // what it cost, the proof, and only then how to avoid it, which is also
     // the order the "What happened" jump link promises. Content is the
@@ -199,7 +208,7 @@ export function resolveCaseView({ record, stateId, ctx = {} }) {
 }
 
 /**
- * Slot 5's prevention sub-group. Every reason carries a `prevention` block, so
+ * Slot 6 (Education). Every reason carries a `prevention` block, so
  * this is present on almost every page — the exception is a case resolved in
  * the Pilot's favour, where the state sets `hidesPrevention` and telling them
  * to do better would contradict the verdict we just gave them.
@@ -218,7 +227,7 @@ function buildPrevention(reason, state) {
 }
 
 /**
- * Slot 5's narrative block. One hardcoded heading used to sit above every
+ * Slot 4b's narrative block. One hardcoded heading used to sit above every
  * `record.outcome`, so a silence timeout and a Pilot's own parcel return were
  * both reported as things "the team decided" — process fiction on the two
  * pages an angry Pilot is most likely to be reading. Each state now declares

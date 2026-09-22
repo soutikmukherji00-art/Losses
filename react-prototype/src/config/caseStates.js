@@ -115,6 +115,20 @@ const ACTION = {
  * status row and again in the guidance row. If a fact is in the figure or the
  * chip, no sentence repeats it.
  *
+ * TENSE FOLLOWS THE LIFECYCLE, and it is the fastest signal on the card that
+ * a case is over. A `terminal` state says everything in the PAST — the money
+ * moved or it didn't, and both are finished ("Nothing was deducted for
+ * this."). A live state says it in the present or the future, because the
+ * thing it describes has not happened yet ("Not deducted yet."). Two closed
+ * states were promising "Nothing WILL be deducted", which put a decided loss
+ * in the History bucket still describing something about to happen — the one
+ * thing that bucket exists to say it isn't.
+ *
+ * The exception is a line that is deliberately about the NEXT loss rather
+ * than this one: GRACE_WAIVED's guidance ("From 22 Aug, a loss you ignore…")
+ * and RETURNED_CREDITED's ("Nothing more will be deducted") are forward on
+ * purpose, and a closed case is allowed exactly one such sentence.
+ *
  * `guidance` is the one that changes the page's job. The controls stay in the
  * sticky ActionBar at the foot (design call: the action is at the bottom);
  * this line is what tells a Pilot, before they have scrolled anything, that
@@ -317,9 +331,14 @@ const CASE_STATES = {
       : 'You were right.'),
     // "Nothing MORE" would be a lie here: nothing was deducted in the first
     // place. It is the right word only where money actually moved.
+    //
+    // PAST TENSE, because this case is closed. "Nothing will be deducted"
+    // left a decided loss still describing something about to happen, which
+    // in the History bucket reads as a case that has not finished — the one
+    // thing that bucket exists to say it has. See the tense rule above.
     guidance: (c) => (c.record.waiveReason === 'sla_breach'
-      ? 'Our delay is never your cost. Nothing will be deducted.'
-      : 'Nothing will be deducted for this.'),
+      ? 'Our delay is never your cost. Nothing was deducted.'
+      : 'Nothing was deducted for this.'),
     actionBlock: ACTION.NONE,
     tracker: null,
     // Prevention is suppressed wherever the case was resolved in the Pilot's
@@ -343,7 +362,8 @@ const CASE_STATES = {
     chip: (c) => `Closed ${settledOn(c.record)}`,
     // "Closed" three times on one card — chip, statement, guidance.
     statement: () => 'The team decided in your favour.',
-    guidance: () => 'Nothing will be deducted for this.',
+    // Past, like every other line on a closed case — see the tense rule above.
+    guidance: () => 'Nothing was deducted for this.',
     actionBlock: ACTION.NONE,
     tracker: null,
     // Resolved in the Pilot's favour — see WAIVED above.

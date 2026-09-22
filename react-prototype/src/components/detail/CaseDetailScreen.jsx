@@ -6,7 +6,6 @@ import StatusHero from './StatusHero.jsx'
 import PhotoEvidenceGroup from './PhotoEvidenceGroup.jsx'
 import StatusTracker from './StatusTracker.jsx'
 import MoneyRemedyBlock from './MoneyRemedyBlock.jsx'
-import AddYourSideCard from './AddYourSideCard.jsx'
 import RecoveryActionCard from './RecoveryActionCard.jsx'
 import ReturnedClaimSheet from './ReturnedClaimSheet.jsx'
 import CatalogImagesLayer from '../common/CatalogImagesLayer.jsx'
@@ -76,6 +75,36 @@ export default function CaseDetailScreen({ vm }) {
         {/* 4 · money & remedy — payment pointer / recovery / credit pair */}
         {v.moneyBlock && <MoneyRemedyBlock money={v.moneyBlock} />}
 
+        {/* 5 · WHERE THE CASE STANDS — the dispute-to-resolution timeline,
+            ABOVE the proof (design call, 22 Sep).
+
+            It used to sit below the photos, the answers and the lesson, which
+            put the one thing a Pilot opens a "Team is checking" or a decided
+            dispute to find out — what has happened to it, and what happens
+            next — at the bottom of a page they had to scroll three sections
+            of reference material to reach. The evidence and the lesson are
+            what the case is ABOUT; the timeline is where it IS. Once a case
+            has a process running on it, where it is outranks what it is
+            about.
+
+            Unconditional rather than a branch on "is this a dispute": a
+            tracker only exists on a case that has one (resolveCaseView's
+            tracker slot — a live state's own, or the one a Pilot's accept or
+            dispute left behind), so the cases the design call names are
+            exactly the cases this moves, and every other page is unchanged.
+            A branch here would also break this file's one invariant: the slot
+            order never varies by loss type or state. */}
+        {v.tracker && <StatusTracker title={v.tracker.title} steps={v.tracker.steps} />}
+
+        {/* 5b · the verdict — what the team decided, or what happened to the
+            money. Directly under the timeline, as its own section: it is the
+            last step of that log said in full, so it travels with it. */}
+        {v.narrative && (
+          <Section title={v.narrative.head} action={<AudioChip size="sm" />}>
+            <div className="case-detail__prose">{v.narrative.value}</div>
+          </Section>
+        )}
+
         {/* 6 · evidence — reason-driven; an empty set is a designed state.
             The catalog row is the last group in that set when its layer is on
             (resolveCaseView's buildEvidence). The <Layer> is mounted
@@ -104,7 +133,8 @@ export default function CaseDetailScreen({ vm }) {
             jump link. It used to be a sub-group of that section; giving it
             its own heading and audio control puts it on equal footing with
             every other block the Pilot is asked to read, not just the one
-            money and evidence sit between. */}
+            money and evidence sit between. Last on the page because it is the
+            only block about the NEXT loss rather than this one. */}
         {v.education && (
           <div id="case-detail-education">
             <Section title={v.education.head} action={<AudioChip size="sm" />}>
@@ -113,18 +143,6 @@ export default function CaseDetailScreen({ vm }) {
               </ol>
             </Section>
           </div>
-        )}
-
-        {/* 8 · progress */}
-        {v.tracker && <StatusTracker title={v.tracker.title} steps={v.tracker.steps} />}
-
-        {/* 8b · the verdict — what the team decided, or what happened to the
-            money. After the timeline, as its own section: it is the last
-            step of that log said in full, not a footnote to "What happened". */}
-        {v.narrative && (
-          <Section title={v.narrative.head} action={<AudioChip size="sm" />}>
-            <div className="case-detail__prose">{v.narrative.value}</div>
-          </Section>
         )}
 
         {/* 9 · action — the EXPLANATION half, for the modes that still need
@@ -140,8 +158,17 @@ export default function CaseDetailScreen({ vm }) {
             all three of its facts — the figure (₹145), the countdown chip
             (3 days left) and the statement ("Not deducted yet.") — so a pill
             spelling them back out as a sentence was the same warning twice,
-            once at the top of the page and once at the bottom. */}
-        {v.action?.mode === 'add_side' && <AddYourSideCard vm={vm} />}
+            once at the top of the page and once at the bottom.
+
+            'add_side' has no block here either (design call, 22 Sep). A wrong
+            pickup used to carry an "Add your side (optional)" card with its
+            own textarea and its own greyed Submit — a SECOND way to say
+            something about the loss, sitting one scroll above the Dispute
+            button that opens a sheet asking the same question with the same
+            free-text field. Two inputs for one sentence is a choice the Pilot
+            has to make before they can write anything, and the one that
+            reaches the team is the sheet. So the page keeps one way in, the
+            same one every other loss type has: Dispute. */}
         {v.action?.mode === 'recovery' && <RecoveryActionCard action={v.action} />}
 
       </div>
@@ -200,12 +227,13 @@ function actionButtons(action, vm) {
     return [{ label: action.primaryLabel, variant: 'primary', onClick: vm.openReturnedClaim }]
   }
 
-  // 'add_side' puts its submit inside its own card (AddYourSideCard), next
-  // to the field it submits. A sticky bar holding a greyed "Submit" for an
-  // optional note on a case with no money at stake made an advisory page
-  // look like it was waiting on the Pilot (design call, 21 Sep). What the
-  // bar does carry is the pseudo dispute (WRONG_RVP's `actions`), in the
-  // same outlined rank as every other Dispute button.
+  // 'add_side' carries ONE control, and it is the pseudo dispute (WRONG_RVP's
+  // `actions`) in the same outlined rank as every other Dispute button. The
+  // page used to carry a second one — a "Submit" for an optional note, inside
+  // its own card next to the field — which made a wrong pickup the only loss
+  // type in the app with two ways to tell us something. The sheet behind
+  // Dispute has the same free-text field and actually reaches the team, so it
+  // is the one that stayed (design call, 22 Sep).
   if (action.mode === 'add_side') {
     return [action.canDispute && { label: 'Dispute', variant: 'secondary', onClick: vm.openDispute }]
   }

@@ -3,7 +3,7 @@ import ScreenHeader from '../common/ScreenHeader.jsx'
 import BasePayCard from './BasePayCard.jsx'
 import CollapsiblePdCard from './CollapsiblePdCard.jsx'
 import BottomActionBar from './BottomActionBar.jsx'
-import LostShipmentsModal from './LostShipmentsModal.jsx'
+import PaymentLineSheet from './PaymentLineSheet.jsx'
 import './PaymentDetailsScreen.css'
 
 /** Payment Details drill-down — Figma SOT_Valmo node 275:9263. */
@@ -39,7 +39,9 @@ export default function PaymentDetailsScreen({ vm }) {
 
       <BottomActionBar />
 
-      {vm.showLostShipmentsModal && <LostShipmentsModal vm={vm} />}
+      {/* The losses behind whichever breakdown line was tapped — every
+          loss-derived line has one now, not just "Lost Shipments". */}
+      {vm.paymentLineSheet && <PaymentLineSheet sheet={vm.paymentLineSheet} />}
     </div>
   )
 }

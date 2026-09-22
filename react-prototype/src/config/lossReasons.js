@@ -212,7 +212,7 @@ export const LOSS_REASONS = {
       { group: 'catalog', count: 1, source: 'catalog_images_link', title: 'Catalog photo', note: 'From the product listing' },
     ],
     explain: 'Pickup questions incorrectly answered.',
-    tip: 'Fill out the form carefully.',
+    tip: 'Answer the questions carefully.',
     // 'dispute' here is the PSEUDO dispute: the button and the sheet, without
     // the review — the case never leaves INFO_ONLY, the record is marked and
     // the page thanks the Pilot (useLossesApp submitSheet). No money is ever
@@ -226,8 +226,14 @@ export const LOSS_REASONS = {
       headline: 'Check the seller before pickup',
       habits: ['check seller name', 'match parcel', 'ask hub captain'],
       // The sheet's Tip. One sentence, so one step.
+      //
+      // "Answer the questions carefully", not "fill out the form": the page
+      // this advice sits on shows the Pilot those questions back to them
+      // ("Your answers that day" — resolveCaseView's buildAnswers), so the
+      // lesson names the same object the evidence does. "The form" is our
+      // word for the screen; the questions are what the Pilot answered.
       steps: [
-        'Fill out the form carefully.',
+        'Answer the questions carefully.',
       ],
     },
     paymentLine: null,

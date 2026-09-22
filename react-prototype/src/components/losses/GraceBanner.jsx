@@ -26,8 +26,15 @@ export default function GraceBanner({ grace }) {
           <ShieldCheckIcon size={24} stroke="currentColor" />
         </span>
         <span className="banner__text">
+          {/* THE WHOLE HEADLINE IS DEMI, exactly as the insight banner's is
+              (InsightBanner → `.banner__strong` around the entire habit
+              sentence). The two banners share one slot above the list and a
+              Pilot meets them in the same place on different days, so their
+              top line has to hold the same rank — it was Book with only "4
+              weeks" stepped up, which made the cover read a step quieter
+              than the education line it replaces. */}
           <span className="banner__headline">
-            Your first <span className="banner__strong">{grace.weeks} weeks</span> are covered
+            <span className="banner__strong">Your first {grace.weeks} weeks are covered</span>
           </span>
           <span className="banner__sub">
             Losses till <span className="banner__strong">{grace.endsOn}</span> are not deducted. From then, they come out of your payout.

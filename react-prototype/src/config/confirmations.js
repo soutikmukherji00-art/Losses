@@ -47,12 +47,10 @@ const CONFIRMATIONS = {
     headline: 'Check requested',
     byline: 'We will check the hub scan.',
   },
-  // Wrong pickup (info-only). Restates the one thing that matters about this
-  // whole category — it costs nothing.
-  addSide: {
-    headline: 'Your side is saved',
-    byline: 'No money is deducted for this.',
-  },
+  // `addSide` used to live here, for the wrong-pickup page's own note field.
+  // That field is gone (CaseDetailScreen, design call 22 Sep) — a wrong
+  // pickup says its side through the dispute sheet like every other loss
+  // type, and `pseudoDispute` above is the confirmation it gets.
 }
 
 /** How long the popup stays up. The whole reason its copy is kept short. */
